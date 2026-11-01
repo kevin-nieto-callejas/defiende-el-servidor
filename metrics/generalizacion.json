@@ -325,84 +325,84 @@
     },
     "qlearning": {
       "seco": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 1.54,
-        "recompensa_media": -45.37,
-        "progreso_pct": 20.4
+        "vueltas_pct": 54.0,
+        "tiempo_mediano_s": 80.2,
+        "tiempo_p90_s": 81.0,
+        "incidentes_ep": 0.91,
+        "recompensa_media": 87.23,
+        "progreso_pct": 79.3
       },
       "mojado": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 1.99,
-        "recompensa_media": -47.06,
-        "progreso_pct": 11.7
+        "vueltas_pct": 22.0,
+        "tiempo_mediano_s": 102.9,
+        "tiempo_p90_s": 103.7,
+        "incidentes_ep": 1.5,
+        "recompensa_media": 36.71,
+        "progreso_pct": 74.9
       },
       "llovizna": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 1.97,
-        "recompensa_media": -47.29,
-        "progreso_pct": 11.7
+        "vueltas_pct": 82.0,
+        "tiempo_mediano_s": 101.85,
+        "tiempo_p90_s": 102.9,
+        "incidentes_ep": 0.34,
+        "recompensa_media": 112.68,
+        "progreso_pct": 91.0
       },
       "casi_seco": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 1.97,
-        "recompensa_media": -46.84,
-        "progreso_pct": 12.2
+        "vueltas_pct": 82.0,
+        "tiempo_mediano_s": 102.2,
+        "tiempo_p90_s": 103.18,
+        "incidentes_ep": 0.34,
+        "recompensa_media": 111.21,
+        "progreso_pct": 89.5
       },
       "mas_agarre": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 1.55,
-        "recompensa_media": -46.62,
-        "progreso_pct": 18.8
+        "vueltas_pct": 50.0,
+        "tiempo_mediano_s": 79.85,
+        "tiempo_p90_s": 80.6,
+        "incidentes_ep": 0.99,
+        "recompensa_media": 77.7,
+        "progreso_pct": 74.3
       },
       "salida_torcida": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 1.52,
-        "recompensa_media": -46.78,
-        "progreso_pct": 19.8
+        "vueltas_pct": 34.0,
+        "tiempo_mediano_s": 80.55,
+        "tiempo_p90_s": 85.37,
+        "incidentes_ep": 1.23,
+        "recompensa_media": 21.42,
+        "progreso_pct": 41.7
       },
       "salida_torcida_lluvia": {
-        "vueltas_pct": 0.0,
-        "tiempo_mediano_s": null,
-        "tiempo_p90_s": null,
-        "incidentes_ep": 2.0,
-        "recompensa_media": -47.91,
-        "progreso_pct": 11.7
+        "vueltas_pct": 20.0,
+        "tiempo_mediano_s": 103.45,
+        "tiempo_p90_s": 106.9,
+        "incidentes_ep": 1.5,
+        "recompensa_media": 30.17,
+        "progreso_pct": 72.7
       },
       "sensores_ruido": {
         "vueltas_pct": 0.0,
         "tiempo_mediano_s": null,
         "tiempo_p90_s": null,
-        "incidentes_ep": 1.79,
-        "recompensa_media": -66.9,
-        "progreso_pct": 13.8
+        "incidentes_ep": 2.0,
+        "recompensa_media": -46.41,
+        "progreso_pct": 19.8
       },
       "sensores_ruido_lluvia": {
         "vueltas_pct": 0.0,
         "tiempo_mediano_s": null,
         "tiempo_p90_s": null,
         "incidentes_ep": 1.97,
-        "recompensa_media": -59.28,
-        "progreso_pct": 11.5
+        "recompensa_media": -51.33,
+        "progreso_pct": 14.1
       },
       "diluvio": {
         "vueltas_pct": 0.0,
         "tiempo_mediano_s": null,
         "tiempo_p90_s": null,
-        "incidentes_ep": 1.96,
-        "recompensa_media": -49.07,
-        "progreso_pct": 10.9
+        "incidentes_ep": 1.94,
+        "recompensa_media": -43.62,
+        "progreso_pct": 17.0
       }
     },
     "ppo": {
@@ -613,41 +613,41 @@
       "pruebas": {
         "llovizna": {
           "referencia": "mojado",
-          "caida_puntos": 0.0,
+          "caida_puntos": -60.0,
           "aguanta": true
         },
         "casi_seco": {
           "referencia": "mojado",
-          "caida_puntos": 0.0,
+          "caida_puntos": -60.0,
           "aguanta": true
         },
         "mas_agarre": {
           "referencia": "seco",
-          "caida_puntos": 0.0,
+          "caida_puntos": 4.0,
           "aguanta": true
         },
         "salida_torcida": {
           "referencia": "seco",
-          "caida_puntos": 0.0,
+          "caida_puntos": 20.0,
           "aguanta": true
         },
         "salida_torcida_lluvia": {
           "referencia": "mojado",
-          "caida_puntos": 0.0,
+          "caida_puntos": 2.0,
           "aguanta": true
         },
         "sensores_ruido": {
           "referencia": "seco",
-          "caida_puntos": 0.0,
-          "aguanta": true
+          "caida_puntos": 54.0,
+          "aguanta": false
         },
         "sensores_ruido_lluvia": {
           "referencia": "mojado",
-          "caida_puntos": 0.0,
-          "aguanta": true
+          "caida_puntos": 22.0,
+          "aguanta": false
         }
       },
-      "sobreajuste": false
+      "sobreajuste": true
     },
     "ppo": {
       "pruebas": {

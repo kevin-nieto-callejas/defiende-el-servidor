@@ -299,21 +299,21 @@ stages:
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: ac49a672e1efc52b74b7d9eb4ad198ff.dir
-      size: 28238
+      md5: 9ec8f384f9274a2c1ede8323c250a5a9.dir
+      size: 100453
       nfiles: 2
     - path: src/rally/agentes/discreto.py
       hash: md5
-      md5: da0ce249e664249f67397b173ce423f1
-      size: 1503
+      md5: 75aa6a82af096257ef82be5ab0bc6d8d
+      size: 2329
     - path: src/rally/agentes/ppo.py
       hash: md5
       md5: 1b7fe38fe068273fc59763495b4d8a68
       size: 14770
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 8d4a44e577e6f4f3e381bfe72041b776
-      size: 3321
+      md5: 63009fd747ac49bd73610e122d5db08a
+      size: 10887
     - path: src/rally/env.py
       hash: md5
       md5: 7aa733d8c59879b1a00534fc46360ddf
@@ -394,5 +394,5 @@ stages:
     outs:
     - path: metrics/generalizacion.json
       hash: md5
-      md5: 3aa47ee99e3aa1ec8573b6394e5d4840
-      size: 17711
+      md5: b863173d05c83e29841d5d6b3d3cc0da
+      size: 17733
