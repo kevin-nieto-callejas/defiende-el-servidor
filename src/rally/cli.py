@@ -327,6 +327,16 @@ def cmd_mlflow(args):
 
 # ------------------------------------------------------------------- main
 
+def cmd_test_final(args):
+    from rally.testfinal import correr
+
+    r = correr({"ppo": ("ppo", "models/ppo/modelo.zip"), "qlearning": ("qlearning", "models/qlearning/q_table.npz")},
+               args.repetir)
+    for nombre, cond in r["resultados"].items():
+        console.print(f"{nombre}: seco {cond['seco']['vueltas_pct']}% · lluvia {cond['mojado']['vueltas_pct']}%")
+    return 0
+
+
 def cmd_seleccionar(args):
     import json
 
@@ -409,6 +419,13 @@ def main(argv=None):
     sm.add_argument("tipo", choices=["ppo", "qlearning"])
     sm.add_argument("semillas", nargs="+", type=int)
     sm.set_defaults(fn=lambda args: (__import__("rally.semillas").semillas.correr(args.tipo, args.semillas), 0)[1])
+
+    tf = sub.add_parser("test-final", help="test reservado con los modelos elegidos (una sola vez)")
+    tf.add_argument("--repetir", action="store_true")
+    tf.set_defaults(fn=cmd_test_final)
+
+    re_ = sub.add_parser("replays", help="generar los datos estáticos de la web para cuando no hay API")
+    re_.set_defaults(fn=lambda args: (__import__("rally.replays").replays.generar(), 0)[1])
 
     ma = sub.add_parser("manifiesto", help="generar manifests/ desde las etiquetas de git")
     ma.set_defaults(fn=lambda args: (__import__("rally.manifiesto").manifiesto.generar(), 0)[1])

@@ -49,12 +49,13 @@ def _caso(args):
     return prueba["nombre"], out
 
 
-def evaluar(tipo, ruta):
+def evaluar(tipo, ruta, semillas=None):
+    semillas = SEMILLAS_EVAL if semillas is None else semillas
     p = params()
     amb, pe, pg = p["ambiente"], p["evaluacion"], p["generalizacion"]
     pruebas = [{"nombre": "seco", "ambiente": {"mu": pe["mu_seco"]}},
                {"nombre": "mojado", "ambiente": {"mu": pe["mu_mojado"]}}] + pg["pruebas"]
-    tareas = [(tipo, str(ruta), amb, pr, SEMILLAS_EVAL[i:i + 10]) for pr in pruebas for i in range(0, 100, 10)]
+    tareas = [(tipo, str(ruta), amb, pr, semillas[i:i + 10]) for pr in pruebas for i in range(0, len(semillas), 10)]
     filas = {}
     with ProcessPoolExecutor(max_workers=_nucleos()) as ex:
         for nombre, out in ex.map(_caso, tareas):

@@ -5,16 +5,16 @@ stages:
     deps:
     - path: src/rally/env.py
       hash: md5
-      md5: 7aa733d8c59879b1a00534fc46360ddf
-      size: 13564
+      md5: f6875de26cd77731571ad4fd817e69a6
+      size: 15049
     - path: src/rally/pipeline.py
       hash: md5
-      md5: aa514c27cd3c106c7d2499eff8fd453d
-      size: 17661
+      md5: 1a6f68e0615799ee63e4c85a203a42f9
+      size: 18215
     - path: src/rally/policies.py
       hash: md5
-      md5: 03cf55dcd1567b84059f3dd33506e718
-      size: 4324
+      md5: 74303d81c39f4a1f9c8065b89e349c53
+      size: 5012
     - path: src/rally/track.py
       hash: md5
       md5: 292b0621f3fc86bcbb1e90d5d1540fa4
@@ -36,12 +36,12 @@ stages:
     outs:
     - path: data/processed/demos.npz
       hash: md5
-      md5: 43946875055bdf02f1f46c621fd583b8
-      size: 1108428
+      md5: 32c9296b0532492ea8c1ac1138b9425b
+      size: 1155184
     - path: data/processed/escenarios.json
       hash: md5
-      md5: db09fa2d7df40971da0c3938024b87f1
-      size: 1125
+      md5: b77aed5e2fb153f9df51bf3ecef362f8
+      size: 1131
     - path: metrics/datos.json
       hash: md5
       md5: cdb854a5575060833df3a388d7066c21
@@ -51,24 +51,24 @@ stages:
     deps:
     - path: data/processed/demos.npz
       hash: md5
-      md5: 43946875055bdf02f1f46c621fd583b8
-      size: 1108428
+      md5: 32c9296b0532492ea8c1ac1138b9425b
+      size: 1155184
     - path: src/rally/agentes/discreto.py
       hash: md5
-      md5: 75aa6a82af096257ef82be5ab0bc6d8d
-      size: 2329
+      md5: 2463ee08967c3f23743cfd93c8e01f73
+      size: 3011
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 63009fd747ac49bd73610e122d5db08a
-      size: 10887
+      md5: 9d70ca6f0dfacc82e1a9de023a78131e
+      size: 11901
     - path: src/rally/env.py
       hash: md5
-      md5: 7aa733d8c59879b1a00534fc46360ddf
-      size: 13564
+      md5: f6875de26cd77731571ad4fd817e69a6
+      size: 15049
     - path: src/rally/pipeline.py
       hash: md5
-      md5: aa514c27cd3c106c7d2499eff8fd453d
-      size: 17661
+      md5: 1a6f68e0615799ee63e4c85a203a42f9
+      size: 18215
     - path: src/rally/track.py
       hash: md5
       md5: 292b0621f3fc86bcbb1e90d5d1540fa4
@@ -81,8 +81,11 @@ stages:
           a_max: 4.0
           r_max: 20.0
         qlearning:
-          dagger_iter: 30
-          dagger_episodios: 12
+          hipotesis: Si la tabla ve el margen de frenada a 100 m y el pedal se 
+            mide en m/s², completa más vueltas con lluvia y en los extremos de 
+            los deslizadores que la v6
+          dagger_iter: 40
+          dagger_episodios: 16
           episodios: 600
           q_inicial: 5.0
           eval_cada: 50
@@ -93,17 +96,24 @@ stages:
           mu_min: 0.75
           mu_max: 1.0
           prob_lluvia: 0.5
-          lluvia_min: 0.45
-          lluvia_max: 0.6
+          lluvia_min: 0.4
+          lluvia_max: 0.75
+          prob_base: 0.4
+          rangos:
+            track_width:
+            - 6.0
+            - 12.0
           maestro_mu_seco: 0.8
           maestro_mu_lluvia: 0.45
-          maestro_v_recta_lluvia: 16.0
+          maestro_traccion_seco: 0.8
+          maestro_traccion_lluvia: 0.7
+          maestro_v_recta_lluvia: 22.0
           semilla: 0
     outs:
     - path: models/qlearning
       hash: md5
-      md5: 9ec8f384f9274a2c1ede8323c250a5a9.dir
-      size: 100453
+      md5: c644dc24dec4a52764144c6e44c351ec.dir
+      size: 176166
       nfiles: 2
   ppo:
     cmd: rally pipeline ppo

@@ -16,4 +16,9 @@
 .acciones-cat button { margin-right: 4px; }
 .cat-pie { margin-top: 12px; }
 #cat-salida { margin-top: 10px; color: var(--tenue); font-size: 13px; }
+#aviso-replay {
+  position: fixed; z-index: 6; left: 50%; bottom: calc(var(--inf) + 8px); transform: translateX(-50%);
+  width: min(620px, calc(100vw - 32px)); margin: 0; padding: 4px 10px; text-align: center;
+  background: var(--panel); border-left: 3px solid var(--rojo); color: var(--tenue); font-size: 12px;
+}
 @media (max-width: 640px) { #catalogo { padding: 10px; font-size: 12px; } }

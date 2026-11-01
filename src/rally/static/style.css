@@ -48,6 +48,7 @@ html, body {
 #insignia-modo[data-modo="referencia"] { border-color: var(--cian); }
 #insignia-modo[data-modo="aleatorio"] { border-color: var(--morado); }
 #insignia-modo[data-modo="entrenamiento"] { border-color: var(--amarillo); }
+#insignia-modo[data-modo="replay"] { border-color: var(--rojo); }
 /* Sin esto, las acciones se montan sobre las cámaras en pantallas medianas */
 @media (max-width: 1500px) { .marca > div { display: none; } }
 
