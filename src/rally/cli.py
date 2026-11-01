@@ -378,6 +378,13 @@ def main(argv=None):
     si = sub.add_parser("sincronizar", help="copiar los experimentos de MLflow a DagsHub")
     si.set_defaults(fn=cmd_sincronizar)
 
+    ap = sub.add_parser("api", help="API de simulación para la web (FastAPI)")
+    ap.add_argument("--puerto", type=int, default=8000)
+    ap.set_defaults(fn=lambda args: (__import__("uvicorn").run("rally.api:app", host="0.0.0.0", port=args.puerto), 0)[1])
+
+    ma = sub.add_parser("manifiesto", help="generar manifests/ desde las etiquetas de git")
+    ma.set_defaults(fn=lambda args: (__import__("rally.manifiesto").manifiesto.generar(), 0)[1])
+
     ml = sub.add_parser("mlflow", help="abrir la interfaz de MLflow (experimentos y modelos)")
     ml.add_argument("--puerto", type=int, default=5001)
     ml.set_defaults(fn=cmd_mlflow)

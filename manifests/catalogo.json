@@ -1,0 +1,263 @@
+[
+  {
+    "nombre": "ppo-experimento-v3",
+    "tipo": "ppo",
+    "etiqueta_git": "experimento-v3",
+    "level_id": "N2",
+    "decision": "rechazado",
+    "hipotesis": "Practicar 50 % con lluvia e imitar vueltas perfectas: falló en ambos pisos",
+    "environment_version": "0.3-monaco-lluvia",
+    "git_commit": "aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+    "model_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 0.0,
+        "recompensa_media": -58.31,
+        "progreso_pct": 10.4
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 0.0,
+        "recompensa_media": -35.03,
+        "progreso_pct": 32.7
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-experimento-v3",
+    "tipo": "qlearning",
+    "etiqueta_git": "experimento-v3",
+    "level_id": "N2",
+    "decision": "rechazado",
+    "hipotesis": "Tabla entrenada junto a esta versión",
+    "environment_version": "0.3-monaco-lluvia",
+    "git_commit": "aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+    "model_sha256": "d9bba116a6f66ec630dfc4ed471b75e35e54f548108b290afc679e3b61badc25",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.54,
+        "recompensa_media": -45.0,
+        "progreso_pct": 21.7
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.93,
+        "recompensa_media": -47.03,
+        "progreso_pct": 11.7
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-qlearning-v6",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-qlearning-v6",
+    "level_id": "N2",
+    "decision": "aceptado",
+    "hipotesis": "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15",
+    "environment_version": "0.3-monaco-lluvia",
+    "git_commit": "8712e76afff177b55b286cbc4662501b69045654",
+    "model_sha256": "7fd9346e9f9c0bc9ff4869cb7ff3cbb6fc26333a2ac432af9092f46cd537c391",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 60.0,
+        "tiempo_mediano_s": 80.15,
+        "tiempo_p90_s": 81.1,
+        "incidentes_ep": 0.8,
+        "recompensa_media": 96.38,
+        "progreso_pct": 81.7
+      },
+      "mojado": {
+        "vueltas_pct": 15.0,
+        "tiempo_mediano_s": 102.2,
+        "tiempo_p90_s": 103.84,
+        "incidentes_ep": 1.64,
+        "recompensa_media": 29.45,
+        "progreso_pct": 75.0
+      }
+    }
+  },
+  {
+    "nombre": "ppo-modelo-v1",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v1",
+    "level_id": "N1",
+    "decision": "reemplazado",
+    "hipotesis": "Primer modelo: entrenado solo en seco",
+    "environment_version": "0.1-monaco",
+    "git_commit": "c59ef6d107767f0cf3260bde5d0c24eb564dfcfe",
+    "model_sha256": "2d84f5a42600380bad099af1d305556564c49c41ecc7dfee50326a5fa583504a",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 77.6,
+        "tiempo_p90_s": 77.8,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 164.81,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 2.0,
+        "recompensa_media": 10.61,
+        "progreso_pct": 57.6
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-v1",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-v1",
+    "level_id": "N1",
+    "decision": "rechazado",
+    "hipotesis": "Tabla entrenada junto a esta versión",
+    "environment_version": "0.1-monaco",
+    "git_commit": "c59ef6d107767f0cf3260bde5d0c24eb564dfcfe",
+    "model_sha256": "d3702ac55b6609fb334b5a62b99001c45b26e3642b0990443e873820fed9b93c",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.68,
+        "recompensa_media": -45.34,
+        "progreso_pct": 13.6
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.85,
+        "recompensa_media": -47.2,
+        "progreso_pct": 11.9
+      }
+    }
+  },
+  {
+    "nombre": "ppo-modelo-v2",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v2",
+    "level_id": "N1",
+    "decision": "reemplazado",
+    "hipotesis": "Un sensor de agarre debería ayudar con lluvia: no ayudó",
+    "environment_version": "0.2-monaco-agarre",
+    "git_commit": "f1f5ab437311ea365ba650adb20dcf9666f18573",
+    "model_sha256": "b0da00bc09c46b3c349d61e4c906a95347ef08931075949a44de720dfb701203",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 63.1,
+        "tiempo_p90_s": 67.8,
+        "incidentes_ep": 0.22,
+        "recompensa_media": 174.63,
+        "progreso_pct": 99.9
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 2.0,
+        "recompensa_media": -44.3,
+        "progreso_pct": 11.6
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-v2",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-v2",
+    "level_id": "N1",
+    "decision": "rechazado",
+    "hipotesis": "Tabla entrenada junto a esta versión",
+    "environment_version": "0.2-monaco-agarre",
+    "git_commit": "f1f5ab437311ea365ba650adb20dcf9666f18573",
+    "model_sha256": "d9bba116a6f66ec630dfc4ed471b75e35e54f548108b290afc679e3b61badc25",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.54,
+        "recompensa_media": -45.0,
+        "progreso_pct": 21.7
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.93,
+        "recompensa_media": -47.03,
+        "progreso_pct": 11.7
+      }
+    }
+  },
+  {
+    "nombre": "ppo-modelo-v4",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v4",
+    "level_id": "N2",
+    "decision": "aceptado",
+    "hipotesis": "DAgger corrige los estados a los que llega la red al equivocarse",
+    "environment_version": "0.3-monaco-lluvia",
+    "git_commit": "c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+    "model_sha256": "4c4c8dd6e5319c49fc4fd86b664ba5ac57b0e9ce59ffdb3f1ec0421a6546550c",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 75.6,
+        "tiempo_p90_s": 75.6,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 166.46,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 91.8,
+        "tiempo_p90_s": 91.91,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 157.54,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-v4",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-v4",
+    "level_id": "N2",
+    "decision": "rechazado",
+    "hipotesis": "Tabla entrenada junto a esta versión",
+    "environment_version": "0.3-monaco-lluvia",
+    "git_commit": "c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+    "model_sha256": "d9bba116a6f66ec630dfc4ed471b75e35e54f548108b290afc679e3b61badc25",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.54,
+        "recompensa_media": -45.0,
+        "progreso_pct": 21.7
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.93,
+        "recompensa_media": -47.03,
+        "progreso_pct": 11.7
+      }
+    }
+  }
+]

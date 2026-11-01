@@ -1,0 +1,56 @@
+{
+  "nombre": "qlearning-experimento-v3",
+  "tipo": "qlearning",
+  "etiqueta_git": "experimento-v3",
+  "run_id": "6e1009a21bfb4a3eaffe56b7df909c68",
+  "level_id": "N2",
+  "decision": "rechazado",
+  "hipotesis": "Tabla entrenada junto a esta versión",
+  "environment_version": "0.3-monaco-lluvia",
+  "ambiente_huella": null,
+  "git_commit": "aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "config_sha256": "541aad06850afa4a707cbed90177cb9ea449627a1c3f564bcbbdfea4dd31cca1",
+  "model_uri": "dvc://models/qlearning/q_table.npz@aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "model_md5_dvc": "fad668da7fbb744723ba99159abd9f0e",
+  "model_sha256": "d9bba116a6f66ec630dfc4ed471b75e35e54f548108b290afc679e3b61badc25",
+  "mlflow_modelo": "rally-qlearning",
+  "mlflow_version": 4,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero",
+  "presupuesto": {
+    "episodios": 1500,
+    "segundos": 205.4
+  },
+  "contrato": {
+    "observaciones": 20,
+    "orden": "ver src/rally/env.py en aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 1.54,
+      "recompensa_media": -45.0,
+      "progreso_pct": 21.7
+    },
+    "mojado": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 1.93,
+      "recompensa_media": -47.03,
+      "progreso_pct": 11.7
+    }
+  }
+}

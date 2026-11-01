@@ -1,0 +1,16 @@
+# Criterios para promover o rechazar un candidato. Se fijaron el 2026-11-01, ANTES de ver
+# los resultados de la familia 0.4: no se ajustan para que un modelo pase.
+ppo:
+  seco_min_pct: 98          # vueltas en seco con la suite de la ficha (100 semillas)
+  mojado_min_pct: 98        # vueltas con lluvia
+  tiempo_seco_max_s: 81.3   # base (experto, 77.4 s) + 5 %: criterio de la ficha
+  extremos_min_pct: 85      # promedio de vueltas en las pruebas de generalización
+  prueba_min_pct: 50        # ninguna prueba calificada puede caer por debajo
+  perdida_max_puntos: 2     # frente al recomendado actual, en seco y en lluvia
+qlearning:
+  seco_min_pct: 70
+  mojado_min_pct: 50
+  tiempo_seco_max_s: 90.0
+  extremos_min_pct: 40
+  prueba_min_pct: 0
+  perdida_max_puntos: 2

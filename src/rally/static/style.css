@@ -37,6 +37,20 @@ html, body {
   clip-path: polygon(0 0, calc(100% - var(--corte)) 0, 100% var(--corte), 100% 100%, var(--corte) 100%, 0 calc(100% - var(--corte)));
 }
 
+/* Modo de lo que se ve: evaluación, referencia, aleatorio o entrenamiento */
+#insignia-modo {
+  position: fixed; z-index: 5; top: calc(var(--sup) + 6px); left: 50%; transform: translateX(-50%);
+  max-width: 320px; padding: 2px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  border-left: 3px solid var(--verde); background: var(--panel);
+  font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+#insignia-modo:empty { display: none; }
+#insignia-modo[data-modo="referencia"] { border-color: var(--cian); }
+#insignia-modo[data-modo="aleatorio"] { border-color: var(--morado); }
+#insignia-modo[data-modo="entrenamiento"] { border-color: var(--amarillo); }
+/* Sin esto, las acciones se montan sobre las cámaras en pantallas medianas */
+@media (max-width: 1500px) { .marca > div { display: none; } }
+
 /* ---------- Botones y campos ---------- */
 button {
   font: inherit; font-weight: 700; color: var(--texto); cursor: pointer; border: 0; padding: 7px 14px;

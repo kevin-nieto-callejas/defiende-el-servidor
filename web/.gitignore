@@ -1,0 +1,7 @@
+node_modules/
+dist/
+# Lo genera scripts/preparar.mjs desde src/rally/static/index.html
+index.html
+.env
+.env.local
+.vercel

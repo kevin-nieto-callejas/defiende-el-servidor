@@ -1,0 +1,19 @@
+#catalogo {
+  position: fixed; z-index: 50; top: calc(var(--sup) + 12px); left: 50%; transform: translateX(-50%);
+  width: min(980px, calc(100vw - 32px)); max-height: calc(100vh - var(--sup) - 32px); overflow: auto;
+  padding: 14px 18px; background: #0b0d12; border: 1px solid var(--linea);
+}
+#catalogo header { display: flex; justify-content: space-between; align-items: center; }
+#catalogo h2 { margin: 0; font-size: 18px; text-transform: uppercase; }
+#cat-estado { margin: 6px 0 12px; color: var(--tenue); font-size: 12px; }
+#cat-estado a { color: var(--cian); }
+#catalogo table { width: 100%; border-collapse: collapse; font-size: 13px; }
+#catalogo th { padding: 6px; text-align: left; color: var(--tenue); font-size: 11px; text-transform: uppercase; }
+#catalogo td { padding: 6px; border-top: 1px solid var(--linea); vertical-align: top; }
+#catalogo small { color: var(--tenue); }
+#catalogo tr.recomendada td { background: rgba(46, 229, 157, .08); }
+.acciones-cat { white-space: nowrap; }
+.acciones-cat button { margin-right: 4px; }
+.cat-pie { margin-top: 12px; }
+#cat-salida { margin-top: 10px; color: var(--tenue); font-size: 13px; }
+@media (max-width: 640px) { #catalogo { padding: 10px; font-size: 12px; } }

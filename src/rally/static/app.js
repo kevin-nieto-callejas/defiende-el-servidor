@@ -15,6 +15,7 @@ import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js";
 
 const $ = (id) => document.getElementById(id);
+const API = globalThis.RALLY_API ?? "";  // vacío en el visor local; la URL de la API en Vercel
 const P = (x, y, h = 0) => new THREE.Vector3(x, h, -y);
 const lerp = (a, b, t) => a + (b - a) * t;
 const lerpAng = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
@@ -876,7 +877,18 @@ async function cargarEpisodio() {
   $("resultado").classList.add("oculto");
   const q = new URLSearchParams({ piloto, semilla });
   for (const { k } of PARAMS) q.set(k, valorParam(k));
-  const r = await fetch(`/api/episodio?${q}`);
+  let r;
+  try {
+    r = await fetch(`${API}/api/episodio?${q}`);
+  } catch {
+    $("cargando-txt").textContent = "Error: no hay conexión con la API de simulación";
+    return;
+  }
+  if (!r.ok) {  // un error del servicio se muestra como error, nunca como un episodio
+    const e = await r.json().catch(() => ({}));
+    $("cargando-txt").textContent = `Error del servicio: ${e.detail ?? r.status}`;
+    return;
+  }
   const nuevo = await r.json();
   experimentos.push({ ...nuevo, episodio: nuevo });
   // Si mientras tanto se entró al modo en vivo y ya se ve un episodio del entrenamiento,
@@ -894,6 +906,12 @@ function mostrarEpisodio(nuevo) {
   mu = ep.params.mu ?? pista.rangos.mu.base;
   if (ep.params.ancho !== anchoConstruido) construirPista(ep.params.ancho);
   $("t-experimento").textContent = ep.vivo ? `ENTRENAMIENTO · EPISODIO #${ep.id}` : `EXPERIMENTO #${ep.id}`;
+  const modo = ep.vivo ? "entrenamiento" : ep.modo ?? "evaluacion";
+  $("insignia-modo").textContent = `${modo} · ${ep.modelo ?? ep.piloto ?? "piloto"}`;
+  $("insignia-modo").dataset.modo = modo;
+  $("insignia-modo").title = ep.ambiente_del_modelo
+    ? `Ambiente del modelo: ${ep.ambiente_del_modelo} · servido: ${ep.ambiente_servido}${ep.adaptador ? " (con adaptador validado)" : ""}`
+    : "";
   pintarExperimentos();
   aplicarClima();
   construirEstela();
@@ -1113,7 +1131,7 @@ function pintarManejando(c) {
 
 async function sondearVivo() {
   try {
-    const c = await (await fetch("/api/vivo/curva")).json();
+    const c = await (await fetch(`${API}/api/vivo/curva`)).json();
     if (!modoVivo) return;  // se salió del modo en vivo mientras se esperaba la respuesta
     if (!c.episodios || !c.episodios.length) { estadoVivo(null); return; }
     estadoVivo(c);
@@ -1122,7 +1140,7 @@ async function sondearVivo() {
     const fin = ep ? (ep.frames.length - 1) * pista.dt : 0;
     const libre = !ep || !ep.vivo || !reproduciendo || tiempo >= fin - 0.05;
     if (ult.episodio > vivoUltimo && libre) {
-      const e = await (await fetch("/api/vivo/episodio")).json();
+      const e = await (await fetch(`${API}/api/vivo/episodio`)).json();
       if (e.frames && modoVivo) { vivoUltimo = e.id; e.vivo = true; mostrarEpisodio(e); }
     }
   } catch (err) { /* el entrenamiento puede estar escribiendo; se reintenta */ }
@@ -1287,7 +1305,7 @@ function conectar() {
 }
 
 // ------------------------------------------------------------------ inicio
-pista = await (await fetch("/api/pista")).json();
+pista = await (await fetch(`${API}/api/pista`)).json();
 {
   const [MX, MY] = pista.mapa;
   // Cámara de sombras de 120 m que sigue al carro (más detalle que cubrir todo el mapa)

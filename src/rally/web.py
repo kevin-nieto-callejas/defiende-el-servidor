@@ -98,10 +98,10 @@ def datos_pista():
     }
 
 
-def correr_episodio(piloto="experto", semilla=0, **params):
+def correr_episodio(piloto="experto", semilla=0, politica=None, **params):
     params = leer_parametros(params)
     env = AutonomousRallyEnv(**{CAMPO_CFG[k]: v for k, v in params.items()})
-    pol = policies.crear(piloto, semilla)
+    pol = politica or policies.crear(piloto, semilla)
     obs, info = env.reset(seed=semilla)
     total = 0.0
     frames = []
@@ -128,6 +128,7 @@ def correr_episodio(piloto="experto", semilla=0, **params):
         done = term or trunc
     return {
         "piloto": piloto, "semilla": semilla, "params": params,
+        "modo": "evaluacion" if piloto in policies.MODELOS else "aleatorio" if piloto == "aleatoria" else "referencia",
         "resultado": info["outcome"], "tiempo": _r(info["t"], 2), "recompensa": _r(total, 2),
         "salidas": info["off_track_events"],
         "progreso": _r(max(info["s_best"], 0) / track.LAP * 100, 1),

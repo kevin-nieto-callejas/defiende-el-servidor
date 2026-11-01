@@ -1,0 +1,57 @@
+{
+  "nombre": "ppo-experimento-v3",
+  "tipo": "ppo",
+  "etiqueta_git": "experimento-v3",
+  "run_id": "229fa9e278624f38b85e573e00c70042",
+  "level_id": "N2",
+  "decision": "rechazado",
+  "hipotesis": "Practicar 50 % con lluvia e imitar vueltas perfectas: falló en ambos pisos",
+  "environment_version": "0.3-monaco-lluvia",
+  "ambiente_huella": "61fa0dd41b7c",
+  "git_commit": "aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "config_sha256": "541aad06850afa4a707cbed90177cb9ea449627a1c3f564bcbbdfea4dd31cca1",
+  "model_uri": "dvc://models/ppo/modelo.zip@aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "model_md5_dvc": "a5a882a5ed5592099990e5982a52d575",
+  "model_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
+  "mlflow_modelo": "rally-ppo",
+  "mlflow_version": 3,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero",
+  "presupuesto": {
+    "pasos": 3000000,
+    "episodios": 2104,
+    "segundos": 948.7
+  },
+  "contrato": {
+    "observaciones": 20,
+    "orden": "ver src/rally/env.py en aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 0.0,
+      "recompensa_media": -58.31,
+      "progreso_pct": 10.4
+    },
+    "mojado": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 0.0,
+      "recompensa_media": -35.03,
+      "progreso_pct": 32.7
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "autonomous-rally-web",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "preparar": "node scripts/preparar.mjs",
+    "dev": "npm run preparar && vite",
+    "build": "npm run preparar && tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.170.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.5"
+  }
+}
