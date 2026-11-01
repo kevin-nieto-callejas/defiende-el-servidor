@@ -1,154 +1,119 @@
-# Defiende el servidor
+# Autonomous Rally
 
-Detección de tráfico de ataque en conexiones de red con **UNSW-NB15**, construida como un ciclo de MLOps
-reproducible: datos versionados con DVC, experimentos registrados en MLflow, pipeline orquestado con
-Prefect y código en Git.
+Proyecto final de MLOps, Universidad Externado de Colombia (2026-II). Un agente de aprendizaje por refuerzo
+completa un circuito inspirado en Mónaco pasando los checkpoints en orden, con seco, lluvia y perturbaciones.
+Todo experimento se puede consultar, reproducir y restaurar.
 
-Curso MLOps, Universidad Externado de Colombia (2026-II).
+| Entrega | Dónde |
+|---|---|
+| Ficha del ambiente y niveles | [docs/ambiente-v0.1.md](docs/ambiente-v0.1.md) |
+| Experimentos (MLflow) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
+| Datos y modelos (DVC) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
+| Modelo publicado | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
+| Manifiestos de cada versión | [manifests/](manifests/) |
+| Criterios de selección | [configs/seleccion.yaml](configs/seleccion.yaml) |
 
-## Pregunta central
-
-¿Puede otra persona comprender y reproducir nuestra solución con la evidencia que entregamos?
-
-## Objetivo
-
-1. **Principal:** clasificación binaria, tráfico normal (`label = 0`) contra ataque (`label = 1`).
-2. **Ampliación:** reconocer la familia del ataque (`attack_cat`).
-
-## Estado
-
-Repositorio en construcción. Plan de trabajo:
-
-- [ ] Obtener UNSW-NB15 desde la fuente oficial de UNSW y documentar versión, checksums y condiciones de uso.
-- [ ] Exploración: clases, ausentes, duplicados, significado del `id` y variables que filtran la respuesta.
-- [ ] Particiones fijas de entrenamiento, validación y test, sin duplicados cruzados.
-- [ ] Referencia sencilla y al menos cuatro configuraciones con hipótesis previa (dos tipos de modelo).
-- [ ] Selección de modelo y umbral con validación; evaluación única en test.
-- [ ] Pipeline en Prefect: preparación, entrenamiento, comparación y registro.
-- [ ] Modelo completo (preprocesamiento incluido) versionado y cargable para predecir.
-- [ ] Decisión final y limitaciones del dataset.
-
-## Estructura (prevista)
+## Arquitectura
 
 ```
-data/          datos crudos y procesados (controlados por DVC, no por Git)
-src/defiende/  código del proyecto
-flows/         pipeline de Prefect
-docs/          dataset, experimentos y decisión final
-tests/         pruebas
+Git + DVC ──► Entrenamiento en PC (dvc repro, orquestado por Prefect)
+                 │
+                 ├─ MLflow: runs, métricas, registro de modelos
+                 └─ manifests/: pesos, SHA-256, contrato, ambiente, resultados
+                          │
+                          ▼
+Vercel (web/: Vite, TypeScript, three.js) ──HTTPS──► API (FastAPI): simula con el mismo Python del entrenamiento
 ```
 
-## Atribución del dataset
+Python es la autoridad del mundo: el navegador solo dibuja lo que la API simula. La velocidad de animación
+no cambia las reglas. Cada respuesta dice qué modelo, ambiente y modo la produjo.
 
-UNSW-NB15 fue creado por el Cyber Range Lab de UNSW Canberra. Si se usa, se deben citar:
+```
+src/rally/      ambiente, pista, pilotos, agentes, pipeline, API y selección
+src/rally/static/  visor 3D (lo comparten `rally web` y la web de Vercel)
+web/            aplicación Vite + TypeScript: catálogo, evaluación y comparación
+pipelines/      flujo de Prefect
+manifests/      identidad de cada modelo y catálogo
+configs/        criterios fijados de selección
+deploy/api/     contenedor de la API
+tests/          reglas, trampas, agentes, API y selección
+```
 
-- Moustafa, N. y Slay, J. (2015). UNSW-NB15: a comprehensive data set for network intrusion detection
-  systems (UNSW-NB15 network data set). *Military Communications and Information Systems Conference (MilCIS)*.
-- Moustafa, N. y Slay, J. (2016). The evaluation of Network Anomaly Detection Systems: Statistical analysis
-  of the UNSW-NB15 data set and the comparison with the KDD99 data set. *Information Security Journal:
-  A Global Perspective*, 25(1-3), 18-31.
+## Instalación
 
-Fuente: https://research.unsw.edu.au/projects/unsw-nb15-dataset
-
-## Ambiente Autonomous Rally (aprendizaje por refuerzo)
-
-Diseño en [docs/ambiente-v0.1.md](docs/ambiente-v0.1.md). Implementación en `src/rally/` como ambiente
-Gymnasium `AutonomousRally-v0`.
-
-Circuito urbano inspirado en Mónaco: 1 049 m, 18 curvas (horquilla de Fairmont de 9.5 m), muros a ambos
-lados, 6 checkpoints y meta. La versión anterior (pista rectangular) está en el tag `ambiente-v0.1`.
-
-### Instalación
+Probado con Python 3.14 en WSL Ubuntu y Node 22.
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate              # Windows: .venv\Scripts\activate
-pip install torch --index-url https://download.pytorch.org/whl/cpu   # PyTorch sin CUDA (~200 MB)
-pip install -e ".[dev,ml]"
-pytest                                  # 18 pruebas: ficha, física y trampas de recompensa
+.venv/bin/pip install -r requirements.txt     # incluye PyTorch CPU
+.venv/bin/pip install -e .
+.venv/bin/pytest
+cp .env.example .env                          # solo para publicar; ver variables abajo
+dvc pull                                      # datos y modelos (repo público: no pide token)
 ```
 
-### MLOps: entrenar y versionar todo
-
-| Qué | Herramienta | Dónde |
+| Variable | Dónde | Para qué |
 |---|---|---|
-| Código, ficha, parámetros, pipeline | Git | `src/`, `docs/`, `params.yaml`, `dvc.yaml`, `dvc.lock` |
-| Dataset de demostraciones y escenarios de evaluación | DVC | `data/processed/` |
-| Modelos entrenados (archivos) | DVC | `models/qlearning/`, `models/ppo/` |
-| Experimentos: parámetros, métricas, curvas, commit, dataset | MLflow | `mlflow.db` + `mlruns/` (locales) |
-| Registro de modelos con versiones y alias `champion` / `challenger` | MLflow Model Registry | `rally-qlearning`, `rally-ppo` |
-| Métricas del pipeline | DVC metrics | `metrics/*.json` |
-| Publicación del modelo | Hugging Face Hub | `rally publicar --repo usuario/nombre` |
+| `HF_TOKEN` | `.env` | Publicar en Hugging Face |
+| `DAGSHUB_TOKEN` | `.env` | Copiar MLflow a DagsHub |
+| `VITE_API_BASE_URL` | Vercel | URL HTTPS de la API (pública) |
+| `RALLY_ORIGENES` | API | Orígenes permitidos por CORS |
+| `RALLY_MODELOS` | API | Carpeta de pesos por SHA-256 |
+
+## Ejecutar
 
 ```bash
-dvc repro                       # corre todo: datos → qlearning / ppo → evaluar → registrar
-RALLY_VIVO=1 dvc repro          # lo mismo, transmitiendo el entrenamiento al visor 3D
-dvc dag                         # grafo del pipeline
-dvc metrics show                # métricas de la última corrida
-dvc params diff                 # qué parámetros cambiaron
-dvc push                        # sube datos y modelos al almacenamiento DVC
-rally mlflow                    # interfaz de MLflow en http://localhost:5001
+rally api                      # API en http://127.0.0.1:8000
+cd web && npm ci && npm run dev   # web en http://localhost:5173
+rally web                      # visor local con entrenamiento en vivo, http://localhost:8765
 ```
 
-Para un experimento nuevo: cambia un valor en `params.yaml`, corre `dvc repro` (solo rehace las etapas
-afectadas), compara en MLflow y haz commit de `params.yaml` + `dvc.lock`. Así cada versión del modelo
-queda ligada al código, los datos y los parámetros exactos que la produjeron.
-
-**Agentes:** Q-learning con tabla (15 acciones discretas) y PPO con red neuronal (128×128), preentrenado
-por imitación con el dataset y entrenado con adherencia aleatoria para aguantar la lluvia.
-
-**DagsHub (para todo el equipo):** los experimentos de MLflow y los datos y modelos de DVC están en
-https://dagshub.com/kevin-nieto-callejas/autonomous-rally (público).
-
-- Ver experimentos y modelos: pestaña **Experiments** del repo en DagsHub, o
-  https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow
-- Bajar datos y modelos: `dvc pull` (el remoto por defecto es DagsHub). Para leer un repo público no
-  hace falta token; para subir, configura tus credenciales una vez:
-  `dvc remote modify --local dagshub user TU_USUARIO` y `dvc remote modify --local dagshub password TU_TOKEN`.
-- El entrenamiento registra en el MLflow local (funciona sin internet). Después de `dvc repro`, quien
-  tenga `DAGSHUB_TOKEN` en `.env` corre `rally sincronizar` (copia solo lo nuevo) y `dvc push`.
-
-**Hugging Face:** crea un archivo `.env` (ya está en `.gitignore`) con `HF_TOKEN=hf_...` y corre
-`rally publicar --repo usuario/autonomous-rally-ppo` (privado por defecto; `--publico` para abrirlo).
-
-### Ver y evaluar en la terminal
+## Reproducir
 
 ```bash
-rally ver                          # una vuelta en vivo (piloto experto, piso seco)
-rally ver --lluvia                 # incidente: asfalto mojado (μ = 0.5)
-rally ver --piloto prudente --lluvia
-rally ver --piloto aleatoria       # sin estrategia: no completa la vuelta
-rally ver --velocidad 2            # el doble de rápido
-rally evaluar                      # métricas de la ficha, seco vs mojado, y veredicto
-rally transiciones                 # las 5 transiciones de la ficha contra el ambiente
-rally mapa                         # la pista
+dvc repro                      # datos → qlearning / ppo → evaluar → registrar → generalizacion
+dvc metrics show
+rally manifiesto               # regenera manifests/ desde las etiquetas de git
+rally semillas ppo 1 2         # contraste de finalistas con otras semillas
 ```
 
-Los pilotos `experto` y `prudente` son líneas base que leen el estado interno del simulador; no son el
-agente. Para que el mapa se vea grande, maximiza la terminal.
-
-### Visor 3D (three.js)
+Pipeline completo con Prefect, en un entorno aparte para no tocar el del entrenamiento:
 
 ```bash
-rally web                          # abre http://localhost:8765
+python3 -m venv ~/.venvs/rally-flujo && ~/.venvs/rally-flujo/bin/pip install prefect pyyaml
+~/.venvs/rally-flujo/bin/python pipelines/flujo.py --candidato ppo-modelo-v5 --tipo ppo
+~/.venvs/rally-flujo/bin/python pipelines/flujo.py --rollback "motivo"
 ```
 
-En VS Code: `Ctrl+Shift+P` → **Simple Browser: Show** → `http://localhost:8765`. El servidor corre los
-episodios con el ambiente de Python y el navegador solo los dibuja (física ≠ decoración). Cámaras con las
-teclas 1-5, espacio para pausar, R para reiniciar, H para ocultar paneles y flechas para adelantar.
+Valida el perfil, corre las pruebas, entrena, registra, aplica los criterios, promueve, publica el catálogo y
+comprueba la versión que la API realmente sirve. Registrar un candidato no lo promueve.
 
-- **Experimentos:** deslizantes con los 4 parámetros de la ficha, botón 🎲 Aleatorio y registro de corridas.
-- **Pilotos:** experto, prudente, aleatoria y, cuando están entrenados, `qlearning` y `ppo`.
-- **● Ver entrenamiento en vivo:** con `RALLY_VIVO=1 dvc repro` corriendo, muestra cada episodio del
-  entrenamiento y la curva de aprendizaje (pestaña Aprendizaje): se ve al modelo mejorar.
+Para recuperar un modelo antiguo: `git checkout <etiqueta> && dvc checkout`, o cárgalo desde el catálogo. Los de
+familias anteriores corren con un adaptador; `runs/validar_historicos.py` comparó sus resultados con los guardados.
 
-### Uso desde Python
+## Modelos
 
-```python
-import gymnasium as gym
-import rally
+Son dos agentes: **Q-learning** con tabla y **PPO** con red neuronal. Experto, prudente, maestro y aleatoria
+son pilotos de referencia.
 
-env = gym.make("AutonomousRally-v0")          # o AutonomousRally-v0 con mu=0.5 para lluvia
-obs, info = env.reset(seed=0)
-obs, recompensa, terminado, truncado, info = env.step([1.0, 0.0])  # [acelerador, dirección]
+| Versión | Hipótesis | Resultado | Decisión |
+|---|---|---|---|
+| `modelo-v1` | Primer modelo en seco | Seco 100 %, lluvia 0 % | Reemplazado |
+| `modelo-v2` | Un sensor de agarre ayuda con lluvia | Seco 100 %, lluvia 0 % | Reemplazado |
+| `experimento-v3` | Practicar con lluvia e imitar | 0 % en ambos | Rechazado |
+| `modelo-v4` | DAgger corrige los errores | 100 % / 100 %, pero falla en extremos | Aceptado |
+| `modelo-qlearning-v6` | Imitación tabular | 60 % / 15 % | Aceptado |
+
+Los detalles, las pruebas de extremos y los límites están en la ficha. Limitación principal: hay un solo circuito.
+
+## Publicar
+
+```bash
+.venv/bin/python deploy/api/empaquetar.py ../rally-space   # carpeta para el Space, con pesos verificados
 ```
+
+En Vercel: Root Directory `web`, Build `npm run build`, Output `dist`, y la variable `VITE_API_BASE_URL`.
+
+## Antecedente
+
+Este repositorio empezó con otro proyecto, conservado en [docs/defiende-el-servidor.md](docs/defiende-el-servidor.md).

@@ -6,6 +6,10 @@ const nm = (ruta: string) => fileURLToPath(new URL(`./node_modules/three/${ruta}
 // El visor vive en src/rally/static (lo usa también `rally web`): aquí no se duplica.
 // Como está fuera de web/, three se resuelve a mano desde web/node_modules.
 export default defineConfig({
+  define: {
+    // Vercel entrega el commit del despliegue: la web dice qué versión es
+    "import.meta.env.VITE_COMMIT": JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.VITE_COMMIT ?? ""),
+  },
   resolve: {
     alias: [
       { find: /^three$/, replacement: nm("build/three.module.js") },

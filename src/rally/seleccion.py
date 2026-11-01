@@ -48,6 +48,12 @@ def decidir(nombre, tipo, evaluacion, generalizacion, actual=None):
                         "peor_prueba": {peor: pruebas[peor]["vueltas_pct"]}}}
 
 
+def evaluar_candidato(nombre, tipo):
+    actual = _leer(RECOMENDADO)
+    veredicto = decidir(nombre, tipo, _leer("metrics/evaluacion.json"), _leer("metrics/generalizacion.json"), actual)
+    return {**veredicto, "tipo": tipo}
+
+
 def promover(nombre, motivo, resultados=None):
     historial = _leer(HISTORIAL, [])
     entrada = {"modelo": nombre, "motivo": motivo, "resultados": resultados,

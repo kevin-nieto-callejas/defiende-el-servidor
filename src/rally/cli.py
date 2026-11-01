@@ -327,6 +327,22 @@ def cmd_mlflow(args):
 
 # ------------------------------------------------------------------- main
 
+def cmd_seleccionar(args):
+    import json
+
+    from rally import seleccion
+
+    if args.rollback:
+        print(json.dumps(seleccion.volver(args.rollback), ensure_ascii=False))
+        return 0
+    v = seleccion.evaluar_candidato(args.candidato, args.tipo)
+    if args.promover and v["aceptado"]:
+        seleccion.promover(args.candidato, "cumple configs/seleccion.yaml",
+                           {"seco": {"vueltas_pct": v["valores"]["seco"]}, "mojado": {"vueltas_pct": v["valores"]["mojado"]}})
+    print(json.dumps(v, ensure_ascii=False))
+    return 0
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="rally", description="Autonomous Rally en la terminal.")
     sub = p.add_subparsers(dest="cmd")
@@ -381,6 +397,18 @@ def main(argv=None):
     ap = sub.add_parser("api", help="API de simulación para la web (FastAPI)")
     ap.add_argument("--puerto", type=int, default=8000)
     ap.set_defaults(fn=lambda args: (__import__("uvicorn").run("rally.api:app", host="0.0.0.0", port=args.puerto), 0)[1])
+
+    se = sub.add_parser("seleccionar", help="aplicar los criterios fijados a un candidato, o hacer rollback")
+    se.add_argument("candidato", nargs="?")
+    se.add_argument("--tipo", default="ppo", choices=["ppo", "qlearning"])
+    se.add_argument("--promover", action="store_true", help="si cumple, pasa a ser el recomendado")
+    se.add_argument("--rollback", metavar="MOTIVO", help="volver a la recomendación anterior")
+    se.set_defaults(fn=cmd_seleccionar)
+
+    sm = sub.add_parser("semillas", help="entrenar y evaluar a un finalista con otras semillas")
+    sm.add_argument("tipo", choices=["ppo", "qlearning"])
+    sm.add_argument("semillas", nargs="+", type=int)
+    sm.set_defaults(fn=lambda args: (__import__("rally.semillas").semillas.correr(args.tipo, args.semillas), 0)[1])
 
     ma = sub.add_parser("manifiesto", help="generar manifests/ desde las etiquetas de git")
     ma.set_defaults(fn=lambda args: (__import__("rally.manifiesto").manifiesto.generar(), 0)[1])

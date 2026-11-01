@@ -1,6 +1,6 @@
 # Ambiente v0.1 — Autonomous Rally · Circuito Mónaco
 
-> Equipo: _______ · Versión del ambiente **0.3** (circuito Mónaco + sensores de agarre y lluvia) · 29 oct 2026
+> Equipo: _______ · Versión del ambiente **0.4** (circuito Mónaco, 24 observaciones, configuración visible para el agente) · 1 nov 2026
 > Mapa: [mapa-ambiente-v0.1.svg](mapa-ambiente-v0.1.svg), generado desde el código con `rally mapa --svg`.
 > Ficha original del curso: [ficha-autonomous-rally.png](ficha-autonomous-rally.png)
 
@@ -11,7 +11,20 @@
 | Pista rectangular | Pista de 239 m, 3 checkpoints | etiqueta `ambiente-v0.1` |
 | 0.1-monaco | Circuito de Mónaco, muros, notas del copiloto (16 observaciones). Modelo entrenado: `modelo-v1` | etiqueta `modelo-v1` |
 | 0.2 | Sensor de agarre (19 observaciones); correcciones de una revisión de código: estancarse cuesta −50, la puerta cruzada pisando el escape cuenta al volver, círculo de fricción con la velocidad nueva, contorno del carro cada 0.5 m. Modelo entrenado: `modelo-v2` | etiqueta `modelo-v2` |
-| **0.3** | Sensor de lluvia (20 observaciones) y entrenamiento con lluvia en la mitad de los episodios (μ entre 0.45 y 0.6) | esta ficha |
+| 0.3 | Sensor de lluvia (20 observaciones) y entrenamiento con lluvia en la mitad de los episodios (μ entre 0.45 y 0.6). Modelo: `modelo-v4` | etiqueta `modelo-v4` |
+| **0.4** | Nueva familia de modelos (24 observaciones): el agente conoce ancho, aceleración y alcance, recibe una nota de frenada a 100 m y los rayos tienen escala fija. Los modelos anteriores corren con un adaptador validado | esta ficha |
+
+## Niveles de dificultad
+
+| Nivel | Qué decide el agente | Condiciones | Cómo se mide | Modelos |
+|---|---|---|---|---|
+| **N1 · Misión base** | Trazar y dosificar la velocidad para no salirse | Mónaco en seco, parámetros base | Vueltas y tiempo, 100 semillas | `modelo-v1`, `modelo-v2` |
+| **N2 · Más decisiones** | Elegir cómo manejar según el clima, sin ver μ | Seco y lluvia (μ 0.45–0.6) | Mismo protocolo en los dos pisos | `experimento-v3`, `modelo-v4`, `modelo-qlearning-v6` |
+| **N3 · Operación exigente** | Adaptarse a su carro y a perturbaciones | μ 0.4–1, ancho 6–12 m, a_max 2–6, sensores 10–40 m y ruido | Prueba de generalización por condición | Familia 0.4 |
+
+Los gráficos no agregan dificultad: lo que cambia entre niveles son reglas, condiciones y lo que el
+agente debe decidir. Los niveles anteriores siguen disponibles porque cada modelo conserva su ambiente
+compatible, según su manifiesto en `manifests/`.
 
 ## Mision y mapa
 
@@ -77,12 +90,12 @@ automáticas lo verifican, junto con que dos tramos no vecinos nunca queden a me
 
 | Parámetro | Símbolo | Unidad | Base | Rango | Justificación | ¿Lo ve el agente? |
 |---|---|---|---|---|---|---|
-| Ancho de pista | w | m | 8 | [6, 12] | El carro mide 1.8 m. Mónaco es angosto: con 6 m quedan 2 m por lado | Indirectamente (rayos) |
+| Ancho de pista | w | m | 8 | [6, 12] | El carro mide 1.8 m. Mónaco es angosto: con 6 m quedan 2 m por lado | Sí (v0.4) |
 | Adherencia del asfalto | μ | coeficiente | 0.9 | [0.4, 1.0] | 0.9 ≈ asfalto seco y 0.5 ≈ mojado | No |
 | Adherencia del escape | μ_e | coeficiente | 0.35 | fija | Fuera del asfalto se agarra mucho menos | No |
-| Aceleración máxima | a_max | m/s² | 4 | [2, 6] | 0→100 km/h en ~7 s | No |
+| Aceleración máxima | a_max | m/s² | 4 | [2, 6] | 0→100 km/h en ~7 s | Sí (v0.4) |
 | Frenado máximo | b_max | m/s² | 8 | fijo | Frenada fuerte en seco | No |
-| Alcance de sensores | r_max | m | 20 | [10, 40] | Para frenar de 20 a 9 m/s antes de la horquilla hacen falta ~20 m | Indirectamente (rayos) |
+| Alcance de sensores | r_max | m | 20 | [10, 40] | Para frenar de 20 a 9 m/s antes de la horquilla hacen falta ~20 m | Sí (v0.4) |
 | Velocidad máxima | v_max | m/s | 25 | fija | 90 km/h | No |
 | Dirección máxima | δ_max | ° | 30 | fija | Ángulo típico de las ruedas delanteras | No |
 | Paso de tiempo | dt | s | 0.1 | fijo | 10 Hz | No |
@@ -109,7 +122,7 @@ automáticas lo verifican, junto con que dos tramos no vecinos nunca queden a me
 
 ## Observaciones y acciones
 
-### Observación (vector de 20 valores normalizados)
+### Observación (vector de 24 valores normalizados)
 
 | # | Componente | Cálculo | Rango |
 |---|---|---|---|
@@ -118,12 +131,25 @@ automáticas lo verifican, junto con que dos tramos no vecinos nunca queden a me
 | 2–3 | Dirección al siguiente checkpoint | sin φ, cos φ (φ = ángulo entre el rumbo y la puerta) | [−1, 1] |
 | 4 | Desvío del centro | clip(d / (w/2), −2, 2) | [−2, 2] |
 | 5 | Error de rumbo respecto a la pista | e_ψ / π | [−1, 1] |
-| 6–12 | 7 rayos a −90°, −60°, −30°, 0°, +30°, +60° y +90° | distancia al borde de pista o al muro / r_max | [0, 1] |
+| 6–12 | 7 rayos a −90°, −60°, −30°, 0°, +30°, +60° y +90° | distancia al borde de pista o al muro / 40 m (hasta v0.3: / r_max) | [0, 1] |
 | 13–15 | **Notas del copiloto** | curvatura de la pista a 10, 25 y 50 m adelante × 9.5 m (+ izquierda, − derecha) | [−1, 1] |
 | 16 | **Uso de agarre** | aceleración de las llantas / (μ·g), recortado a 1 | [0, 1] |
 | 17 | **Derrape** | 1 si las llantas están en su límite en este paso | {0, 1} |
 | 18 | **Agarre estimado** | menor μ medido en el episodio / 1.2 | [0, 1] |
 | 19 | **Lluvia** | 1 si el asfalto está mojado (μ < 0.75), como el sensor de lluvia del parabrisas | {0, 1} |
+| 20 | **Ancho de pista** | w / 12 | [0, 1] |
+| 21 | **Aceleración máxima** | a_max / 6 | [0, 1] |
+| 22 | **Alcance de sensores** | r_max / 40 | [0, 1] |
+| 23 | **Velocidad segura** | velocidad para llegar bien a lo que viene en 100 m, supone μ 0.8 en seco y 0.45 con lluvia / v_max | [0, 1] |
+
+**Configuración visible (v0.4):** medir el PPO v4 en toda la zona de los deslizadores mostró que chocaba
+al cambiar el alcance: como los rayos se dividían por r_max, la misma lectura significaba otra distancia.
+Tampoco conocía su ancho ni su aceleración. Ahora los rayos tienen escala fija y el agente conoce su carro.
+Son datos que cualquier piloto tiene. **μ sigue sin verse:** ese es el reto del incidente.
+
+**Velocidad segura (v0.4):** la tabla de Q-learning veía 50 m, y frenar con lluvia desde 22 m/s pide
+unos 72 m. Esta nota resume los siguientes 100 m en un número. Al comparar velocidad y nota, la tabla
+sabe si le sobra velocidad, sin multiplicar sus estados.
 
 **Notas del copiloto:** en el rally real el copiloto le lee al piloto las curvas que vienen ("derecha
 cerrada en 50"). Sin ellas, con rayos de 20 m, el agente no puede saber a tiempo que viene la horquilla.
@@ -149,7 +175,11 @@ ese rango. Además, la mitad de los episodios de entrenamiento son con lluvia (`
 | u_acel | [−1, 1] | Valores positivos aceleran (u·a_max); valores negativos frenan (u·b_max). No hay reversa: v ≥ 0 |
 | u_dir | [−1, 1] | Ángulo de ruedas δ = u_dir · δ_max (+ = izquierda) |
 
-Para Q-learning con tabla, las acciones se vuelven discretas: 3 de pedal × 5 de dirección = 15 acciones.
+Para Q-learning con tabla, las acciones se vuelven discretas: 6 de pedal × 9 de dirección = 54 acciones.
+El estado se agrupa en 117 600 celdas (desvío, error de rumbo, velocidad, curvatura a 10 y 25 m, lluvia y
+margen de frenada). **Pérdida de resolución:** la tabla no distingue situaciones dentro de una misma celda
+ni acciones intermedias. Por eso maneja con menos precisión que la red, y esa diferencia se reporta. En la
+tabla, el pedal significa m/s² y no un porcentaje: así sirve con cualquier a_max.
 
 ## Dinamica
 
@@ -163,6 +193,8 @@ En cada paso (dt = 0.1 s), el simulador aplica estas reglas en orden:
    la aceleración de las llantas no puede pasar μ·g. Si la curva pide más aceleración lateral de la
    disponible, el carro **subvira** (gira menos de lo ordenado y se abre). Si las llantas llegan a su
    límite, se marca derrape y se actualiza el agarre estimado.
+   **Consecuencia importante:** si el pedal pide todo el agarre, no queda nada para girar. Por eso los
+   pilotos de μ baja necesitan control de tracción (ver "Metricas e incidente").
 5. Integra la bicicleta cinemática: ψ, x, y.
 6. Proyecta la posición sobre la línea central (KD-tree sobre muestras cada 0.25 m) para obtener s y d.
    Un salto de s mayor que lo que se puede recorrer en un paso se ignora: es una proyección sobre otro
@@ -228,8 +260,29 @@ modelo nunca se evalúa en los mismos arranques con los que entrenó.
 
 Lectura: en seco la v2 es mucho más rápida que la v1 y que el piloto experto. Con lluvia empeoró:
 el modelo aprendió a ir más agresivo y el sensor de agarre no bastó para que frene antes. El
-protocolo de la ficha no acepta la v2 (no mejora en mojado). Próximo experimento sugerido: entrenar
-con más episodios de lluvia (rango de μ sesgado a 0.5) o penalizar más los choques.
+protocolo de la ficha no acepta la v2 (no mejora en mojado).
+
+**Resultados del experimento v3** (`experimento-v3`, ambiente 0.3): rechazado, 0 % en seco y en lluvia.
+Practicar con lluvia e imitar vueltas perfectas no bastó: al primer error la red llegaba a estados que
+nunca había visto y chocaba en Sainte Dévote.
+
+**Resultados del modelo v4** (`modelo-v4`, DAgger con piloto maestro + PPO 2 millones de pasos):
+
+| Piloto | Seco: vueltas | Seco: tiempo | Mojado: vueltas | Mojado: tiempo |
+|---|---|---|---|---|
+| PPO v4 | 100 % | 75.6 s | 100 % | 91.8 s |
+| Q-learning v6 (`modelo-qlearning-v6`) | 60 % | 80.15 s | 15 % | 102.2 s |
+
+**Lo que la evaluación oficial no mostraba:** ese 100 % solo valía cerca de los parámetros base. Con
+20 semillas por condición, el PPO v4 dio 0 % con ancho 12, 0 % con sensores de 10, 15 y 40 m, 0 % con
+ancho 6 y lluvia, y 85 % con μ 0.75. Por eso la evaluación ahora incluye esos extremos y define el nivel N3.
+
+**Hallazgo de física:** se creía que con μ 0.4 ningún piloto podía completar la vuelta. No era por la
+velocidad: el pedal pedía todo el agarre y no quedaba para girar. Con control de tracción, el piloto de
+reglas completa 6 de 6 vueltas incluso con μ 0.4. Es lo que ahora aprenden ambos agentes.
+
+**Limitación:** hay un solo circuito. Los modelos no están probados en otra pista: lo que se mide es
+robustez ante cambios de condiciones, no capacidad de manejar en un trazado desconocido.
 
 | # | Métrica | Definición |
 |---|---|---|
@@ -284,7 +337,11 @@ Recompensa = 0.1·2.002 + 10 (CP1) − 0.05 = **+10.150**.
 1. **"Fuera de pista": ¿centro del carro o carrocería completa?** Hoy se usa el centro.
 2. **¿El agente debe ver el tiempo restante?** Sin él, el truncamiento no es markoviano.
 3. **Pesos de r_suave:** son tentativos; si el agente se vuelve tímido hay que bajarlos.
-4. **Ruido en los rayos** como segunda perturbación.
-5. **¿El sensor de agarre es "trampa"?** El agente no ve μ, pero sí una medición que en un carro real
-   da el control de tracción. Hay que comparar en MLflow la v1 (sin sensor) con la v2 (con sensor).
-6. **Más vueltas o pistas aleatorias** para evitar que el agente memorice el circuito.
+4. **¿El sensor de agarre es "trampa"?** El agente no ve μ, pero sí una medición que en un carro real
+   da el control de tracción.
+5. **Más vueltas o pistas aleatorias** para evitar que el agente memorice el circuito: sigue pendiente y
+   es el límite principal de los resultados.
+6. **¿La velocidad segura es demasiada ayuda?** Es información del mapa, como las notas del copiloto, pero
+   ya viene procesada. Hay que comparar qué tanto depende el agente de ella.
+
+Decisión ya resuelta: el ruido en los sensores entró como perturbación del nivel N3 (v0.4).
