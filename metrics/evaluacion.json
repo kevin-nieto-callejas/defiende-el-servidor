@@ -44,51 +44,51 @@
         "tiempo_mediano_s": 80.8,
         "tiempo_p90_s": 80.8,
         "incidentes_ep": 0.0,
-        "recompensa_media": 167.73,
+        "recompensa_media": 168.18,
         "progreso_pct": 100.0
       },
       "mojado": {
         "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 101.2,
-        "tiempo_p90_s": 101.2,
+        "tiempo_mediano_s": 103.8,
+        "tiempo_p90_s": 103.8,
         "incidentes_ep": 0.0,
-        "recompensa_media": 156.44,
+        "recompensa_media": 157.42,
         "progreso_pct": 100.0
       }
     },
     "qlearning": {
       "seco": {
-        "vueltas_pct": 60.0,
-        "tiempo_mediano_s": 80.15,
-        "tiempo_p90_s": 81.1,
-        "incidentes_ep": 0.8,
-        "recompensa_media": 96.38,
-        "progreso_pct": 81.7
+        "vueltas_pct": 87.0,
+        "tiempo_mediano_s": 81.3,
+        "tiempo_p90_s": 81.5,
+        "incidentes_ep": 0.25,
+        "recompensa_media": 138.11,
+        "progreso_pct": 92.2
       },
       "mojado": {
-        "vueltas_pct": 15.0,
-        "tiempo_mediano_s": 102.2,
-        "tiempo_p90_s": 103.84,
-        "incidentes_ep": 1.64,
-        "recompensa_media": 29.45,
-        "progreso_pct": 75.0
+        "vueltas_pct": 81.0,
+        "tiempo_mediano_s": 107.7,
+        "tiempo_p90_s": 108.2,
+        "incidentes_ep": 0.36,
+        "recompensa_media": 117.12,
+        "progreso_pct": 91.8
       }
     },
     "ppo": {
       "seco": {
         "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 75.6,
-        "tiempo_p90_s": 75.6,
+        "tiempo_mediano_s": 75.9,
+        "tiempo_p90_s": 76.0,
         "incidentes_ep": 0.0,
-        "recompensa_media": 166.46,
+        "recompensa_media": 165.33,
         "progreso_pct": 100.0
       },
       "mojado": {
         "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 91.8,
-        "tiempo_p90_s": 91.91,
+        "tiempo_mediano_s": 92.0,
+        "tiempo_p90_s": 92.4,
         "incidentes_ep": 0.0,
-        "recompensa_media": 157.54,
+        "recompensa_media": 157.46,
         "progreso_pct": 100.0
       }
     }
@@ -118,7 +118,7 @@
         "no_pierde_vueltas_en_seco": false,
         "tiempo_seco_maximo_5pct": true
       },
-      "tiempo_seco_cambio_pct": 3.6,
+      "tiempo_seco_cambio_pct": 5.0,
       "aceptado": false
     },
     "ppo": {
@@ -127,7 +127,7 @@
         "no_pierde_vueltas_en_seco": true,
         "tiempo_seco_maximo_5pct": true
       },
-      "tiempo_seco_cambio_pct": -2.3,
+      "tiempo_seco_cambio_pct": -1.9,
       "aceptado": true
     }
   }

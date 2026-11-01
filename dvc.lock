@@ -120,24 +120,24 @@ stages:
     deps:
     - path: data/processed/demos.npz
       hash: md5
-      md5: 43946875055bdf02f1f46c621fd583b8
-      size: 1108428
+      md5: 32c9296b0532492ea8c1ac1138b9425b
+      size: 1155184
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: 1b7fe38fe068273fc59763495b4d8a68
-      size: 14770
+      md5: b903423ce6237910ff26104c908f622e
+      size: 16164
     - path: src/rally/env.py
       hash: md5
-      md5: 7aa733d8c59879b1a00534fc46360ddf
-      size: 13564
+      md5: f6875de26cd77731571ad4fd817e69a6
+      size: 15049
     - path: src/rally/pipeline.py
       hash: md5
-      md5: aa514c27cd3c106c7d2499eff8fd453d
-      size: 17661
+      md5: 1a6f68e0615799ee63e4c85a203a42f9
+      size: 18215
     - path: src/rally/policies.py
       hash: md5
-      md5: 03cf55dcd1567b84059f3dd33506e718
-      size: 4324
+      md5: 74303d81c39f4a1f9c8065b89e349c53
+      size: 5012
     - path: src/rally/track.py
       hash: md5
       md5: 292b0621f3fc86bcbb1e90d5d1540fa4
@@ -153,7 +153,10 @@ stages:
         evaluacion.mu_seco: 0.9
         evaluacion.semilla_eval_rapida: 10000
         ppo:
-          pasos: 2000000
+          hipotesis: Si la red conoce la configuración del carro y practica 
+            todos los deslizadores con ruido, completa los extremos sin perder 
+            más de 5 % de tiempo frente a la v4
+          pasos: 3000000
           n_envs: 12
           learning_rate: 0.0001
           n_steps: 1024
@@ -161,70 +164,84 @@ stages:
           gamma: 0.995
           ent_coef: 0.0
           capas:
-          - 128
-          - 128
+          - 256
+          - 256
           log_std_init: -1.6
           bc_epocas: 40
-          dagger_iter: 10
-          dagger_episodios: 12
+          dagger_iter: 20
+          dagger_episodios: 16
           dagger_epocas: 15
           maestro_mu_seco: 0.8
           maestro_mu_lluvia: 0.45
+          maestro_traccion_seco: 0.8
+          maestro_traccion_lluvia: 0.7
           dominio_aleatorio: true
           mu_min: 0.75
           mu_max: 1.0
           prob_lluvia: 0.5
-          lluvia_min: 0.45
-          lluvia_max: 0.6
-          eval_cada: 100000
+          lluvia_min: 0.4
+          lluvia_max: 0.75
+          prob_base: 0.3
+          rangos:
+            track_width:
+            - 6.0
+            - 12.0
+            a_max:
+            - 2.0
+            - 6.0
+            r_max:
+            - 10.0
+            - 40.0
+          ruido_sensores: 0.04
+          eval_cada: 200000
           semilla: 0
     outs:
     - path: models/ppo
       hash: md5
-      md5: 661d2214a9d8d63bd0a8bdcb0622516f.dir
-      size: 497318
+      md5: 17fa333e42e58e621fb506ecda6c5afc.dir
+      size: 1774271
       nfiles: 2
   evaluar:
     cmd: rally pipeline evaluar
     deps:
     - path: data/processed/escenarios.json
       hash: md5
-      md5: db09fa2d7df40971da0c3938024b87f1
-      size: 1125
+      md5: b77aed5e2fb153f9df51bf3ecef362f8
+      size: 1131
     - path: models/ppo
       hash: md5
-      md5: 661d2214a9d8d63bd0a8bdcb0622516f.dir
-      size: 497318
+      md5: 17fa333e42e58e621fb506ecda6c5afc.dir
+      size: 1774271
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: 9ec8f384f9274a2c1ede8323c250a5a9.dir
-      size: 100453
+      md5: c644dc24dec4a52764144c6e44c351ec.dir
+      size: 176166
       nfiles: 2
     - path: src/rally/agentes/discreto.py
       hash: md5
-      md5: 75aa6a82af096257ef82be5ab0bc6d8d
-      size: 2329
+      md5: 2463ee08967c3f23743cfd93c8e01f73
+      size: 3011
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: 1b7fe38fe068273fc59763495b4d8a68
-      size: 14770
+      md5: b903423ce6237910ff26104c908f622e
+      size: 16164
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 63009fd747ac49bd73610e122d5db08a
-      size: 10887
+      md5: 9d70ca6f0dfacc82e1a9de023a78131e
+      size: 11901
     - path: src/rally/env.py
       hash: md5
-      md5: 7aa733d8c59879b1a00534fc46360ddf
-      size: 13564
+      md5: f6875de26cd77731571ad4fd817e69a6
+      size: 15049
     - path: src/rally/pipeline.py
       hash: md5
-      md5: aa514c27cd3c106c7d2499eff8fd453d
-      size: 17661
+      md5: 1a6f68e0615799ee63e4c85a203a42f9
+      size: 18215
     - path: src/rally/policies.py
       hash: md5
-      md5: 03cf55dcd1567b84059f3dd33506e718
-      size: 4324
+      md5: 74303d81c39f4a1f9c8065b89e349c53
+      size: 5012
     - path: src/rally/track.py
       hash: md5
       md5: 292b0621f3fc86bcbb1e90d5d1540fa4
@@ -252,24 +269,24 @@ stages:
     outs:
     - path: metrics/evaluacion.json
       hash: md5
-      md5: ed127c683f8d2a983280182b392cd9a4
+      md5: b64f68436523dd2f6d973f2e8c585647
       size: 3303
   registrar:
     cmd: rally pipeline registrar
     deps:
     - path: metrics/evaluacion.json
       hash: md5
-      md5: ed127c683f8d2a983280182b392cd9a4
+      md5: b64f68436523dd2f6d973f2e8c585647
       size: 3303
     - path: models/ppo
       hash: md5
-      md5: 661d2214a9d8d63bd0a8bdcb0622516f.dir
-      size: 497318
+      md5: 17fa333e42e58e621fb506ecda6c5afc.dir
+      size: 1774271
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: 9ec8f384f9274a2c1ede8323c250a5a9.dir
-      size: 100453
+      md5: c644dc24dec4a52764144c6e44c351ec.dir
+      size: 176166
       nfiles: 2
     - path: src/rally/agentes/seguimiento.py
       hash: md5
@@ -277,8 +294,8 @@ stages:
       size: 1519
     - path: src/rally/pipeline.py
       hash: md5
-      md5: aa514c27cd3c106c7d2499eff8fd453d
-      size: 17661
+      md5: 1a6f68e0615799ee63e4c85a203a42f9
+      size: 18215
     params:
       params.yaml:
         evaluacion:
@@ -297,49 +314,49 @@ stages:
     outs:
     - path: metrics/registro.json
       hash: md5
-      md5: fd643f58c1f2c3d333f93689d7394f73
-      size: 298
+      md5: afedebabf1681f3913e5d27a84f39570
+      size: 299
   generalizacion:
     cmd: rally pipeline generalizacion
     deps:
     - path: models/ppo
       hash: md5
-      md5: 661d2214a9d8d63bd0a8bdcb0622516f.dir
-      size: 497318
+      md5: 17fa333e42e58e621fb506ecda6c5afc.dir
+      size: 1774271
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: 9ec8f384f9274a2c1ede8323c250a5a9.dir
-      size: 100453
+      md5: c644dc24dec4a52764144c6e44c351ec.dir
+      size: 176166
       nfiles: 2
     - path: src/rally/agentes/discreto.py
       hash: md5
-      md5: 75aa6a82af096257ef82be5ab0bc6d8d
-      size: 2329
+      md5: 2463ee08967c3f23743cfd93c8e01f73
+      size: 3011
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: 1b7fe38fe068273fc59763495b4d8a68
-      size: 14770
+      md5: b903423ce6237910ff26104c908f622e
+      size: 16164
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 63009fd747ac49bd73610e122d5db08a
-      size: 10887
+      md5: 9d70ca6f0dfacc82e1a9de023a78131e
+      size: 11901
     - path: src/rally/env.py
       hash: md5
-      md5: 7aa733d8c59879b1a00534fc46360ddf
-      size: 13564
+      md5: f6875de26cd77731571ad4fd817e69a6
+      size: 15049
     - path: src/rally/generalizacion.py
       hash: md5
       md5: 447ede339f9804c3a24cef188276d8d4
       size: 4630
     - path: src/rally/pipeline.py
       hash: md5
-      md5: aa514c27cd3c106c7d2499eff8fd453d
-      size: 17661
+      md5: 1a6f68e0615799ee63e4c85a203a42f9
+      size: 18215
     - path: src/rally/policies.py
       hash: md5
-      md5: 03cf55dcd1567b84059f3dd33506e718
-      size: 4324
+      md5: 74303d81c39f4a1f9c8065b89e349c53
+      size: 5012
     - path: src/rally/track.py
       hash: md5
       md5: 292b0621f3fc86bcbb1e90d5d1540fa4
@@ -401,8 +418,63 @@ stages:
           - nombre: diluvio
             ambiente:
               mu: 0.4
+            referencia: mojado
+          - nombre: limite_lluvia
+            ambiente:
+              mu: 0.75
+            referencia: seco
+          - nombre: pista_angosta
+            ambiente:
+              mu: 0.9
+              track_width: 6.0
+            referencia: seco
+          - nombre: pista_angosta_lluvia
+            ambiente:
+              mu: 0.5
+              track_width: 6.0
+            referencia: mojado
+          - nombre: pista_ancha
+            ambiente:
+              mu: 0.9
+              track_width: 12.0
+            referencia: seco
+          - nombre: pista_ancha_lluvia
+            ambiente:
+              mu: 0.5
+              track_width: 12.0
+            referencia: mojado
+          - nombre: sensores_cortos
+            ambiente:
+              mu: 0.9
+              r_max: 10.0
+            referencia: seco
+          - nombre: sensores_cortos_lluvia
+            ambiente:
+              mu: 0.5
+              r_max: 10.0
+            referencia: mojado
+          - nombre: sensores_largos
+            ambiente:
+              mu: 0.9
+              r_max: 40.0
+            referencia: seco
+          - nombre: sensores_largos_lluvia
+            ambiente:
+              mu: 0.5
+              r_max: 40.0
+            referencia: mojado
+          - nombre: carro_lento
+            ambiente:
+              mu: 0.9
+              a_max: 2.0
+            referencia: seco
+          - nombre: carro_rapido_lluvia
+            ambiente:
+              mu: 0.5
+              a_max: 6.0
+            referencia: mojado
     outs:
     - path: metrics/generalizacion.json
       hash: md5
-      md5: b863173d05c83e29841d5d6b3d3cc0da
-      size: 17733
+      md5: 76478a2e49692585ff29514f02f6d6b4
+      size: 39943

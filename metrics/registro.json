@@ -1,14 +1,14 @@
 {
   "qlearning": {
     "modelo": "rally-qlearning",
-    "version": "6",
+    "version": "7",
     "alias": "champion",
-    "puntaje": 75.0,
+    "puntaje": 168.0,
     "protocolo_aceptado": false
   },
   "ppo": {
     "modelo": "rally-ppo",
-    "version": "4",
+    "version": "5",
     "alias": "challenger",
     "puntaje": 200.0,
     "protocolo_aceptado": true
