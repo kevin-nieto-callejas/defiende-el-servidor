@@ -1,0 +1,25 @@
+{
+  "etapa": "seleccionar",
+  "fecha": "2026-11-01T17:45:14-0500",
+  "candidato": "ppo-modelo-v5",
+  "aceptado": true,
+  "criterios": {
+    "seco": true,
+    "mojado": true,
+    "tiempo_seco": true,
+    "extremos": true,
+    "peor_prueba": true,
+    "no_pierde_seco": true,
+    "no_pierde_mojado": true
+  },
+  "valores": {
+    "seco": 100.0,
+    "mojado": 100.0,
+    "tiempo_seco_s": 75.9,
+    "extremos_pct": 99.1,
+    "peor_prueba": {
+      "diluvio": 82.0
+    }
+  },
+  "tipo": "ppo"
+}

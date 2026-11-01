@@ -46,6 +46,15 @@ def test_rollback_restaura_la_anterior_y_lo_deja_en_el_historial(tmp_path, monke
     assert [h["modelo"] for h in json.loads((tmp_path / "h.json").read_text())] == ["v4", "v5", "v4"]
 
 
+def test_promover_dos_veces_no_duplica_el_historial(tmp_path, monkeypatch):
+    monkeypatch.setattr(seleccion, "RECOMENDADO", tmp_path / "r.json")
+    monkeypatch.setattr(seleccion, "HISTORIAL", tmp_path / "h.json")
+    seleccion.promover("v4", "gana")
+    seleccion.promover("v5", "gana")
+    seleccion.promover("v5", "pipeline repetido")
+    assert len(json.loads((tmp_path / "h.json").read_text())) == 2
+
+
 def test_rollback_sin_anterior_falla(tmp_path, monkeypatch):
     monkeypatch.setattr(seleccion, "RECOMENDADO", tmp_path / "r.json")
     monkeypatch.setattr(seleccion, "HISTORIAL", tmp_path / "h.json")

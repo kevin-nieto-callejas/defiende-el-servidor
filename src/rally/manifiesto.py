@@ -29,7 +29,9 @@ VERSIONES = {
     "modelo-v2": ("N1", "reemplazado", "Un sensor de agarre debería ayudar con lluvia: no ayudó"),
     "experimento-v3": ("N2", "rechazado", "Practicar 50 % con lluvia e imitar vueltas perfectas: falló en ambos pisos"),
     "modelo-v4": ("N2", "aceptado", "DAgger corrige los estados a los que llega la red al equivocarse"),
-    "modelo-qlearning-v6": ("N2", "aceptado", "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15"),
+    "modelo-qlearning-v6": ("N2", "reemplazado", "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15"),
+    "modelo-v5": ("N3", "aceptado", None),
+    "modelo-qlearning-v7": ("N3", "aceptado", None),
 }
 
 
@@ -71,6 +73,8 @@ def manifiesto(rev, tipo):
         ev = None
     nivel, decision, hipotesis = VERSIONES.get(rev, (None, None, None))
     if tipo == "qlearning" and "qlearning" not in rev:   # esas etiquetas hablan del PPO
+        if rev == "modelo-v5":
+            raise KeyError("la tabla de esta versión tiene su propia etiqueta")
         decision, hipotesis = "rechazado", "Tabla entrenada junto a esta versión"
     p = params.get(tipo, {})
     return {

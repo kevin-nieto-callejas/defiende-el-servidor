@@ -6,6 +6,7 @@ Todo experimento se puede consultar, reproducir y restaurar.
 
 | Entrega | Dónde |
 |---|---|
+| Web publicada | https://autonomous-rally.vercel.app (modo replay hasta publicar la API) |
 | Ficha del ambiente y niveles | [docs/ambiente-v0.1.md](docs/ambiente-v0.1.md) |
 | Experimentos (MLflow) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
 | Datos y modelos (DVC) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
@@ -102,9 +103,15 @@ son pilotos de referencia.
 | `modelo-v2` | Un sensor de agarre ayuda con lluvia | Seco 100 %, lluvia 0 % | Reemplazado |
 | `experimento-v3` | Practicar con lluvia e imitar | 0 % en ambos | Rechazado |
 | `modelo-v4` | DAgger corrige los errores | 100 % / 100 %, pero falla en extremos | Aceptado |
-| `modelo-qlearning-v6` | Imitación tabular | 60 % / 15 % | Aceptado |
+| `modelo-qlearning-v6` | Imitación tabular | 60 % / 15 % | Reemplazado |
+| **`modelo-v5`** | Conocer el carro y practicar todos los deslizadores con ruido | **100 % / 100 %**, 75.9 s y 92.0 s; 99.1 % en extremos | **Recomendado** |
+| `modelo-qlearning-v7` | Ver el margen de frenada y medir el pedal en m/s² | 87 % / 81 %; 64.8 % en extremos | Aceptado |
 
-Los detalles, las pruebas de extremos y los límites están en la ficha. Limitación principal: hay un solo circuito.
+Resultados: seco / lluvia con 100 vueltas por condición. Los detalles, las pruebas de extremos y los límites
+están en la ficha. Limitación principal: hay un solo circuito.
+
+La evidencia del flujo de Prefect y del rollback de v5 a v4 y de vuelta está en
+[docs/evidencia/flujo/](docs/evidencia/flujo/) y [manifests/historial.json](manifests/historial.json).
 
 ## Publicar
 

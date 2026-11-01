@@ -1,0 +1,54 @@
+[
+  {
+    "modelo": "ppo-modelo-v4",
+    "motivo": "línea base aceptada antes de la familia 0.4",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0
+      }
+    },
+    "fecha": "2026-11-01T17:44:37-0500"
+  },
+  {
+    "modelo": "ppo-modelo-v5",
+    "motivo": "cumple configs/seleccion.yaml",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0
+      }
+    },
+    "fecha": "2026-11-01T17:44:37-0500"
+  },
+  {
+    "modelo": "ppo-modelo-v4",
+    "motivo": "rollback: Prueba de rollback de la entrega",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0
+      }
+    },
+    "fecha": "2026-11-01T17:45:26-0500"
+  },
+  {
+    "modelo": "ppo-modelo-v5",
+    "motivo": "rollback: Fin de la prueba: se restaura v5",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0
+      }
+    },
+    "fecha": "2026-11-01T17:45:30-0500"
+  }
+]

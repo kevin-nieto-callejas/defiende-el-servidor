@@ -1,0 +1,182 @@
+[
+ {
+  "nombre": "ppo-experimento-v3",
+  "mu": 0.9,
+  "medido_pct": 0.0,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "ppo-experimento-v3",
+  "mu": 0.5,
+  "medido_pct": 0.0,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "qlearning-experimento-v3",
+  "mu": 0.9,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "qlearning-experimento-v3",
+  "mu": 0.5,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "qlearning-modelo-qlearning-v6",
+  "mu": 0.9,
+  "medido_pct": 40.0,
+  "tiempo": 80.1,
+  "guardado_pct": 60.0,
+  "guardado_t": 80.15,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "qlearning-modelo-qlearning-v6",
+  "mu": 0.5,
+  "medido_pct": 10.0,
+  "tiempo": 102.1,
+  "guardado_pct": 15.0,
+  "guardado_t": 102.2,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "ppo-modelo-v1",
+  "mu": 0.9,
+  "medido_pct": 100.0,
+  "tiempo": 77.2,
+  "guardado_pct": 100.0,
+  "guardado_t": 77.6,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "ppo-modelo-v1",
+  "mu": 0.5,
+  "medido_pct": 0.0,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "qlearning-modelo-v1",
+  "mu": 0.9,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "qlearning-modelo-v1",
+  "mu": 0.5,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "ppo-modelo-v2",
+  "mu": 0.9,
+  "medido_pct": 100.0,
+  "tiempo": 63.3,
+  "guardado_pct": 100.0,
+  "guardado_t": 63.1,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "ppo-modelo-v2",
+  "mu": 0.5,
+  "medido_pct": 0.0,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "qlearning-modelo-v2",
+  "mu": 0.9,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "qlearning-modelo-v2",
+  "mu": 0.5,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "ppo-modelo-v4",
+  "mu": 0.9,
+  "medido_pct": 100.0,
+  "tiempo": 75.6,
+  "guardado_pct": 100.0,
+  "guardado_t": 75.6,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "ppo-modelo-v4",
+  "mu": 0.5,
+  "medido_pct": 100.0,
+  "tiempo": 91.8,
+  "guardado_pct": 100.0,
+  "guardado_t": 91.8,
+  "coincide": true,
+  "nota": ""
+ },
+ {
+  "nombre": "qlearning-modelo-v4",
+  "mu": 0.9,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ },
+ {
+  "nombre": "qlearning-modelo-v4",
+  "mu": 0.5,
+  "medido_pct": null,
+  "tiempo": null,
+  "guardado_pct": 0.0,
+  "guardado_t": null,
+  "coincide": false,
+  "nota": "tabla (1500, 15): discretizaci\u00f3n anterior a la v6"
+ }
+]

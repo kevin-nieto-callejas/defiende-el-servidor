@@ -1,0 +1,13 @@
+{
+  "modelo": "ppo-modelo-v5",
+  "motivo": "rollback: Fin de la prueba: se restaura v5",
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0
+    }
+  },
+  "fecha": "2026-11-01T17:45:30-0500"
+}

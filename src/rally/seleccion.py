@@ -50,12 +50,16 @@ def decidir(nombre, tipo, evaluacion, generalizacion, actual=None):
 
 def evaluar_candidato(nombre, tipo):
     actual = _leer(RECOMENDADO)
+    if actual and not actual["modelo"].startswith(f"{tipo}-"):
+        actual = None   # el recomendado es de otro agente: solo aplican los criterios fijados
     veredicto = decidir(nombre, tipo, _leer("metrics/evaluacion.json"), _leer("metrics/generalizacion.json"), actual)
     return {**veredicto, "tipo": tipo}
 
 
 def promover(nombre, motivo, resultados=None):
     historial = _leer(HISTORIAL, [])
+    if historial and historial[-1]["modelo"] == nombre:   # repetir el pipeline no cuenta como cambio
+        return historial[-1]
     entrada = {"modelo": nombre, "motivo": motivo, "resultados": resultados,
                "fecha": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
     historial.append(entrada)

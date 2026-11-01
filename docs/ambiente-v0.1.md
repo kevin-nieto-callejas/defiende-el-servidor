@@ -281,6 +281,39 @@ ancho 6 y lluvia, y 85 % con μ 0.75. Por eso la evaluación ahora incluye esos 
 velocidad: el pedal pedía todo el agarre y no quedaba para girar. Con control de tracción, el piloto de
 reglas completa 6 de 6 vueltas incluso con μ 0.4. Es lo que ahora aprenden ambos agentes.
 
+**Resultados de la familia 0.4** (`modelo-v5` y `modelo-qlearning-v7`, 100 semillas por condición):
+
+| Piloto | Seco: vueltas | Seco: tiempo | Mojado: vueltas | Mojado: tiempo | Incidentes (seco / mojado) |
+|---|---|---|---|---|---|
+| PPO v5 | 100 % | 75.9 s | 100 % | 92.0 s | 0 / 0 |
+| Q-learning v7 | 87 % | 81.3 s | 81 % | 107.7 s | 0.25 / 0.36 |
+| Maestro (referencia) | 100 % | 80.8 s | 100 % | 103.8 s | 0 / 0 |
+| Experto (base) | 100 % | 77.4 s | 0 % | — | 0 / 2.0 |
+
+**Prueba de generalización** (% de vueltas, semillas 1000–1099, distintas a las de la ficha):
+
+| Prueba | PPO v5 | Q-learning v7 | Maestro | Prudente | Experto |
+|---|---|---|---|---|---|
+| Llovizna μ 0.65 / casi seco μ 0.72 | 100 / 100 | 91 / 92 | 100 / 100 | 100 / 100 | 100 / 100 |
+| Más agarre μ 1.1 | 100 | 90 | 100 | 100 | 100 |
+| Salida torcida, seco / lluvia | 100 / 100 | 70 / 58 | 100 / 100 | 100 / 100 | 100 / 0 |
+| Sensores con ruido 3 %, seco / lluvia | 100 / 100 | 0 / 0 | 100 / 100 | 100 / 100 | 100 / 0 |
+| Diluvio μ 0.4 | **82** | 36 | 100 | 0 | 0 |
+| Límite de lluvia μ 0.75 | 100 | 55 | 100 | 100 | 100 |
+| Pista de 6 m, seco / lluvia | 100 / 100 | 69 / 34 | 100 / 100 | 100 / 100 | 100 / 0 |
+| Pista de 12 m, seco / lluvia | 100 / 100 | 73 / 93 | 100 / 100 | 100 / 100 | 100 / 0 |
+| Sensores de 10 m, seco / lluvia | 100 / 100 | 87 / 91 | 100 / 100 | 100 / 100 | 100 / 0 |
+| Sensores de 40 m, seco / lluvia | 100 / 100 | 87 / 91 | 100 / 100 | 100 / 100 | 100 / 0 |
+| Carro lento a_max 2 | 100 | 24 | 100 | 100 | 100 |
+| Carro rápido con lluvia a_max 6 | 100 | 91 | 100 | 0 | 0 |
+
+**Decisión:** PPO v5 cumple los criterios de `configs/seleccion.yaml`, fijados antes de ver estos resultados
+(99.1 % promedio en las pruebas; la peor es el diluvio, 82 %), y pasa a ser el modelo recomendado. Frente a la
+v4 cede 0.3 s en seco y 0.2 s en lluvia, a cambio de completar las condiciones donde la v4 fallaba. No se
+marca sobreajuste: cae 18 puntos en el diluvio y se toleran 20. Q-learning v7 también cumple sus criterios,
+más bajos, y queda marcado con sobreajuste: el ruido en los sensores lo lleva a 0 %, porque las celdas de la
+tabla son más finas que el ruido. Es la pérdida de resolución de discretizar.
+
 **Limitación:** hay un solo circuito. Los modelos no están probados en otra pista: lo que se mide es
 robustez ante cambios de condiciones, no capacidad de manejar en un trazado desconocido.
 

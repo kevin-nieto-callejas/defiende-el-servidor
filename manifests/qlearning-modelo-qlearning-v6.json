@@ -4,7 +4,7 @@
   "etiqueta_git": "modelo-qlearning-v6",
   "run_id": "14eb699c59124d1a893adb5d5e000fee",
   "level_id": "N2",
-  "decision": "aceptado",
+  "decision": "reemplazado",
   "hipotesis": "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15",
   "environment_version": "0.3-monaco-lluvia",
   "ambiente_huella": null,

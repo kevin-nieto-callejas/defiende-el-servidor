@@ -1,0 +1,9 @@
+{
+  "etapa": "registrar",
+  "fecha": "2026-11-01T17:45:13-0500",
+  "salida": [
+    "  manifests/qlearning-modelo-v4.json  d9bba116a6f6",
+    "  manifests/ppo-modelo-v5.json  c9ca342280bc",
+    "  qlearning modelo-v5: sin manifiesto ('la tabla de esta versión tiene su propia etiqueta')"
+  ]
+}

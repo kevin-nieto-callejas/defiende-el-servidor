@@ -62,7 +62,7 @@
     "tipo": "qlearning",
     "etiqueta_git": "modelo-qlearning-v6",
     "level_id": "N2",
-    "decision": "aceptado",
+    "decision": "reemplazado",
     "hipotesis": "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15",
     "environment_version": "0.3-monaco-lluvia",
     "git_commit": "8712e76afff177b55b286cbc4662501b69045654",
@@ -83,6 +83,35 @@
         "incidentes_ep": 1.64,
         "recompensa_media": 29.45,
         "progreso_pct": 75.0
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-qlearning-v7",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-qlearning-v7",
+    "level_id": "N3",
+    "decision": "aceptado",
+    "hipotesis": "Si la tabla ve el margen de frenada a 100 m y el pedal se mide en m/s², completa más vueltas con lluvia y en los extremos de los deslizadores que la v6",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
+    "model_sha256": "044117e0b142baebd3064af0b9d0e3ba937744dcfde98048c0d4c5cc3ea9bb25",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 87.0,
+        "tiempo_mediano_s": 81.3,
+        "tiempo_p90_s": 81.5,
+        "incidentes_ep": 0.25,
+        "recompensa_media": 138.11,
+        "progreso_pct": 92.2
+      },
+      "mojado": {
+        "vueltas_pct": 81.0,
+        "tiempo_mediano_s": 107.7,
+        "tiempo_p90_s": 108.2,
+        "incidentes_ep": 0.36,
+        "recompensa_media": 117.12,
+        "progreso_pct": 91.8
       }
     }
   },
@@ -257,6 +286,35 @@
         "incidentes_ep": 1.93,
         "recompensa_media": -47.03,
         "progreso_pct": 11.7
+      }
+    }
+  },
+  {
+    "nombre": "ppo-modelo-v5",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v5",
+    "level_id": "N3",
+    "decision": "aceptado",
+    "hipotesis": "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
+    "model_sha256": "c9ca342280bc39e8bfddc5c735e924c8cfb2dbf81766942e7a046ea4ec489e86",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 75.9,
+        "tiempo_p90_s": 76.0,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 165.33,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 92.0,
+        "tiempo_p90_s": 92.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 157.46,
+        "progreso_pct": 100.0
       }
     }
   }

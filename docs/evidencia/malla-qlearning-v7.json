@@ -1,0 +1,644 @@
+[
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.4
+  },
+  "ok_pct": 40.0,
+  "fin": {
+   "choque": 12,
+   "exito": 8
+  },
+  "prog": 0.632,
+  "sitios": {
+   "750": 1,
+   "525": 2,
+   "275": 7,
+   "300": 1,
+   "775": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.45
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "choque": 4,
+   "exito": 15,
+   "estancado": 1
+  },
+  "prog": 0.871,
+  "sitios": {
+   "300": 2,
+   "525": 2,
+   "900": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.55
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "estancado": 2,
+   "choque": 3
+  },
+  "prog": 0.939,
+  "sitios": {
+   "900": 2,
+   "825": 2,
+   "525": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.6
+  },
+  "ok_pct": 95.0,
+  "fin": {
+   "exito": 19,
+   "choque": 1
+  },
+  "prog": 0.989,
+  "sitios": {
+   "825": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.65
+  },
+  "ok_pct": 90.0,
+  "fin": {
+   "exito": 18,
+   "choque": 2
+  },
+  "prog": 0.979,
+  "sitios": {
+   "825": 2
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.7
+  },
+  "ok_pct": 100.0,
+  "fin": {
+   "exito": 20
+  },
+  "prog": 1.0,
+  "sitios": {}
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.75
+  },
+  "ok_pct": 55.0,
+  "fin": {
+   "exito": 11,
+   "choque": 9
+  },
+  "prog": 0.771,
+  "sitios": {
+   "775": 1,
+   "525": 6,
+   "400": 1,
+   "350": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.8
+  },
+  "ok_pct": 90.0,
+  "fin": {
+   "exito": 18,
+   "choque": 2
+  },
+  "prog": 0.939,
+  "sitios": {
+   "525": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 1.0
+  },
+  "ok_pct": 95.0,
+  "fin": {
+   "exito": 19,
+   "choque": 1
+  },
+  "prog": 0.975,
+  "sitios": {
+   "525": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "track_width": 6.0
+  },
+  "ok_pct": 70.0,
+  "fin": {
+   "choque": 6,
+   "exito": 14
+  },
+  "prog": 0.86,
+  "sitios": {
+   "450": 2,
+   "575": 1,
+   "525": 2,
+   "825": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "track_width": 7.0
+  },
+  "ok_pct": 65.0,
+  "fin": {
+   "exito": 13,
+   "choque": 7
+  },
+  "prog": 0.795,
+  "sitios": {
+   "525": 2,
+   "575": 1,
+   "125": 2,
+   "350": 1,
+   "825": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "track_width": 10.0
+  },
+  "ok_pct": 95.0,
+  "fin": {
+   "exito": 19,
+   "choque": 1
+  },
+  "prog": 0.975,
+  "sitios": {
+   "525": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "track_width": 12.0
+  },
+  "ok_pct": 60.0,
+  "fin": {
+   "choque": 8,
+   "exito": 12
+  },
+  "prog": 0.797,
+  "sitios": {
+   "525": 8
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "a_max": 2.0
+  },
+  "ok_pct": 10.0,
+  "fin": {
+   "exito": 2,
+   "choque": 18
+  },
+  "prog": 0.31,
+  "sitios": {
+   "225": 11,
+   "125": 5,
+   "825": 1,
+   "575": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "a_max": 3.0
+  },
+  "ok_pct": 45.0,
+  "fin": {
+   "choque": 11,
+   "exito": 9
+  },
+  "prog": 0.607,
+  "sitios": {
+   "225": 9,
+   "450": 1,
+   "875": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "a_max": 5.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "a_max": 6.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "r_max": 10.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "r_max": 15.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "r_max": 30.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.9,
+   "r_max": 40.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.896,
+  "sitios": {
+   "350": 1,
+   "300": 1,
+   "325": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "track_width": 6.0
+  },
+  "ok_pct": 45.0,
+  "fin": {
+   "choque": 10,
+   "exito": 9,
+   "salida": 1
+  },
+  "prog": 0.768,
+  "sitios": {
+   "375": 3,
+   "525": 4,
+   "875": 4
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "track_width": 7.0
+  },
+  "ok_pct": 65.0,
+  "fin": {
+   "exito": 13,
+   "choque": 5,
+   "estancado": 2
+  },
+  "prog": 0.937,
+  "sitios": {
+   "825": 3,
+   "900": 2,
+   "875": 2
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "track_width": 10.0
+  },
+  "ok_pct": 85.0,
+  "fin": {
+   "exito": 17,
+   "choque": 3
+  },
+  "prog": 0.949,
+  "sitios": {
+   "300": 1,
+   "825": 1,
+   "950": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "track_width": 12.0
+  },
+  "ok_pct": 95.0,
+  "fin": {
+   "exito": 19,
+   "choque": 1
+  },
+  "prog": 0.967,
+  "sitios": {
+   "350": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "a_max": 2.0
+  },
+  "ok_pct": 95.0,
+  "fin": {
+   "exito": 19,
+   "estancado": 1
+  },
+  "prog": 0.975,
+  "sitios": {
+   "525": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "a_max": 3.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "a_max": 5.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "a_max": 6.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "r_max": 10.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "r_max": 15.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "r_max": 30.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ },
+ {
+  "piloto": "qlearning",
+  "cond": {
+   "mu": 0.5,
+   "r_max": 40.0
+  },
+  "ok_pct": 75.0,
+  "fin": {
+   "exito": 15,
+   "choque": 3,
+   "salida": 1,
+   "estancado": 1
+  },
+  "prog": 0.912,
+  "sitios": {
+   "525": 1,
+   "875": 1,
+   "825": 1,
+   "850": 1,
+   "300": 1
+  }
+ }
+]

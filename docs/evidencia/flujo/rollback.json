@@ -1,0 +1,5 @@
+{
+  "etapa": "rollback",
+  "fecha": "2026-11-01T17:45:26-0500",
+  "salida": "{\"modelo\": \"ppo-modelo-v4\", \"motivo\": \"rollback: Prueba de rollback de la entrega\", \"resultados\": {\"seco\": {\"vueltas_pct\": 100.0}, \"mojado\": {\"vueltas_pct\": 100.0}}, \"fecha\": \"2026-11-01T17:45:26-0500\"}\n"
+}
