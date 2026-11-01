@@ -637,11 +637,9 @@ export function construirEscenario({ scene, renderer, pista, P }) {
   agregar("publico", grupoBanderas);
 
   // ---------------------------------------------------------------- túnel
-  const tunel = pista.curvas.find((c) => c.nombre === "Túnel");
-  if (tunel) {
-    const kt = 1 / tunel.radio;
-    const idx = pista.centro.map((c, i) => [i, c]).filter(([, c]) => Math.abs(Math.abs(c[4]) - kt) < 1e-4).map(([i]) => i);
-    const s0 = pista.centro[idx[0]][0] + 8, s1 = pista.centro[idx[idx.length - 1]][0] - 8;
+  const tramoT = tramoTunel(pista);
+  if (tramoT) {
+    const [s0, s1] = tramoT;
     const grupoT = new THREE.Group();
     const matT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide });
     pbr(matT, "grey_plaster_02", { repetir: [1, 1], rugosidad: false });
@@ -730,6 +728,15 @@ export function construirEscenario({ scene, renderer, pista, P }) {
 
   aplicarClima(false);
   return { aplicarClima, actualizar };
+}
+
+// Tramo [s0, s1] de la pista bajo techo; también lo usan las cámaras de TV
+export function tramoTunel(pista) {
+  const tunel = pista.curvas.find((c) => c.nombre === "Túnel");
+  if (!tunel) return null;
+  const kt = 1 / tunel.radio;
+  const idx = pista.centro.map((c, i) => [i, c]).filter(([, c]) => Math.abs(Math.abs(c[4]) - kt) < 1e-4).map(([i]) => i);
+  return [pista.centro[idx[0]][0] + 8, pista.centro[idx[idx.length - 1]][0] - 8];
 }
 
 // Pared y techo solo en un tramo de la pista (para el túnel), con uv para textura

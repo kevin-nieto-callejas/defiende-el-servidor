@@ -8,7 +8,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { construirEscenario } from "./escenario.js";
+import { construirEscenario, tramoTunel } from "./escenario.js";
 import { crearCarro, crearHumo } from "./carro.js";
 import { pbr, cargas } from "./texturas.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
@@ -527,13 +527,21 @@ function aplicarClima() {
 // ------------------------------------------------------------------ cámaras
 const camObjetivo = new THREE.Vector3(), camMirar = new THREE.Vector3(), mirarSuave = new THREE.Vector3();
 // Cámaras de TV: postes cada ~60 m a un costado de la pista, alternando lados
-let camsTV = [];
+let camsTV = [], camsTunel = [], tunelTV = null;
 function prepararCamsTV() {
-  const c = pista.centro, paso = Math.round(60 / 0.5);
+  const c = pista.centro, paso = Math.round(60 / 0.5), muro = pista.ancho / 2 + pista.escape;
   camsTV = [];
   for (let i = 0; i < c.length; i += paso) {
-    const [, x, y, h] = c[i], lado = (i / paso) % 2 ? 1 : -1, off = lado * (pista.ancho / 2 + pista.escape + 7);
+    const [, x, y, h] = c[i], lado = (i / paso) % 2 ? 1 : -1, off = lado * (muro + 7);
     camsTV.push([x - Math.sin(h) * off, y + Math.cos(h) * off, 8]);
+  }
+  // Desde los postes el túnel solo muestra el techo: adentro van cámaras contra la pared
+  tunelTV = tramoTunel(pista);
+  camsTunel = [];
+  if (!tunelTV) return;
+  for (let s = tunelTV[0] + 12, k = 0; s < tunelTV[1]; s += 30, k++) {
+    const [, x, y, h] = c.find((p) => p[0] >= s), off = (k % 2 ? 1 : -1) * (muro - 0.3);
+    camsTunel.push([x - Math.sin(h) * off, y + Math.cos(h) * off, 5.2]);
   }
 }
 
@@ -562,16 +570,20 @@ function actualizarCamara(est, dt) {
     camMirar.set(0, 0, MX * 0.05);
     suave = 1 - Math.pow(1e-5, dt);
   } else if (camara === "tv") {
+    const enTunel = tunelTV && est.s >= tunelTV[0] - 6 && est.s <= tunelTV[1] + 6;
     let mejor = camsTV[0], dmin = Infinity;
-    for (const c of camsTV) {
+    for (const c of enTunel ? camsTunel : camsTV) {
       const d = Math.hypot(c[0] - est.x, c[1] - est.y);
       if (d < dmin) { dmin = d; mejor = c; }
     }
     camObjetivo.copy(P(mejor[0], mejor[1], mejor[2]));
     camMirar.copy(pos);
-    if (cam.position.distanceTo(camObjetivo) > 5) cam.position.copy(camObjetivo); // corte de cámara
+    if (cam.position.distanceTo(camObjetivo) > 5) { // corte de cámara
+      cam.position.copy(camObjetivo);
+      mirarSuave.copy(camMirar);
+    }
     suave = 1;
-    cam.fov = lerp(cam.fov, clamp(14 + dmin * 0.9, 18, 55), 0.08);
+    cam.fov = lerp(cam.fov, enTunel ? 50 : clamp(14 + dmin * 0.9, 18, 55), 0.08);
     cam.updateProjectionMatrix();
   }
   if (camara !== "tv" && cam.fov !== 55) { cam.fov = 55; cam.updateProjectionMatrix(); }
