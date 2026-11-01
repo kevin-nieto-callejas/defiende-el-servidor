@@ -12,8 +12,9 @@ datos:               # dataset de demostraciones para el preentrenamiento por im
   semilla: 500         # semillas distintas a las de evaluación
 
 qlearning:
-  dagger_iter: 30        # fase 1: imitación con DAgger
-  dagger_episodios: 12   # vueltas por iteración
+  hipotesis: "Si la tabla ve el margen de frenada a 100 m y el pedal se mide en m/s², completa más vueltas con lluvia y en los extremos de los deslizadores que la v6"
+  dagger_iter: 40        # fase 1: imitación con DAgger
+  dagger_episodios: 16   # vueltas por iteración
   episodios: 600         # fase 2: Q-learning desde la mejor imitación
   q_inicial: 5.0         # valor inicial de la acción del maestro (orden de los Q reales)
   eval_cada: 50          # episodios entre evaluaciones rápidas
@@ -24,36 +25,49 @@ qlearning:
   mu_min: 0.75           # practica con los mismos rangos que el PPO
   mu_max: 1.0
   prob_lluvia: 0.5
-  lluvia_min: 0.45
-  lluvia_max: 0.6
+  lluvia_min: 0.4
+  lluvia_max: 0.75
+  prob_base: 0.4
+  rangos: {track_width: [6.0, 12.0]}   # a_max no: la tabla ya mide el pedal en m/s²
   maestro_mu_seco: 0.8
   maestro_mu_lluvia: 0.45
-  maestro_v_recta_lluvia: 16.0   # la frenada cabe en los 50 m que ve la tabla
+  maestro_traccion_seco: 0.8
+  maestro_traccion_lluvia: 0.7
+  maestro_v_recta_lluvia: 22.0   # v0.4: la nota de frenada ya le avisa a tiempo
   semilla: 0
 
 ppo:
-  pasos: 2000000        # v4: PPO afina lo que aprendió con DAgger
+  hipotesis: "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4"
+  pasos: 3000000        # v5: más condiciones que practicar
   n_envs: 12
   learning_rate: 0.0001  # v4: más bajo para no deshacer lo imitado
   n_steps: 1024
   batch_size: 2048
   gamma: 0.995
   ent_coef: 0.0
-  capas: [128, 128]
+  capas: [256, 256]      # v5: una sola red para todas las configuraciones
   log_std_init: -1.6     # ruido de exploración ≈ 0.2 (v3: 0.37)
   bc_epocas: 40          # imitación simple (solo si dagger_iter = 0)
-  dagger_iter: 10        # v4: imitación con DAgger (0 = usar bc_epocas)
-  dagger_episodios: 12   # vueltas por iteración
+  dagger_iter: 20        # v5: más condiciones que imitar (0 = usar bc_epocas)
+  dagger_episodios: 16   # vueltas por iteración
   dagger_epocas: 15
-  maestro_mu_seco: 0.8   # el maestro supone el peor agarre de cada rango
+  maestro_mu_seco: 0.8
   maestro_mu_lluvia: 0.45
+  maestro_traccion_seco: 0.8     # v5: no gastar todo el agarre en el pedal
+  maestro_traccion_lluvia: 0.7
   dominio_aleatorio: true
   mu_min: 0.75           # v3: rango en seco
   mu_max: 1.0
   prob_lluvia: 0.5       # v3: la mitad de los episodios con lluvia
-  lluvia_min: 0.45       # rango de adherencia con lluvia
-  lluvia_max: 0.6
-  eval_cada: 100000      # pasos entre evaluaciones rápidas
+  lluvia_min: 0.4        # v5: toda la adherencia con lluvia del visor
+  lluvia_max: 0.75
+  prob_base: 0.3         # v5: episodios con la configuración base de la ficha
+  rangos:                # v5: los demás deslizadores del visor
+    track_width: [6.0, 12.0]
+    a_max: [2.0, 6.0]
+    r_max: [10.0, 40.0]
+  ruido_sensores: 0.04   # v5: desviación máxima (la prueba de sobreajuste usa 0.03)
+  eval_cada: 200000      # pasos entre evaluaciones rápidas
   semilla: 0
 
 evaluacion:          # protocolo de la ficha
@@ -82,4 +96,15 @@ generalizacion:      # prueba de sobreajuste: condiciones que el PPO nunca pract
       referencia: mojado
     - {nombre: sensores_ruido, ambiente: {mu: 0.9}, ruido_sensores: 0.03, referencia: seco}
     - {nombre: sensores_ruido_lluvia, ambiente: {mu: 0.5}, ruido_sensores: 0.03, referencia: mojado}
-    - {nombre: diluvio, ambiente: {mu: 0.4}}   # más difícil que todo lo visto: solo informativa
+    - {nombre: diluvio, ambiente: {mu: 0.4}, referencia: mojado}   # v5: ya entra en lo practicado
+    - {nombre: limite_lluvia, ambiente: {mu: 0.75}, referencia: seco}
+    - {nombre: pista_angosta, ambiente: {mu: 0.9, track_width: 6.0}, referencia: seco}
+    - {nombre: pista_angosta_lluvia, ambiente: {mu: 0.5, track_width: 6.0}, referencia: mojado}
+    - {nombre: pista_ancha, ambiente: {mu: 0.9, track_width: 12.0}, referencia: seco}
+    - {nombre: pista_ancha_lluvia, ambiente: {mu: 0.5, track_width: 12.0}, referencia: mojado}
+    - {nombre: sensores_cortos, ambiente: {mu: 0.9, r_max: 10.0}, referencia: seco}
+    - {nombre: sensores_cortos_lluvia, ambiente: {mu: 0.5, r_max: 10.0}, referencia: mojado}
+    - {nombre: sensores_largos, ambiente: {mu: 0.9, r_max: 40.0}, referencia: seco}
+    - {nombre: sensores_largos_lluvia, ambiente: {mu: 0.5, r_max: 40.0}, referencia: mojado}
+    - {nombre: carro_lento, ambiente: {mu: 0.9, a_max: 2.0}, referencia: seco}
+    - {nombre: carro_rapido_lluvia, ambiente: {mu: 0.5, a_max: 6.0}, referencia: mojado}

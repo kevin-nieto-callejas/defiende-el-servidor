@@ -65,7 +65,7 @@ Agente de aprendizaje por refuerzo que maneja un carro en un circuito urbano de
 1 049 m con 18 curvas, entrenado con **PPO** (Stable-Baselines3 + PyTorch) tras un
 preentrenamiento por imitación. Proyecto del curso de MLOps.
 
-- Ambiente: `AutonomousRally-v0` (Gymnasium) v{info.get("ambiente_version", "0.2")}, observación de 20 valores
+- Ambiente: `AutonomousRally-v0` (Gymnasium) v{info.get("ambiente_version", "0.2")}, observación de {info.get("observacion", 24)} valores
   (velocidad, giro, rumbo, desvío, 7 rayos, 3 notas de curvatura, sensor de agarre y sensor de lluvia), acción continua
   `[acelerador, dirección]` en [-1, 1].
 - Entrenamiento: {info.get('pasos')} pasos, {info.get('episodios')} episodios,

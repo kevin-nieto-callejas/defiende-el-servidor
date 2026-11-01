@@ -156,26 +156,36 @@ def _ejemplo_obs():
 
 
 def _evaluador_rapido(ambiente, pe, n=5):
-    """Evaluación corta durante el entrenamiento (n semillas, seco y mojado)."""
+    """Evaluación corta durante el entrenamiento: seco, mojado y extremos de los deslizadores."""
+    ms, mm = pe["mu_seco"], pe["mu_mojado"]
+    extremos = [{"mu": 0.4}, {"mu": 0.75}, {"mu": ms, "track_width": 12.0}, {"mu": mm, "track_width": 6.0},
+                {"mu": mm, "track_width": 12.0}, {"mu": ms, "r_max": 10.0}, {"mu": mm, "r_max": 40.0},
+                {"mu": mm, "a_max": 6.0}, {"mu": ms, "a_max": 2.0}]
+
+    def correr(modelo, cond, veces):
+        env = AutonomousRallyEnv(**{**ambiente, **cond})
+        ok, prog, tiempos = 0, 0.0, []
+        for k in range(veces):
+            obs, info = env.reset(seed=pe["semilla_eval_rapida"] + k)
+            done = False
+            while not done:
+                a, _ = modelo.predict(obs, deterministic=True)
+                obs, _, term, trunc, info = env.step(a)
+                done = term or trunc
+            ok += info["outcome"] == "exito"
+            prog += info["s_best"] / track.LAP
+            if info["outcome"] == "exito":
+                tiempos.append(info["t"])
+        return ok, prog, tiempos
+
     def evaluar(modelo):
         res = {}
-        for nombre, mu in (("seco", pe["mu_seco"]), ("mojado", pe["mu_mojado"])):
-            env = AutonomousRallyEnv(**{**ambiente, "mu": mu})
-            ok, prog, tiempos = 0, 0.0, []
-            for k in range(n):
-                obs, info = env.reset(seed=pe["semilla_eval_rapida"] + k)
-                done = False
-                while not done:
-                    a, _ = modelo.predict(obs, deterministic=True)
-                    obs, _, term, trunc, info = env.step(a)
-                    done = term or trunc
-                ok += info["outcome"] == "exito"
-                prog += info["s_best"] / track.LAP
-                if info["outcome"] == "exito":
-                    tiempos.append(info["t"])
+        for nombre, mu in (("seco", ms), ("mojado", mm)):
+            ok, prog, tiempos = correr(modelo, {"mu": mu}, n)
             res[f"{nombre}_vueltas_pct"] = 100 * ok / n
             res[f"{nombre}_progreso_pct"] = 100 * prog / n
             res[f"{nombre}_tiempo_s"] = round(float(np.mean(tiempos)), 2) if tiempos else None
+        res["robusto_vueltas_pct"] = round(float(np.mean([100 * correr(modelo, c, 2)[0] / 2 for c in extremos])), 1)
         return res
     return evaluar
 
@@ -189,9 +199,9 @@ def etapa_qlearning(vivo=False):
     p = params()
     amb, pq = p["ambiente"], p["qlearning"]
     salida = Path("models/qlearning")
-    grabador = Grabador("qlearning", amb["r_max"], amb) if vivo else None
+    grabador = Grabador("qlearning", amb) if vivo else None
     t0 = time.time()
-    with _run("qlearning", pq, {"algoritmo": "Q-learning"}) as run:
+    with _run("qlearning", pq, {"algoritmo": "Q-learning", "hipotesis": pq["hipotesis"]}) as run:
         mlflow.log_input(_dataset_mlflow(), context="demostraciones")
         ventana = []
 
@@ -233,9 +243,9 @@ def etapa_ppo(vivo=False):
     p = params()
     amb, pp = p["ambiente"], p["ppo"]
     salida = Path("models/ppo")
-    grabador = Grabador("ppo", amb["r_max"], amb) if vivo else None
+    grabador = Grabador("ppo", amb) if vivo else None
     t0 = time.time()
-    with _run("ppo", pp, {"algoritmo": "PPO"}) as run:
+    with _run("ppo", pp, {"algoritmo": "PPO", "hipotesis": pp["hipotesis"]}) as run:
         mlflow.log_input(_dataset_mlflow(), context="demostraciones")
         # Punto de guardado: si el computador se apaga, el próximo `dvc repro` sigue donde quedó.
         # La huella junta parámetros, versión del ambiente y dataset: si algo cambia, empieza de cero.
@@ -372,7 +382,7 @@ def etapa_registrar():
         except Exception:
             actual, p_actual, t_actual = None, -1, float("inf")
         gana = puntaje > p_actual or (puntaje == p_actual and t_nuevo < t_actual)
-        alias = "champion" if (actual is None or actual.version == version or gana) else "challenger"
+        alias = "champion" if (actual is None or str(actual.version) == version or gana) else "challenger"
         cliente.set_registered_model_alias(nombre, alias, version)
         registro[tipo] = {"modelo": nombre, "version": version, "alias": alias, "puntaje": puntaje,
                           "protocolo_aceptado": ver.get("aceptado")}

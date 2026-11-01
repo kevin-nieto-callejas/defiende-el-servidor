@@ -18,7 +18,26 @@ RAY_ANGLES = np.radians([-90, -60, -30, 0, 30, 60, 90])
 NOTAS_M = (10.0, 25.0, 50.0)  # "notas del copiloto": curvatura a estas distancias
 MU_EST_MAX = 1.2  # tope del agarre estimado (más que el asfalto más adherente)
 LLUVIA_MU = 0.75  # por debajo de esta adherencia se considera piso mojado (se ve llover)
-VERSION = "0.3-monaco-lluvia"
+# Topes de los rangos de la ficha. Los rayos se miden contra un tope fijo: si se dividieran
+# por r_max, cambiar el alcance cambiaría lo que significa cada lectura (falló en v4).
+ANCHO_REF, A_REF, RAYO_REF = 12.0, 6.0, 40.0
+OBS_DIM = 24
+VERSION = "0.4-monaco-configurable"
+
+# Velocidad segura según la pista que viene: v² = μ · F(s), con la misma regla de los pilotos
+# de referencia (curvas a 85 % del agarre y frenada a 6.67 · μ m/s²), mirando 100 m adelante.
+_A_LAT, _FRENO, VISTA_M = 0.85 * G, 6.0 / 0.9, 100
+MU_NOTA_SECO, MU_NOTA_LLUVIA = 0.8, 0.45  # agarre que supone la nota según el clima
+
+
+def _tabla_frenada():
+    n = int(track.LAP) + 1
+    kappa = np.array([abs(track.curvature_at(float(i))) for i in range(n)])
+    curva = np.where(kappa > 1e-6, _A_LAT / np.maximum(kappa, 1e-6), np.inf)
+    return np.min([np.roll(curva, -k) + 2 * _FRENO * max(k - 2, 0) for k in range(0, VISTA_M + 1, 2)], axis=0)
+
+
+_FRENADA = _tabla_frenada()
 
 
 @dataclass
@@ -58,8 +77,9 @@ class RallyConfig:
 class AutonomousRallyEnv(gym.Env):
     """Una vuelta al circuito pasando los checkpoints en orden hasta la meta.
 
-    Observación (20): [v, ω, sinφ, cosφ, d, eψ, 7 rayos, 3 notas de curvatura,
-    agarre usado, derrape, agarre estimado, lluvia].
+    Observación (24): [v, ω, sinφ, cosφ, d, eψ, 7 rayos, 3 notas de curvatura,
+    agarre usado, derrape, agarre estimado, lluvia, ancho, aceleración máxima,
+    alcance de sensores, velocidad segura].
     Acción (2): [u_acel, u_dir] en [-1, 1].
     """
 
@@ -74,8 +94,8 @@ class AutonomousRallyEnv(gym.Env):
         self.render_mode = render_mode
         self.delta_max = math.radians(self.cfg.delta_max_deg)
 
-        low = np.array([0, -1, -1, -1, -2, -1] + [0] * 7 + [-1] * 3 + [0, 0, 0, 0], dtype=np.float32)
-        high = np.array([1, 1, 1, 1, 2, 1] + [1] * 7 + [1] * 3 + [1, 1, 1, 1], dtype=np.float32)
+        low = np.array([0, -1, -1, -1, -2, -1] + [0] * 7 + [-1] * 3 + [0] * 8, dtype=np.float32)
+        high = np.array([1, 1, 1, 1, 2, 1] + [1] * 7 + [1] * 3 + [1] * 8, dtype=np.float32)
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
         self.action_space = spaces.Box(-1.0, 1.0, shape=(2,), dtype=np.float32)
 
@@ -249,6 +269,9 @@ class AutonomousRallyEnv(gym.Env):
             self.x, self.y, self.psi, RAY_ANGLES, cfg.r_max, cfg.track_width / 2
         )
         notas = [np.clip(track.curvature_at(s_raw + k) * track.R, -1, 1) for k in NOTAS_M]
+        lluvia = cfg.mu < LLUVIA_MU
+        mu_nota = MU_NOTA_LLUVIA if lluvia else MU_NOTA_SECO
+        v_segura = math.sqrt(mu_nota * _FRENADA[int(s_raw) % len(_FRENADA)])
         obs = [
             self.v / cfg.v_max,
             np.clip(self.omega / 2.0, -1, 1),
@@ -256,7 +279,7 @@ class AutonomousRallyEnv(gym.Env):
             math.cos(phi),
             np.clip(d / (cfg.track_width / 2), -2, 2),
             e_psi / math.pi,
-            *(rays / cfg.r_max),
+            *(rays / RAYO_REF),
             *notas,
             # Sensor de agarre (v0.2): cuánto agarre se está usando, si las llantas
             # derrapan y el agarre estimado del piso (1 = no se ha medido un límite aún)
@@ -265,7 +288,13 @@ class AutonomousRallyEnv(gym.Env):
             self.mu_est / MU_EST_MAX,
             # Sensor de lluvia (v0.3): el piloto VE que llueve (cámara/limpiaparabrisas),
             # pero no sabe la adherencia exacta.
-            1.0 if cfg.mu < LLUVIA_MU else 0.0,
+            1.0 if lluvia else 0.0,
+            # Configuración del carro (v0.4): el piloto conoce su propio carro y el ancho
+            cfg.track_width / ANCHO_REF,
+            cfg.a_max / A_REF,
+            cfg.r_max / RAYO_REF,
+            # Nota de frenada (v0.4): a cuánto se puede ir para llegar bien a lo que viene
+            min(v_segura, cfg.v_max) / cfg.v_max,
         ]
         return np.array(obs, dtype=np.float32)
 

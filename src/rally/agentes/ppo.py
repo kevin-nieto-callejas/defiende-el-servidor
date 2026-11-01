@@ -6,8 +6,9 @@
    llega a estados que nunca vio y choca en Sainte Dévote.
 2. Aprendizaje por refuerzo con PPO en varias simulaciones en paralelo: la red
    mejora sola con prueba y error, a partir de la recompensa.
-3. Dominio aleatorio (opcional): en cada episodio la adherencia se sortea en un
-   rango, para que el modelo aprenda a manejar también con lluvia.
+3. Dominio aleatorio (opcional): en cada episodio se sortean adherencia, ancho,
+   aceleración y alcance de sensores dentro de los rangos de la ficha, y los sensores
+   llevan ruido, para que el modelo maneje bien en cualquier experimento del visor.
 4. Se guarda el mejor modelo de las evaluaciones rápidas: si PPO empeora la red,
    el resultado final nunca queda peor que lo mejor que se vio.
 """
@@ -23,40 +24,60 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
-from rally.env import AutonomousRallyEnv
+from rally.env import RAYO_REF, AutonomousRallyEnv
 
 
-class AdherenciaAleatoria(gym.Wrapper):
-    """En cada reset sortea μ (el agente no ve el valor, solo si llueve).
+class DominioAleatorio(gym.Wrapper):
+    """En cada reset sortea las condiciones del experimento (el agente no ve el μ exacto).
 
-    Con `prob_lluvia`, esa fracción de episodios es con lluvia (μ en [lluvia_min,
-    lluvia_max]) y el resto en seco (μ en [mu_min, mu_max]). Así el modelo practica
-    con lluvia la mitad del tiempo y no aprende solo a ir rápido en seco (lo que le
-    pasó a la v2).
+    `prob_lluvia` de los episodios son con lluvia (μ en [lluvia_min, lluvia_max]) y el resto
+    en seco (μ en [mu_min, mu_max]). Así no aprende solo a ir rápido en seco (le pasó a la v2).
+    `rangos` sortea otros parámetros del ambiente; con `prob_base` conservan el valor base,
+    para que la condición de la ficha no quede menos practicada que los extremos.
     """
 
-    def __init__(self, env, mu_min, mu_max, prob_lluvia=None, lluvia_min=0.45, lluvia_max=0.6):
+    def __init__(self, env, p):
         super().__init__(env)
-        self.mu_min, self.mu_max = mu_min, mu_max
-        self.prob_lluvia, self.lluvia_min, self.lluvia_max = prob_lluvia, lluvia_min, lluvia_max
+        self.p = p
+        cfg = env.unwrapped.cfg
+        self.base = {k: getattr(cfg, k) for k in p.get("rangos", {})}
 
     def reset(self, **kw):
-        r = self.np_random
-        if self.prob_lluvia is not None and r.random() < self.prob_lluvia:
-            mu = r.uniform(self.lluvia_min, self.lluvia_max)
+        r, p, cfg = self.np_random, self.p, self.env.unwrapped.cfg
+        if r.random() < p["prob_lluvia"]:
+            cfg.mu = float(r.uniform(p["lluvia_min"], p["lluvia_max"]))
         else:
-            mu = r.uniform(self.mu_min, self.mu_max)
-        self.env.unwrapped.cfg.mu = float(mu)
+            cfg.mu = float(r.uniform(p["mu_min"], p["mu_max"]))
+        sortear = r.random() >= p.get("prob_base", 0.0)
+        for k, (lo, hi) in p.get("rangos", {}).items():
+            setattr(cfg, k, float(r.uniform(lo, hi)) if sortear else self.base[k])
         return self.env.reset(**kw)
+
+
+class RuidoSensores(gym.ObservationWrapper):
+    """Sensores imperfectos: cada episodio sortea cuánto ruido hay (v4 falló con ruido y lluvia)."""
+
+    def __init__(self, env, ruido_max):
+        super().__init__(env)
+        self.ruido_max, self.ruido = ruido_max, 0.0
+
+    def reset(self, **kw):
+        self.ruido = float(self.np_random.uniform(0.0, self.ruido_max))
+        return super().reset(**kw)
+
+    def observation(self, obs):
+        o = obs + self.np_random.normal(0.0, self.ruido, obs.shape)
+        o[19:23] = obs[19:23]   # lluvia y configuración no son lecturas ruidosas
+        return np.clip(o, self.observation_space.low, self.observation_space.high).astype(np.float32)
 
 
 def crear_env(ambiente, ppo_params, rank):
     def _f():
         env = AutonomousRallyEnv(**ambiente)
         if ppo_params.get("dominio_aleatorio"):
-            env = AdherenciaAleatoria(env, ppo_params["mu_min"], ppo_params["mu_max"],
-                                      ppo_params.get("prob_lluvia"), ppo_params.get("lluvia_min", 0.45),
-                                      ppo_params.get("lluvia_max", 0.6))
+            env = DominioAleatorio(env, ppo_params)
+        if ppo_params.get("ruido_sensores"):
+            env = RuidoSensores(env, ppo_params["ruido_sensores"])
         env.reset(seed=200_000 + ppo_params["semilla"] * 1000 + rank)  # lejos de las semillas de evaluación
         return env
     return _f
@@ -99,7 +120,8 @@ def dagger(model, ambiente, p, evaluador=None):
     """
     from rally.policies import Maestro
 
-    maestro = Maestro(p["maestro_mu_seco"], p["maestro_mu_lluvia"])
+    maestro = Maestro(p["maestro_mu_seco"], p["maestro_mu_lluvia"],
+                      p["maestro_traccion_seco"], p["maestro_traccion_lluvia"])
     env = crear_env(ambiente, p, 99)()
     rng = np.random.default_rng(p["semilla"])
     pol = model.policy
@@ -143,7 +165,7 @@ def dagger(model, ambiente, p, evaluador=None):
 def puntaje(m):
     """Orden de las evaluaciones rápidas: vueltas, luego avance, luego tiempo."""
     tiempo = (m.get("seco_tiempo_s") or 999) + (m.get("mojado_tiempo_s") or 999)
-    return (m["seco_vueltas_pct"] + m["mojado_vueltas_pct"],
+    return (m["seco_vueltas_pct"] + m["mojado_vueltas_pct"] + m.get("robusto_vueltas_pct", 0),
             m["seco_progreso_pct"] + m["mojado_progreso_pct"], -tiempo)
 
 
@@ -268,13 +290,23 @@ class PuntoGuardado:
 
 
 class PilotoPPO:
-    """Usa el modelo entrenado como piloto (acción determinista)."""
+    """Usa el modelo entrenado como piloto (acción determinista).
+
+    Los modelos de la familia 0.3 (v3 y v4, 20 observaciones) corren con un adaptador:
+    reciben las 20 primeras y los rayos otra vez divididos por el alcance.
+    """
 
     def __init__(self, ruta):
         self.model = PPO.load(ruta, device="cpu")
+        self.n_obs = self.model.observation_space.shape[0]
 
     def __call__(self, obs, info):
-        a, _ = self.model.predict(np.asarray(obs, dtype=np.float32), deterministic=True)
+        o = np.asarray(obs, dtype=np.float32)
+        if self.n_obs == 20:
+            r_max = o[22] * RAYO_REF
+            o = o[:20].copy()
+            o[6:13] *= RAYO_REF / r_max
+        a, _ = self.model.predict(o, deterministic=True)
         return np.clip(a, -1, 1)
 
 

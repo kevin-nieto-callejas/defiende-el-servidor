@@ -20,7 +20,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 from rally import policies, track
-from rally.env import RAY_ANGLES, AutonomousRallyEnv, RallyConfig
+from rally.env import RAY_ANGLES, RAYO_REF, AutonomousRallyEnv, RallyConfig
 
 STATIC = Path(__file__).parent / "static"
 VIVO = Path("runs/vivo")  # lo escribe el entrenamiento (rally pipeline ... --vivo)
@@ -113,7 +113,7 @@ def correr_episodio(piloto="experto", semilla=0, **params):
             "s": _r(max(info["s_best"], 0), 2), "cp": info["next_cp"],
             "agarre": _r(info["grip_use"]), "derrape": bool(info["skidding"]),
             "fuera": _r(info["off_steps"] * env.cfg.dt, 2),
-            "rayos": [_r(v) for v in np.asarray(obs[6:13]) * env.cfg.r_max],
+            "rayos": [_r(v) for v in np.asarray(obs[6:13]) * RAYO_REF],
             "a": [_r(accion[0]), _r(accion[1])], "r": _r(r), "R": _r(total, 2),
             "fin": info["outcome"],
         }

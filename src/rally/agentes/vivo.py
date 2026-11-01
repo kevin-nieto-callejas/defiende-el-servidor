@@ -12,6 +12,8 @@ from pathlib import Path
 
 import numpy as np
 
+from rally.env import RAYO_REF
+
 CARPETA = Path("runs/vivo")
 
 
@@ -25,9 +27,8 @@ def _guardar(nombre, datos):
 class Grabador:
     """Acumula los pasos de un episodio en el formato que dibuja el visor."""
 
-    def __init__(self, agente, r_max, params):
+    def __init__(self, agente, params):
         self.agente = agente
-        self.r_max = r_max
         self.params = params
         self.frames = []
         self.total = 0.0
@@ -43,7 +44,7 @@ class Grabador:
             "s": round(max(info["s_best"], 0), 2), "cp": info["next_cp"],
             "agarre": round(info["grip_use"], 3), "derrape": bool(info["skidding"]),
             "fuera": round(info["off_steps"] * 0.1, 2),
-            "rayos": [round(float(v) * self.r_max, 3) for v in np.asarray(obs)[6:13]],
+            "rayos": [round(float(v) * RAYO_REF, 3) for v in np.asarray(obs)[6:13]],
             "a": [round(float(accion[0]), 3), round(float(accion[1]), 3)],
             "r": round(float(r), 3), "R": round(self.total, 2), "fin": info["outcome"],
         })

@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 
 from rally import track
+from rally.env import A_REF
 
 G = 9.81
 
@@ -22,10 +23,14 @@ class PurePursuit:
     """
 
     def __init__(self, mu_supuesto=0.9, margen=0.85, v_recta=22.0, freno=6.0,
-                 wheelbase=2.5, delta_max_deg=30.0):
+                 wheelbase=2.5, delta_max_deg=30.0, traccion=None, b_max=8.0):
         self.a_lat = margen * mu_supuesto * G  # aceleración lateral que se permite
         self.v_recta = v_recta
         self.freno = freno * mu_supuesto / 0.9
+        # Control de tracción: fracción del agarre que puede gastar el pedal. Si el pedal
+        # pide todo el agarre, la física deja cero para girar y el carro sigue derecho.
+        self.tope = None if traccion is None else traccion * mu_supuesto * G
+        self.b_max = b_max
         self.wheelbase = wheelbase
         self.delta_max = math.radians(delta_max_deg)
 
@@ -50,18 +55,24 @@ class PurePursuit:
             vc = self.v_curva(track.curvature_at(s + k))
             v_obj = min(v_obj, math.sqrt(vc**2 + 2 * self.freno * max(k - 2, 0)))
         u_acel = float(np.clip(0.8 * (v_obj - v), -1, 1))
+        if self.tope is not None:
+            a_max = obs[21] * A_REF
+            a = u_acel * (a_max if u_acel >= 0 else self.b_max)
+            a = max(-self.tope, min(self.tope, a))
+            u_acel = a / (a_max if a >= 0 else self.b_max)
         return np.array([u_acel, u_dir], dtype=np.float32)
 
 
 class Maestro:
     """El profesor del PPO: mira la señal de lluvia (obs[19]) y maneja según el clima.
 
-    En seco supone μ = 0.8 y con lluvia μ = 0.45, el peor caso de cada rango del
-    entrenamiento, así que completa la vuelta con cualquier agarre de esos rangos.
+    En seco supone μ = 0.8 y con lluvia μ = 0.45. Con el control de tracción completa
+    toda la zona de los deslizadores, incluso μ = 0.4 (runs/maestros.py lo midió).
     """
 
-    def __init__(self, mu_seco=0.8, mu_lluvia=0.45):
-        self.seco, self.lluvia = PurePursuit(mu_seco), PurePursuit(mu_lluvia)
+    def __init__(self, mu_seco=0.8, mu_lluvia=0.45, traccion_seco=0.8, traccion_lluvia=0.7):
+        self.seco = PurePursuit(mu_seco, traccion=traccion_seco)
+        self.lluvia = PurePursuit(mu_lluvia, traccion=traccion_lluvia)
 
     def __call__(self, obs, info):
         return (self.lluvia if obs[19] > 0.5 else self.seco)(obs, info)

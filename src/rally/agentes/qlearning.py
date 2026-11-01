@@ -25,7 +25,7 @@ import mlflow
 import numpy as np
 
 from rally import track
-from rally.agentes.discreto import ACCIONES, N_ESTADOS, NEUTRA, discreta, estado
+from rally.agentes.discreto import ACCIONES, N_ESTADOS, NEUTRA, a_mando, discreta, estado
 from rally.env import VERSION
 from rally.policies import PurePursuit
 
@@ -59,7 +59,7 @@ class AgenteQ:
 
     # Como piloto para el visor y la evaluación: sin explorar y determinista
     def __call__(self, obs, info):
-        return ACCIONES[self.mejor(estado(obs))]
+        return a_mando(ACCIONES[self.mejor(estado(obs))], obs)
 
     def guardar(self, ruta):
         Path(ruta).parent.mkdir(parents=True, exist_ok=True)
@@ -102,42 +102,56 @@ class PuntoQ:
 def maestro(p):
     """Pure pursuit que mira la señal de lluvia. Con lluvia va a 16 m/s en las rectas:
     así la frenada para la curva cabe en los 50 m que la tabla alcanza a ver."""
-    seco = PurePursuit(p["maestro_mu_seco"])
-    lluvia = PurePursuit(p["maestro_mu_lluvia"], v_recta=p["maestro_v_recta_lluvia"])
+    seco = PurePursuit(p["maestro_mu_seco"], traccion=p["maestro_traccion_seco"])
+    lluvia = PurePursuit(p["maestro_mu_lluvia"], v_recta=p["maestro_v_recta_lluvia"],
+                         traccion=p["maestro_traccion_lluvia"])
     return lambda obs, info: (lluvia if obs[19] > 0.5 else seco)(obs, info)
 
 
 def puntaje(m):
     """Orden de las evaluaciones rápidas: vueltas, luego avance, luego tiempo."""
     tiempo = (m.get("seco_tiempo_s") or 999) + (m.get("mojado_tiempo_s") or 999)
-    return [m["seco_vueltas_pct"] + m["mojado_vueltas_pct"],
+    return [m["seco_vueltas_pct"] + m["mojado_vueltas_pct"] + m["robusto_vueltas_pct"],
             m["seco_progreso_pct"] + m["mojado_progreso_pct"], -tiempo]
 
 
-def evaluar(politica, env, n=5, mu_seco=0.9, mu_mojado=0.5):
-    res = {}
-    for nombre, mu in (("seco", mu_seco), ("mojado", mu_mojado)):
-        env.unwrapped.cfg.mu = mu
+def evaluar(politica, env, n=10, mu_seco=0.9, mu_mojado=0.5):
+    """Evaluación rápida en seco, mojado y extremos de los deslizadores."""
+    res, cfg = {}, env.unwrapped.cfg
+    base = cfg.track_width, cfg.a_max
+    robusto = []
+    for nombre, mu, ancho, a_max in (("seco", mu_seco, *base), ("mojado", mu_mojado, *base),
+                                     ("r1", 0.4, *base), ("r2", 0.75, *base), ("r3", mu_seco, 6.0, base[1]),
+                                     ("r4", mu_mojado, 6.0, base[1]), ("r5", mu_seco, 12.0, base[1]),
+                                     ("r6", mu_mojado, 12.0, base[1]), ("r7", mu_mojado, base[0], 6.0),
+                                     ("r8", mu_seco, base[0], 2.0)):
+        cfg.mu, cfg.track_width, cfg.a_max = mu, ancho, a_max
+        veces = n if nombre in ("seco", "mojado") else max(n // 3, 1)
         ok, prog, tiempos = 0, 0.0, []
-        for k in range(n):
+        for k in range(veces):
             obs, info = env.reset(seed=SEMILLA_EVAL + k)
             done = False
             while not done:
-                obs, _, term, trunc, info = env.step(ACCIONES[politica(obs)])
+                obs, _, term, trunc, info = env.step(a_mando(ACCIONES[politica(obs)], obs))
                 done = term or trunc
             ok += info["outcome"] == "exito"
             prog += info["s_best"] / track.LAP
             if info["outcome"] == "exito":
                 tiempos.append(info["t"])
-        res[f"{nombre}_vueltas_pct"] = 100 * ok / n
-        res[f"{nombre}_progreso_pct"] = 100 * prog / n
-        res[f"{nombre}_tiempo_s"] = round(float(np.mean(tiempos)), 2) if tiempos else None
+        if nombre in ("seco", "mojado"):
+            res[f"{nombre}_vueltas_pct"] = 100 * ok / veces
+            res[f"{nombre}_progreso_pct"] = 100 * prog / veces
+            res[f"{nombre}_tiempo_s"] = round(float(np.mean(tiempos)), 2) if tiempos else None
+        else:
+            robusto.append(100 * ok / veces)
+    cfg.track_width, cfg.a_max = base
+    res["robusto_vueltas_pct"] = round(float(np.mean(robusto)), 1)
     return res
 
 
 def entrenar(env_fn, params, grabador=None, al_terminar_episodio=None, carpeta_punto="runs/qlearning-punto"):
     """Entrena en dos fases (DAgger y Q-learning). Devuelve el agente y la lista de resúmenes."""
-    from rally.agentes.ppo import AdherenciaAleatoria
+    from rally.agentes.ppo import DominioAleatorio
 
     p = params
     huella = hashlib.sha1(json.dumps([p, VERSION, N_ESTADOS], sort_keys=True).encode()).hexdigest()[:16]
@@ -161,7 +175,7 @@ def entrenar(env_fn, params, grabador=None, al_terminar_episodio=None, carpeta_p
                       tabla_mejor=tabla_mejor if tabla_mejor is not None else np.zeros(1))
 
     # Otra semilla al reanudar: no se repiten los mismos episodios
-    env = AdherenciaAleatoria(env_fn(), p["mu_min"], p["mu_max"], p["prob_lluvia"], p["lluvia_min"], p["lluvia_max"])
+    env = DominioAleatorio(env_fn(), p)
     env.reset(seed=SEMILLA_BASE + p["semilla"] * 10_000 + st["episodios"])
     env_eval = env_fn()
     profe = maestro(p)
@@ -179,14 +193,15 @@ def entrenar(env_fn, params, grabador=None, al_terminar_episodio=None, carpeta_p
             if etiquetar:
                 cuentas[s, discreta(profe(obs, info))] += 1
             a = elegir(s, obs, info)
-            obs, r, term, trunc, info = env.step(ACCIONES[a])
+            mando = a_mando(ACCIONES[a], obs)
+            obs, r, term, trunc, info = env.step(mando)
             s2 = estado(obs)
             if aprender:
                 ag.aprender(s, a, r, s2, term)
             else:
                 ag.visitas[s] += 1
             if grabador is not None:
-                grabador.paso(obs, info, ACCIONES[a], r)
+                grabador.paso(obs, info, mando, r)
             s, total, done = s2, total + r, term or trunc
             st["pasos"] += 1
         st["episodios"] += 1
