@@ -13,11 +13,11 @@ ciclo completo para que cada resultado se pueda revisar, reproducir y deshacer.
 |---|---|
 | Modelo recomendado | `ppo-modelo-v5-s1` (red neuronal PPO) |
 | Resultado en el test reservado | 100 % de vueltas en seco, 100 % con lluvia, 99.9 % en 19 pruebas extremas |
-| Avance estimado frente a la rúbrica | Cerca del 88 % |
+| Avance estimado frente a la rúbrica | Cerca del 85 % |
 | Lo que más falta | Publicar la API, para evaluar en vivo desde la web |
 | Web | https://autonomous-rally.vercel.app (modo replay: vueltas grabadas) |
 
-El 88 % es una estimación del equipo según la rúbrica, no una medición.
+El 85 % es una estimación del equipo según la rúbrica, no una medición.
 
 **Nota sobre el nombre:** el repositorio se llama `defiende-el-servidor` porque empezó con otro proyecto. Ese plan
 quedó guardado en [antecedentes/](antecedentes/defiende-el-servidor.md) y ya no aplica.
