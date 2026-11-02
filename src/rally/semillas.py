@@ -6,6 +6,7 @@ acumula en metrics/semillas.json, y una semilla ya terminada no se repite tras u
 """
 import hashlib
 import json
+import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -16,7 +17,7 @@ from rally.env import VERSION, AutonomousRallyEnv
 from rally.generalizacion import _nucleos
 from rally.pipeline import DEMOS, METRICAS, _config_ambiente, _escribir_json, _evaluador_rapido, _metricas, _run, params
 
-SALIDA = METRICAS / "semillas.json"
+SALIDA = Path(os.environ.get("RALLY_SEMILLAS", METRICAS / "semillas.json"))  # uno por agente si corren a la vez
 SEMILLAS_EVAL = list(range(100))
 
 
