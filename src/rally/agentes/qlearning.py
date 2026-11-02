@@ -151,7 +151,7 @@ def evaluar(politica, env, n=10, mu_seco=0.9, mu_mojado=0.5):
 
 def entrenar(env_fn, params, grabador=None, al_terminar_episodio=None, carpeta_punto="runs/qlearning-punto"):
     """Entrena en dos fases (DAgger y Q-learning). Devuelve el agente y la lista de resúmenes."""
-    from rally.agentes.ppo import DominioAleatorio
+    from rally.agentes.ppo import DominioAleatorio, RuidoSensores
 
     p = params
     huella = hashlib.sha1(json.dumps([p, VERSION, N_ESTADOS], sort_keys=True).encode()).hexdigest()[:16]
@@ -176,6 +176,8 @@ def entrenar(env_fn, params, grabador=None, al_terminar_episodio=None, carpeta_p
 
     # Otra semilla al reanudar: no se repiten los mismos episodios
     env = DominioAleatorio(env_fn(), p)
+    if p.get("ruido_sensores"):
+        env = RuidoSensores(env, p["ruido_sensores"])
     env.reset(seed=SEMILLA_BASE + p["semilla"] * 10_000 + st["episodios"])
     env_eval = env_fn()
     profe = maestro(p)

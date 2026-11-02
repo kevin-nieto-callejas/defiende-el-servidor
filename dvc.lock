@@ -59,8 +59,8 @@ stages:
       size: 3011
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 9d70ca6f0dfacc82e1a9de023a78131e
-      size: 11901
+      md5: 09a72f94850f2991d6d758b24ac25f24
+      size: 12002
     - path: src/rally/env.py
       hash: md5
       md5: f6875de26cd77731571ad4fd817e69a6
@@ -81,10 +81,10 @@ stages:
           a_max: 4.0
           r_max: 20.0
         qlearning:
-          hipotesis: Si la tabla ve el margen de frenada a 100 m y el pedal se 
-            mide en m/s², completa más vueltas con lluvia y en los extremos de 
-            los deslizadores que la v6
-          dagger_iter: 40
+          hipotesis: Si la tabla practica con carros lentos y sensores con 
+            ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 
+            2 puntos en seco y lluvia
+          dagger_iter: 50
           dagger_episodios: 16
           episodios: 600
           q_inicial: 5.0
@@ -103,6 +103,10 @@ stages:
             track_width:
             - 6.0
             - 12.0
+            a_max:
+            - 2.0
+            - 6.0
+          ruido_sensores: 0.03
           maestro_mu_seco: 0.8
           maestro_mu_lluvia: 0.45
           maestro_traccion_seco: 0.8
@@ -112,8 +116,8 @@ stages:
     outs:
     - path: models/qlearning
       hash: md5
-      md5: c644dc24dec4a52764144c6e44c351ec.dir
-      size: 176166
+      md5: 993f3455a1c3ba699a991b456e314091.dir
+      size: 290683
       nfiles: 2
   ppo:
     cmd: rally pipeline ppo

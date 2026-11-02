@@ -12,8 +12,8 @@ datos:               # dataset de demostraciones para el preentrenamiento por im
   semilla: 500         # semillas distintas a las de evaluación
 
 qlearning:
-  hipotesis: "Si la tabla ve el margen de frenada a 100 m y el pedal se mide en m/s², completa más vueltas con lluvia y en los extremos de los deslizadores que la v6"
-  dagger_iter: 40        # fase 1: imitación con DAgger
+  hipotesis: "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia"
+  dagger_iter: 50        # fase 1: imitación con DAgger
   dagger_episodios: 16   # vueltas por iteración
   episodios: 600         # fase 2: Q-learning desde la mejor imitación
   q_inicial: 5.0         # valor inicial de la acción del maestro (orden de los Q reales)
@@ -28,7 +28,8 @@ qlearning:
   lluvia_min: 0.4
   lluvia_max: 0.75
   prob_base: 0.4
-  rangos: {track_width: [6.0, 12.0]}   # a_max no: la tabla ya mide el pedal en m/s²
+  rangos: {track_width: [6.0, 12.0], a_max: [2.0, 6.0]}   # v8: la v7 solo vio a_max 4 y chocaba con carros lentos
+  ruido_sensores: 0.03   # v8: la v7 dio 0 % con ruido
   maestro_mu_seco: 0.8
   maestro_mu_lluvia: 0.45
   maestro_traccion_seco: 0.8
