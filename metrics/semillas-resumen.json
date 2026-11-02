@@ -1,0 +1,174 @@
+{
+  "ppo": {
+    "seco": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "mojado": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "llovizna": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "casi_seco": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "mas_agarre": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "salida_torcida": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "salida_torcida_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "sensores_ruido": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "sensores_ruido_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "diluvio": {
+      "media_pct": 89.0,
+      "desviacion_pct": 12.8
+    },
+    "limite_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "pista_angosta": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "pista_angosta_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "pista_ancha": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "pista_ancha_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "sensores_cortos": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "sensores_cortos_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "sensores_largos": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "sensores_largos_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "carro_lento": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    },
+    "carro_rapido_lluvia": {
+      "media_pct": 100.0,
+      "desviacion_pct": 0.0
+    }
+  },
+  "qlearning": {
+    "seco": {
+      "media_pct": 98.0,
+      "desviacion_pct": 2.2
+    },
+    "mojado": {
+      "media_pct": 99.3,
+      "desviacion_pct": 0.9
+    },
+    "llovizna": {
+      "media_pct": 99.7,
+      "desviacion_pct": 0.5
+    },
+    "casi_seco": {
+      "media_pct": 98.7,
+      "desviacion_pct": 1.9
+    },
+    "mas_agarre": {
+      "media_pct": 98.3,
+      "desviacion_pct": 1.2
+    },
+    "salida_torcida": {
+      "media_pct": 83.7,
+      "desviacion_pct": 2.1
+    },
+    "salida_torcida_lluvia": {
+      "media_pct": 93.0,
+      "desviacion_pct": 7.1
+    },
+    "sensores_ruido": {
+      "media_pct": 26.7,
+      "desviacion_pct": 6.9
+    },
+    "sensores_ruido_lluvia": {
+      "media_pct": 11.7,
+      "desviacion_pct": 3.1
+    },
+    "diluvio": {
+      "media_pct": 61.0,
+      "desviacion_pct": 12.7
+    },
+    "limite_lluvia": {
+      "media_pct": 90.3,
+      "desviacion_pct": 4.9
+    },
+    "pista_angosta": {
+      "media_pct": 92.7,
+      "desviacion_pct": 7.1
+    },
+    "pista_angosta_lluvia": {
+      "media_pct": 80.3,
+      "desviacion_pct": 10.9
+    },
+    "pista_ancha": {
+      "media_pct": 98.0,
+      "desviacion_pct": 2.2
+    },
+    "pista_ancha_lluvia": {
+      "media_pct": 99.7,
+      "desviacion_pct": 0.5
+    },
+    "sensores_cortos": {
+      "media_pct": 98.0,
+      "desviacion_pct": 2.2
+    },
+    "sensores_cortos_lluvia": {
+      "media_pct": 99.3,
+      "desviacion_pct": 0.9
+    },
+    "sensores_largos": {
+      "media_pct": 98.0,
+      "desviacion_pct": 2.2
+    },
+    "sensores_largos_lluvia": {
+      "media_pct": 99.3,
+      "desviacion_pct": 0.9
+    },
+    "carro_lento": {
+      "media_pct": 73.7,
+      "desviacion_pct": 23.5
+    },
+    "carro_rapido_lluvia": {
+      "media_pct": 99.3,
+      "desviacion_pct": 0.9
+    }
+  }
+}

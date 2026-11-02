@@ -55,6 +55,20 @@ def test_promover_dos_veces_no_duplica_el_historial(tmp_path, monkeypatch):
     assert len(json.loads((tmp_path / "h.json").read_text())) == 2
 
 
+def test_candidato_de_otra_semilla_usa_sus_resultados(tmp_path, monkeypatch):
+    (tmp_path / "metrics").mkdir()
+    criterios = seleccion.CRITERIOS.resolve()
+    monkeypatch.setattr(seleccion, "CRITERIOS", criterios)
+    monkeypatch.chdir(tmp_path)
+    fila = {"vueltas_pct": 100, "tiempo_mediano_s": 70.0}
+    (tmp_path / "metrics/evaluacion.json").write_text(json.dumps(_eval(100, 100)))
+    (tmp_path / "metrics/generalizacion.json").write_text(json.dumps(_gen({"a": 100})))
+    (tmp_path / "metrics/semillas.json").write_text(json.dumps(
+        {"ppo-s1": {"seco": fila, "mojado": {**fila, "vueltas_pct": 90}, "a": fila, "informativa": fila}}))
+    v = seleccion.evaluar_candidato("x", "ppo", 1)
+    assert v["valores"]["tiempo_seco_s"] == 70.0 and not v["criterios"]["mojado"]
+
+
 def test_rollback_sin_anterior_falla(tmp_path, monkeypatch):
     monkeypatch.setattr(seleccion, "RECOMENDADO", tmp_path / "r.json")
     monkeypatch.setattr(seleccion, "HISTORIAL", tmp_path / "h.json")

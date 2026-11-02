@@ -31,8 +31,12 @@ VERSIONES = {
     "modelo-v4": ("N2", "aceptado", "DAgger corrige los estados a los que llega la red al equivocarse"),
     "modelo-qlearning-v6": ("N2", "reemplazado", "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15"),
     "modelo-v5": ("N3", "aceptado", None),
-    "modelo-qlearning-v7": ("N3", "aceptado", None),
+    "modelo-qlearning-v7": ("N3", "reemplazado", None),
+    "modelo-qlearning-v8": ("N3", "aceptado", None),
 }
+FINALISTAS = Path("finalistas")   # semillas 1 y 2: DVC las versiona con finalistas.dvc
+FAMILIA = {"ppo": "modelo-v5", "qlearning": "modelo-qlearning-v8"}
+METRICAS = {"ppo": Path("metrics/semillas.json"), "qlearning": Path("metrics/semillas-qlearning.json")}
 
 
 def _git(*a):
@@ -97,23 +101,53 @@ def manifiesto(rev, tipo):
     }
 
 
+def _run_de_semilla(tipo, s):
+    """Run terminado de esa semilla: de ahí salen su id y el commit que la entrenó."""
+    from mlflow import MlflowClient
+
+    from rally.agentes.seguimiento import EXPERIMENTO, TRACKING_URI
+    c = MlflowClient(tracking_uri=TRACKING_URI)
+    exp = c.get_experiment_by_name(EXPERIMENTO)
+    filtro = f"attributes.run_name = '{tipo}-semilla-{s}' and attributes.status = 'FINISHED'"
+    return c.search_runs([exp.experiment_id], filtro, max_results=1)[0]
+
+
+def manifiesto_finalista(tipo, s):
+    """Otra semilla del mismo experimento: comparte contrato y configuración con su familia."""
+    pesos = FINALISTAS / f"{tipo}-s{s}" / ARCHIVO[tipo]
+    familia = FAMILIA[tipo]
+    run = _run_de_semilla(tipo, s)
+    res = json.loads(METRICAS[tipo].read_text(encoding="utf-8"))[f"{tipo}-s{s}"]
+    datos = pesos.read_bytes()
+    return {**manifiesto(familia, tipo), "nombre": f"{tipo}-{familia}-s{s}", "etiqueta_git": f"{familia}-s{s}",
+            "run_id": run.info.run_id, "git_commit": run.data.tags["git_commit"], "seed": s,
+            "decision": "candidato", "model_uri": f"dvc://{pesos}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
+            "model_sha256": hashlib.sha256(datos).hexdigest(), "mlflow_modelo": None, "mlflow_version": None,
+            "presupuesto": {}, "resultados": {"seco": res["seco"], "mojado": res["mojado"]}}
+
+
 def generar(revisiones=None):
     revisiones = revisiones or [t for t in _git("tag", "-l").split() if t in VERSIONES]
     SALIDA.mkdir(exist_ok=True)
     catalogo = []
+
+    def agregar(m):
+        ruta = SALIDA / f"{m['nombre']}.json"
+        ruta.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
+        catalogo.append({k: m[k] for k in ("nombre", "tipo", "etiqueta_git", "level_id", "decision", "hipotesis",
+                                           "environment_version", "git_commit", "model_sha256", "resultados")})
+        print(f"  {ruta}  {m['model_sha256'][:12]}")
+
     for rev in revisiones:
         for tipo in ARCHIVO:
             if "qlearning" in rev and tipo != "qlearning":
                 continue
             try:
-                m = manifiesto(rev, tipo)
+                agregar(manifiesto(rev, tipo))
             except (KeyError, FileNotFoundError, subprocess.CalledProcessError) as e:
                 print(f"  {tipo} {rev}: sin manifiesto ({e})")
-                continue
-            ruta = SALIDA / f"{m['nombre']}.json"
-            ruta.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
-            catalogo.append({k: m[k] for k in ("nombre", "tipo", "etiqueta_git", "level_id", "decision", "hipotesis",
-                                               "environment_version", "git_commit", "model_sha256", "resultados")})
-            print(f"  {ruta}  {m['model_sha256'][:12]}")
+    for carpeta in sorted(FINALISTAS.glob("*-s*")):
+        tipo, s = carpeta.name.rsplit("-s", 1)
+        agregar(manifiesto_finalista(tipo, int(s)))
     (SALIDA / "catalogo.json").write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
     return catalogo

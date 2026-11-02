@@ -48,12 +48,16 @@ def decidir(nombre, tipo, evaluacion, generalizacion, actual=None):
                         "peor_prueba": {peor: pruebas[peor]["vueltas_pct"]}}}
 
 
-def evaluar_candidato(nombre, tipo):
+def evaluar_candidato(nombre, tipo, semilla=None):
     actual = _leer(RECOMENDADO)
     if actual and not actual["modelo"].startswith(f"{tipo}-"):
         actual = None   # el recomendado es de otro agente: solo aplican los criterios fijados
-    veredicto = decidir(nombre, tipo, _leer("metrics/evaluacion.json"), _leer("metrics/generalizacion.json"), actual)
-    return {**veredicto, "tipo": tipo}
+    evaluacion, generalizacion = _leer("metrics/evaluacion.json"), _leer("metrics/generalizacion.json")
+    if semilla is not None:   # otra semilla: mismas pruebas, con sus resultados
+        res = _leer("metrics/semillas.json" if tipo == "ppo" else "metrics/semillas-qlearning.json")[f"{tipo}-s{semilla}"]
+        evaluacion = {"resultados": {tipo: res}}
+        generalizacion = {"pruebas": generalizacion["pruebas"], "resultados": {tipo: res}}
+    return {**decidir(nombre, tipo, evaluacion, generalizacion, actual), "tipo": tipo}
 
 
 def promover(nombre, motivo, resultados=None):

@@ -330,8 +330,7 @@ def cmd_mlflow(args):
 def cmd_test_final(args):
     from rally.testfinal import correr
 
-    r = correr({"ppo": ("ppo", "models/ppo/modelo.zip"), "qlearning": ("qlearning", "models/qlearning/q_table.npz")},
-               args.repetir)
+    r = correr({"ppo": ("ppo", args.ppo), "qlearning": ("qlearning", args.qlearning)}, args.repetir)
     for nombre, cond in r["resultados"].items():
         console.print(f"{nombre}: seco {cond['seco']['vueltas_pct']}% · lluvia {cond['mojado']['vueltas_pct']}%")
     return 0
@@ -345,7 +344,7 @@ def cmd_seleccionar(args):
     if args.rollback:
         print(json.dumps(seleccion.volver(args.rollback), ensure_ascii=False))
         return 0
-    v = seleccion.evaluar_candidato(args.candidato, args.tipo)
+    v = seleccion.evaluar_candidato(args.candidato, args.tipo, args.semilla)
     if args.promover and v["aceptado"]:
         seleccion.promover(args.candidato, "cumple configs/seleccion.yaml",
                            {"seco": {"vueltas_pct": v["valores"]["seco"]}, "mojado": {"vueltas_pct": v["valores"]["mojado"]}})
@@ -411,6 +410,7 @@ def main(argv=None):
     se = sub.add_parser("seleccionar", help="aplicar los criterios fijados a un candidato, o hacer rollback")
     se.add_argument("candidato", nargs="?")
     se.add_argument("--tipo", default="ppo", choices=["ppo", "qlearning"])
+    se.add_argument("--semilla", type=int, help="usar los resultados de esa semilla de metrics/semillas*.json")
     se.add_argument("--promover", action="store_true", help="si cumple, pasa a ser el recomendado")
     se.add_argument("--rollback", metavar="MOTIVO", help="volver a la recomendación anterior")
     se.set_defaults(fn=cmd_seleccionar)
@@ -422,6 +422,8 @@ def main(argv=None):
 
     tf = sub.add_parser("test-final", help="test reservado con los modelos elegidos (una sola vez)")
     tf.add_argument("--repetir", action="store_true")
+    tf.add_argument("--ppo", default="models/ppo/modelo.zip", help="pesos del PPO elegido")
+    tf.add_argument("--qlearning", default="models/qlearning/q_table.npz", help="tabla elegida")
     tf.set_defaults(fn=cmd_test_final)
 
     re_ = sub.add_parser("replays", help="generar los datos estáticos de la web para cuando no hay API")

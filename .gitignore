@@ -25,3 +25,4 @@ mlflow.db
 
 # Transmisión en vivo del entrenamiento (rally pipeline ... --vivo)
 /runs/
+/finalistas
