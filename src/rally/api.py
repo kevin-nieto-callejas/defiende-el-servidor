@@ -102,6 +102,7 @@ def pista():
     d = datos_pista()
     versiones = {f["nombre"]: f"{f['level_id']} · {f['decision']}" for f in historicos.catalogo() if f["ejecutable"]}
     d["pilotos"] = {**{k: policies.POLITICAS[k][0] for k in MODOS}, **versiones}
+    d["recomendado"] = recomendado().get("modelo")
     return d
 
 

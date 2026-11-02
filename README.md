@@ -104,11 +104,19 @@ son pilotos de referencia.
 | `experimento-v3` | Practicar con lluvia e imitar | 0 % en ambos | Rechazado |
 | `modelo-v4` | DAgger corrige los errores | 100 % / 100 %, pero falla en extremos | Aceptado |
 | `modelo-qlearning-v6` | Imitación tabular | 60 % / 15 % | Reemplazado |
-| **`modelo-v5`** | Conocer el carro y practicar todos los deslizadores con ruido | **100 % / 100 %**, 75.9 s y 92.0 s; 99.1 % en extremos | **Recomendado** |
-| `modelo-qlearning-v7` | Ver el margen de frenada y medir el pedal en m/s² | 87 % / 81 %; 64.8 % en extremos | Aceptado |
+| `modelo-v5` (semilla 0) | Conocer el carro y practicar todos los deslizadores con ruido | 100 % / 100 %, 75.9 s y 92.0 s; 98.5 % en extremos | Candidato |
+| **`ppo-modelo-v5-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 68.6 s y 89.3 s; 100 % en extremos | **Recomendado** |
+| `modelo-qlearning-v7` | Ver el margen de frenada y medir el pedal en m/s² | 87 % / 81 %; 64.8 % en extremos | Reemplazado |
+| `modelo-qlearning-v8` (semilla 0) | Practicar con carros lentos y ruido | 99 % / 100 %; 85.0 % en extremos | Candidato |
+| **`qlearning-modelo-qlearning-v8-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 81.0 s y 106.9 s; 85.9 % en extremos | **Elegido de su agente** |
 
-Resultados: seco / lluvia con 100 vueltas por condición. Los detalles, las pruebas de extremos y los límites
-están en la ficha. Limitación principal: hay un solo circuito.
+Resultados: seco / lluvia con 100 vueltas por condición. Las semillas 1 y 2 están en `finalistas/`, versionadas con
+DVC. Los detalles, las pruebas de extremos y los límites están en la ficha. Limitación principal: hay un solo
+circuito.
+
+**Test reservado** (`rally test-final`, una sola corrida, semillas fuera del repositorio):
+PPO semilla 1 dio 100 % / 100 % y 99.9 % en extremos; Q-learning semilla 1, 99 % / 99 % y 84.8 %. Resultado en
+[metrics/test-final.json](metrics/test-final.json).
 
 La evidencia del flujo de Prefect y del rollback de v5 a v4 y de vuelta está en
 [docs/evidencia/flujo/](docs/evidencia/flujo/) y [manifests/historial.json](manifests/historial.json).

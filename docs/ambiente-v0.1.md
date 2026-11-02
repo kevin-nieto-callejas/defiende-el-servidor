@@ -307,12 +307,40 @@ reglas completa 6 de 6 vueltas incluso con μ 0.4. Es lo que ahora aprenden ambo
 | Carro lento a_max 2 | 100 | 24 | 100 | 100 | 100 |
 | Carro rápido con lluvia a_max 6 | 100 | 91 | 100 | 0 | 0 |
 
-**Decisión:** PPO v5 cumple los criterios de `configs/seleccion.yaml`, fijados antes de ver estos resultados
-(99.1 % promedio en las pruebas; la peor es el diluvio, 82 %), y pasa a ser el modelo recomendado. Frente a la
-v4 cede 0.3 s en seco y 0.2 s en lluvia, a cambio de completar las condiciones donde la v4 fallaba. No se
-marca sobreajuste: cae 18 puntos en el diluvio y se toleran 20. Q-learning v7 también cumple sus criterios,
-más bajos, y queda marcado con sobreajuste: el ruido en los sensores lo lleva a 0 %, porque las celdas de la
-tabla son más finas que el ruido. Es la pérdida de resolución de discretizar.
+La tabla anterior es de Q-learning v7. La v8 practicó además con carros lentos y ruido en los sensores.
+
+**Contraste de finalistas** (3 entrenamientos independientes, misma suite: 100 semillas, 0–99, y 19 pruebas):
+
+| Modelo | Semilla | Seco | Lluvia | Extremos | Peor prueba |
+|---|---|---|---|---|---|
+| PPO v5 | 0 | 100 %, 75.9 s | 100 %, 92.0 s | 98.5 % | Diluvio 71 % |
+| **PPO v5** | **1** | **100 %, 68.6 s** | **100 %, 89.3 s** | **100 %** | **Ninguna bajo 100 %** |
+| PPO v5 | 2 | 100 %, 69.9 s | 100 %, 85.1 s | 99.8 % | Diluvio 96 % |
+| Q-learning v8 | 0 | 99 %, 81.1 s | 100 %, 107.6 s | 85.0 % | Ruido y lluvia 10 % |
+| **Q-learning v8** | **1** | **100 %, 81.0 s** | **100 %, 106.9 s** | **85.9 %** | **Ruido y lluvia 9 %** |
+| Q-learning v8 | 2 | 95 %, 80.7 s | 98 %, 107.4 s | 81.9 % | Ruido y lluvia 16 % |
+
+**Decisión:** PPO semilla 1 (`ppo-modelo-v5-s1`) es el modelo recomendado, y Q-learning semilla 1 el elegido de
+su agente. Cumplen los criterios de `configs/seleccion.yaml`, fijados antes de ver estos resultados: primero
+vueltas y luego tiempo. La ventaja sobre la semilla 2 es de 0.2 puntos, dentro del ruido; la semilla 2 es 4 s más
+rápida con lluvia. El contraste importó: la semilla 0, elegida al principio, resultó la más lenta y la menos
+robusta de PPO.
+
+**Costo de elegir entre semillas:** las tres se compararon con la misma suite, así que ese 100 % favorece a la
+ganadora. Por eso la medida honesta es el test reservado, que se corrió una sola vez con los modelos ya elegidos:
+
+| Test reservado (100 semillas fuera del repositorio) | Seco | Lluvia | Incidentes | Extremos | Peores pruebas |
+|---|---|---|---|---|---|
+| **PPO v5 semilla 1** | **100 %, 68.6 s** | **100 %, 89.3 s** | **0 / 0** | **99.9 %** | Diluvio 98 % |
+| Q-learning v8 semilla 1 | 99 %, 81.0 s | 99 %, 106.9 s | 0.02 / 0.02 | 84.8 % | Ruido 14 y 11 %, diluvio 60 % |
+
+Los resultados casi no se movieron frente a la selección: PPO bajó de 100 a 99.9 % y Q-learning de 85.9 a 84.8 %,
+así que no hay señales de que la elección de semilla haya inflado los números. El SHA-256 de las semillas está en
+`metrics/test-final.json`.
+
+**Pérdida de resolución de la tabla:** Q-learning queda marcado con sobreajuste. El ruido de sensores (3 %) lo
+lleva a entre 9 y 35 % de vueltas, porque las celdas de la tabla son más finas que el ruido. También flaquea con
+el carro lento y el diluvio. En el tiempo, PPO saca 12 s en seco y 18 s con lluvia.
 
 **Limitación:** hay un solo circuito. Los modelos no están probados en otra pista: lo que se mide es
 robustez ante cambios de condiciones, no capacidad de manejar en un trazado desconocido.

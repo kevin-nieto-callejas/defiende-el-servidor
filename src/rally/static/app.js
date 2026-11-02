@@ -1230,7 +1230,7 @@ function alternarVivo() {
 function conectar() {
   const sel = $("sel-piloto");
   for (const [k, desc] of Object.entries(pista.pilotos)) sel.insertAdjacentHTML("beforeend", `<option value="${k}" title="${desc}">${k} — ${desc}</option>`);
-  sel.value = params.get("piloto") || "experto";
+  sel.value = params.get("piloto") || pista.recomendado || "experto";
   $("inp-semilla").value = params.get("semilla") || "0";
 
   construirParametros();
