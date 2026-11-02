@@ -1,7 +1,7 @@
 # Informe: Autonomous Rally
 
 Proyecto final de MLOps · Universidad Externado de Colombia · Docente: Julián Zuluaga
-Equipo: _______ · Integrantes: Kevin Nieto y Miguel · Versión de borrador: 1 nov 2026
+Equipo: _______ · Integrantes: Kevin Nieto, Miguel Melo y _______ · Versión de borrador: 1 nov 2026
 
 ## Resumen
 

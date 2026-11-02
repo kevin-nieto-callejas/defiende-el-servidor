@@ -1,0 +1,12 @@
+<section id="mejora" data-transition="fade" style="background:#F3F1EA;color:#14161B;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Antes y después de la intervención</h2>
+<table style="font-size:32px;color:#14161B">
+<tr><th style="width:46%;text-align:left">Condición</th><th style="width:27%;text-align:left">PPO v4</th><th style="width:27%;text-align:left">PPO v5, semilla 1</th></tr>
+<tr><td>Seco</td><td>100 %, 75.6 s</td><td><b>100 %, 68.6 s</b></td></tr>
+<tr><td>Lluvia</td><td>100 %, 91.8 s</td><td><b>100 %, 89.3 s</b></td></tr>
+<tr><td>Sensores con ruido y lluvia</td><td>63 %</td><td><b>100 %</b></td></tr>
+<tr><td>Diluvio μ 0.4</td><td>0 %</td><td><b>100 %</b></td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#4A4D55">100 vueltas por condición. En las dos últimas filas la v4 usa las semillas 1000–1099; la v5, las 0–99.</p>
+<aside>Mejoró la robustez sin costo de tiempo en esta semilla. No toda la ganancia de tiempo es del método: la semilla 0 de la v5 era incluso un poco más lenta que la v4.</aside>
+</section>

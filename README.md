@@ -4,6 +4,9 @@ Proyecto final de MLOps, Universidad Externado de Colombia (2026-II). Un agente 
 completa un circuito inspirado en Mónaco pasando los checkpoints en orden, con seco, lluvia y perturbaciones.
 Todo experimento se puede consultar, reproducir y restaurar.
 
+**¿Llegas nuevo al proyecto?** Lee el [resumen general](docs/RESUMEN-GENERAL.md): qué se pidió, qué se hizo, cómo
+vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/guias/empezar.md).
+
 | Entrega | Dónde |
 |---|---|
 | Web publicada | https://autonomous-rally.vercel.app (modo replay hasta publicar la API) |
@@ -90,7 +93,7 @@ Valida el perfil, corre las pruebas, entrena, registra, aplica los criterios, pr
 comprueba la versión que la API realmente sirve. Registrar un candidato no lo promueve.
 
 Para recuperar un modelo antiguo: `git checkout <etiqueta> && dvc checkout`, o cárgalo desde el catálogo. Los de
-familias anteriores corren con un adaptador; `runs/validar_historicos.py` comparó sus resultados con los guardados.
+familias anteriores corren con un adaptador; `scripts/analisis/validar_historicos.py` comparó sus resultados con los guardados.
 
 ## Modelos
 
@@ -131,4 +134,4 @@ En Vercel: Root Directory `web`, Build `npm run build`, Output `dist`, y la vari
 
 ## Antecedente
 
-Este repositorio empezó con otro proyecto, conservado en [docs/defiende-el-servidor.md](docs/defiende-el-servidor.md).
+Este repositorio empezó con otro proyecto, conservado en [docs/antecedentes/](docs/antecedentes/defiende-el-servidor.md).

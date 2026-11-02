@@ -3,7 +3,7 @@
 Los pesos se buscan por SHA-256 en RALLY_MODELOS (el despliegue) o en la caché de DVC. Las
 familias viejas corren sobre el ambiente actual con un adaptador: reciben solo sus primeras
 observaciones y los rayos divididos por el alcance, como en su ambiente original.
-`runs/validar_historicos.py` compara cada adaptador contra los resultados guardados.
+`scripts/analisis/validar_historicos.py` compara cada adaptador contra los resultados guardados.
 """
 import json
 import os

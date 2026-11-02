@@ -1,0 +1,9 @@
+<section id="tabla" data-transition="fade" style="background:#F3F1EA;color:#14161B;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:48px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Q-learning: de 15 % a 99 % con lluvia</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:64px">
+<div style="display:flex;flex-direction:column;gap:20px"><h3 style="font-size:44px;font-weight:700">Qué funcionó</h3><p style="font-size:32px;line-height:1.3">La tabla solo veía 50 m y frenar con lluvia pide unos 72 m. Una nota de velocidad segura resume los próximos 100 m en un número.</p></div>
+<div style="display:flex;flex-direction:column;gap:20px"><h3 style="font-size:44px;font-weight:700">Qué sigue fallando</h3><p style="font-size:32px;line-height:1.3">Con ruido de 3 % en sensores completa 14 y 11 % de las vueltas: las celdas de la tabla son más finas que el ruido.</p></div>
+</div>
+<p style="font-size:32px;line-height:1.3;font-weight:600">Es la pérdida de resolución de discretizar. La red no la sufre: 100 % en esa misma prueba.</p>
+<aside>El 99 % es del test reservado; la v6 tenía 15 % con la evaluación de la ficha. En la v8, por primera vez, los episodios de Q-learning sí mejoraron a la tabla de imitación. Sigue marcada con sobreajuste.</aside>
+</section>

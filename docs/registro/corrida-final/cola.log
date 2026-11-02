@@ -1,0 +1,14 @@
+2026-11-01 15:47:26 INICIO esperar-q (intento 1)
+2026-11-01 15:48:56 FIN esperar-q
+2026-11-01 15:48:56 INICIO repro (intento 1)
+2026-11-01 17:42:15 FIN repro
+2026-11-01 17:42:15 INICIO guardar-repro (intento 1)
+2026-11-01 17:42:15 FIN guardar-repro
+2026-11-01 17:42:15 INICIO subir-modelos (intento 1)
+2026-11-01 17:47:44 FALLO subir-modelos (intento 1)
+2026-11-01 17:48:44 INICIO subir-modelos (intento 2)
+2026-11-01 17:53:26 INICIO semillas-ppo (intento 1)
+2026-11-01 19:57:01 INICIO semillas-ppo (intento 1)
+2026-11-01 21:11:28 FIN semillas-ppo
+2026-11-01 21:11:28 INICIO guardar-semillas (intento 1)
+2026-11-01 21:11:28 FIN guardar-semillas

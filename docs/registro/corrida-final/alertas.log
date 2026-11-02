@@ -1,0 +1,20 @@
+2026-11-01 15:48:56 HITO esperar-q terminado
+2026-11-01 17:42:15 HITO repro terminado
+2026-11-01 17:42:15 HITO guardar-repro terminado
+2026-11-01 17:53:26 HITO compuerta aprobada: {'candidato': 'ppo-modelo-v5', 'aceptado': True, 'criterios': {'seco': True, 'mojado': True, 'tiempo_seco': True, 'extremos': True, 'peor_prueba': True, 'no_pierde_seco': True, 'no_pierde_mojado': True}, 'valores': {'seco': 100.0, 'mojado': 100.0, 'tiempo_seco_s': 75.9, 'extremos_pct': 99.1, 'peor_prueba': {'diluvio': 82.0}}, 'tipo': 'ppo'}
+2026-11-01 18:48:37 HITO q8 entrenado
+2026-11-01 18:49:46 HITO modelos en DagsHub
+2026-11-01 19:57:00 ALERTA la cola estaba caída: se relanza
+2026-11-01 19:57:00 ALERTA api caído: se relanza
+2026-11-01 19:57:00 ALERTA visor caído: se relanza
+2026-11-01 19:57:01 HITO compuerta aprobada: {'candidato': 'ppo-modelo-v5', 'aceptado': True, 'criterios': {'seco': True, 'mojado': True, 'tiempo_seco': True, 'extremos': True, 'peor_prueba': True, 'no_pierde_seco': True, 'no_pierde_mojado': True}, 'valores': {'seco': 100.0, 'mojado': 100.0, 'tiempo_seco_s': 75.9, 'extremos_pct': 99.1, 'peor_prueba': {'diluvio': 82.0}}, 'tipo': 'ppo'}
+2026-11-01 21:11:28 HITO semillas-ppo terminado
+2026-11-01 21:11:28 HITO guardar-semillas terminado
+2026-11-01 21:11:28 HITO cola completa
+2026-11-01 21:46:48 HITO evaluacion oficial q8
+2026-11-01 21:55:18 HITO semilla 0 medida: seco 100.0 lluvia 100.0 extremos 98.5
+2026-11-01 21:56:25 HITO semillas de Q-learning terminadas
+2026-11-01 22:08:59 HITO test final terminado
+2026-11-01 22:09:00 HITO finalistas en almacen
+2026-11-01 22:09:11 HITO finalistas en DagsHub
+2026-11-01 22:16:27 HITO MLflow en DagsHub

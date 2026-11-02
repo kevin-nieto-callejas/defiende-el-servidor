@@ -1,0 +1,19 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-11-02T03:20:00Z"},
+  "lists": "css",
+  "title": "Autonomous Rally: presentación final",
+  "cover": "portada",
+  "order": ["portada", "mision", "contrato", "niveles", "evolucion", "enganoso", "fisica", "mejora", "semillas", "reservado", "tabla", "ciclo", "demo", "limites"],
+  "sections": {
+    "s1": {"description": "Qué problema resuelve el agente y con qué reglas", "start": "portada"},
+    "s2": {"description": "Cómo evolucionaron los experimentos y qué falló", "start": "evolucion"},
+    "s3": {"description": "Cómo se eligió el modelo final y qué tan bien aguanta", "start": "semillas"},
+    "s4": {"description": "El ciclo de MLOps, la demostración y los límites", "start": "ciclo"}
+  },
+  "faces": {
+    "oswald": {"family": "Oswald", "href": "https://fonts.googleapis.com/css2?family=Oswald:wght@400..700&display=swap"},
+    "public-sans": {"family": "Public Sans", "href": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..700&display=swap"}
+  },
+  "designSystems": []
+}
