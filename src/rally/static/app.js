@@ -313,8 +313,9 @@ const matVallas = new THREE.MeshStandardMaterial({ map: texturaVallas(), roughne
 const matArmco = new THREE.MeshStandardMaterial({ color: 0xc3c8cf, metalness: 0.85, roughness: 0.3 });
 const matMalla = new THREE.MeshStandardMaterial({ map: texturaMalla(), transparent: true, depthWrite: false,
   side: THREE.DoubleSide, color: 0xc9ced6, metalness: 0.7, roughness: 0.35 });
-const matGoma = new THREE.MeshStandardMaterial({ map: texturaGoma(), transparent: true, depthWrite: false, roughness: 0.6,
-  polygonOffset: true, polygonOffsetFactor: -2 });
+// Mate y sin reflejo en seco: si refleja el cielo, la goma se ve más clara que el asfalto
+const matGoma = new THREE.MeshStandardMaterial({ map: texturaGoma(), transparent: true, depthWrite: false, roughness: 1,
+  envMapIntensity: 0, polygonOffset: true, polygonOffsetFactor: -2 });
 // Pianitos (color por vértice + relieve del asfalto) y pintura del borde
 const matPiano = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5 });
 pbr(matPiano, "asphalt_track", { repetir: [1, 1], relieve: 0.3, color: false, res: CALIDAD === "alta" ? "2k" : "1k" });
@@ -637,7 +638,8 @@ function aplicarClima() {
   // Pintura y pianitos mojados brillan; la goma casi no se nota bajo el agua
   matPiano.roughness = matLinea.roughness = mojado ? 0.15 : 0.5;
   matGoma.opacity = mojado ? 0.45 : 1;
-  matGoma.roughness = mojado ? 0.2 : 0.6;
+  matGoma.roughness = mojado ? 0.2 : 1;
+  matGoma.envMapIntensity = mojado ? 1 : 0;
   lluvia.visible = mojado;
   if (humo) humo.clima(mojado);
   faro.intensity = mojado ? 60 : 0;
