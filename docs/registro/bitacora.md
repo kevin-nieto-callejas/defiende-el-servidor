@@ -76,3 +76,5 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Se unió la rama `mejoras-kevin` (gráficos) a `main`, después de medir rendimiento: 31 FPS en Media, igual que
   antes, y 27 contra 31 con lluvia. En calidad Alta baja a 11 FPS.
 - Mediciones hechas con el Turbo apagado y en un navegador sin ventana.
+- Un clon limpio mostró que `dvc pull` pide credenciales y que la web de DagsHub pide iniciar sesión, aunque el
+  repositorio no es privado. Se corrigió la documentación, que decía lo contrario.

@@ -10,9 +10,20 @@ cd defiende-el-servidor
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/pip install -e .
-.venv/bin/dvc pull -r dagshub      # modelos y datos; el repositorio es público, no pide token
 .venv/bin/pytest
 ```
+
+Los modelos y datos están en DagsHub, y **bajarlos pide credenciales** aunque el repositorio no sea privado. Crea
+una cuenta gratis en https://dagshub.com, copia tu token desde Settings → Tokens y corre una vez:
+
+```bash
+.venv/bin/dvc remote modify --local dagshub user TU_USUARIO
+.venv/bin/dvc remote modify --local dagshub password TU_TOKEN
+.venv/bin/dvc pull -r dagshub
+```
+
+Se guardan en `.dvc/config.local`, que no se sube a git. Sin esto, `dvc pull` falla con un error de autenticación.
+Si tu cuenta no puede leer el repositorio, pídele a Kevin que te agregue como colaborador en DagsHub.
 
 Si ya lo tienes clonado: `git pull` y `.venv/bin/dvc pull -r dagshub`.
 
@@ -40,12 +51,7 @@ git push -u origin mi-rama
 
 Une a `main` cuando pasen `pytest` y, si tocaste la web, `npm run build` dentro de `web/`.
 
-Para subir experimentos o modelos hacen falta credenciales. Copia `.env.example` a `.env`, y configura DVC una vez:
-
-```bash
-dvc remote modify --local dagshub user TU_USUARIO
-dvc remote modify --local dagshub password TU_TOKEN
-```
+Para subir experimentos a DagsHub o publicar en Hugging Face, copia `.env.example` a `.env` y completa los tokens.
 
 ## 4. Antes de entrenar
 

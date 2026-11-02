@@ -53,7 +53,9 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 .venv/bin/pytest
 cp .env.example .env                          # solo para publicar; ver variables abajo
-dvc pull                                      # datos y modelos (repo público: no pide token)
+dvc remote modify --local dagshub user TU_USUARIO
+dvc remote modify --local dagshub password TU_TOKEN   # cuenta gratis de DagsHub
+dvc pull -r dagshub                           # datos y modelos
 ```
 
 | Variable | Dónde | Para qué |

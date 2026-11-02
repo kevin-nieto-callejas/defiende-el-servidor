@@ -114,6 +114,7 @@ Las tablas completas están en la [ficha](ambiente-v0.1.md) y en el [informe](en
 | Rotar los tokens de Hugging Face y DagsHub | Kevin | Media |
 | Actualizar la web con la versión final de `main` | Kevin | Media |
 | Ensayar la sustentación: cada integrante debe poder explicar ambiente, versionamiento y despliegue | Todos | Alta |
+| Dar acceso en DagsHub a los compañeros y acordar cómo lo verá el docente: pide iniciar sesión | Kevin | Alta |
 
 ## Límites que hay que decir en la sustentación
 
@@ -144,3 +145,6 @@ Reglas del equipo:
 | Experimentos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
 | Datos y modelos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
 | Modelo publicado (PPO v4) | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
+
+Los enlaces de DagsHub piden iniciar sesión, y `dvc pull` necesita usuario y token: ver la
+[guía](guias/empezar.md).
