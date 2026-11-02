@@ -877,16 +877,20 @@ async function cargarEpisodio() {
   $("resultado").classList.add("oculto");
   const q = new URLSearchParams({ piloto, semilla });
   for (const { k } of PARAMS) q.set(k, valorParam(k));
+  const fallo = (texto) => {
+    $("cargando-txt").textContent = texto;
+    setTimeout(() => $("cargando").classList.add("oculto"), 4000);  // sigue visible la vuelta anterior
+  };
   let r;
   try {
     r = await fetch(`${API}/api/episodio?${q}`);
   } catch {
-    $("cargando-txt").textContent = "Error: no hay conexión con la API de simulación";
+    fallo("Error: no hay conexión con la API de simulación");
     return;
   }
   if (!r.ok) {  // un error del servicio se muestra como error, nunca como un episodio
     const e = await r.json().catch(() => ({}));
-    $("cargando-txt").textContent = `Error del servicio: ${e.detail ?? r.status}`;
+    fallo(`Error del servicio: ${e.detail ?? r.status}`);
     return;
   }
   const nuevo = await r.json();

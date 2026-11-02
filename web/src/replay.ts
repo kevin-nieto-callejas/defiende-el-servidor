@@ -9,8 +9,11 @@ function destino(url: URL): string | null {
   if (url.pathname === "/api/modelos") return "/datos/modelos.json";
   if (url.pathname === "/api/salud") return "/datos/salud.json";
   if (url.pathname === "/api/episodio") {
-    const clima = parseFloat(url.searchParams.get("mu") ?? "0.9") < 0.75 ? "lluvia" : "seco";
-    return `/datos/replays/${encodeURIComponent(url.searchParams.get("piloto") ?? "")}-${clima}.json`;
+    const p = url.searchParams, num = (k: string) => parseFloat(p.get(k) ?? "");
+    const clima = num("mu") === 0.9 ? "seco" : num("mu") === 0.5 ? "lluvia" : null;
+    // Solo hay grabada la condición base: otra combinación no se aproxima con una vuelta que no le corresponde
+    if (!clima || num("ancho") !== 8 || num("a_max") !== 4 || num("r_max") !== 20 || num("semilla") !== 0) return null;
+    return `/datos/replays/${encodeURIComponent(p.get("piloto") ?? "")}-${clima}.json`;
   }
   return null;
 }
