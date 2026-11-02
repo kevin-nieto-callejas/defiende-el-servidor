@@ -48,6 +48,12 @@ async function pedir<T>(ruta: string, init?: RequestInit): Promise<T> {
   return r.json();
 }
 
+export interface Monitoreo extends Salud {
+  por_modelo: Record<string, number>;
+  fallos: Record<string, number>;
+}
+
+export const monitoreo = () => pedir<Monitoreo>("/api/monitoreo");
 export const catalogo = () => pedir<Catalogo>("/api/modelos");
 export const salud = () => pedir<Salud>("/api/salud");
 export const evaluar = (modelo: string, condiciones: Record<string, number>, episodios = 10) =>

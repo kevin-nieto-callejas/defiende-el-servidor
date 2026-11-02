@@ -1286,8 +1286,10 @@ function conectar() {
   $("r-cambiar").onclick = () => { ponerParam("mu", mu < 0.75 ? 0.9 : 0.5); cargarEpisodio(); };
 
   addEventListener("keydown", (e) => {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
-    const cams = ["persecucion", "tv", "aerea", "cabina", "libre", "vitrina"];
+    if (e.key === "Escape") $("resultado").classList.add("oculto");
+    // Los deslizadores no escriben: si los atajos los ignoran, el teclado queda muerto tras usarlos
+    if (e.target.type !== "range" && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT")) return;
+    const cams =["persecucion", "tv", "aerea", "cabina", "libre", "vitrina"];
     if (e.key >= "1" && e.key <= "6") ponerCamara(cams[+e.key - 1]);
     if (e.code === "Space") { e.preventDefault(); playPausa(); }
     if (e.key === "r" || e.key === "R") $("btn-reiniciar").onclick();

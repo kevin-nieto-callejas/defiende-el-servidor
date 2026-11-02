@@ -16,6 +16,9 @@
 .acciones-cat button { margin-right: 4px; }
 .cat-pie { margin-top: 12px; }
 #cat-salida { margin-top: 10px; color: var(--tenue); font-size: 13px; }
+#cat-monitoreo { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--linea); color: var(--tenue); font-size: 12px; }
+#cat-monitoreo h3 { margin: 0 0 4px; color: var(--texto); font-size: 13px; text-transform: uppercase; }
+#cat-monitoreo p { margin: 2px 0; }
 #aviso-replay {
   position: fixed; z-index: 4; left: 50%; top: calc(var(--sup) + 34px); transform: translateX(-50%);
   width: min(440px, calc(100vw - 32px)); margin: 0; padding: 4px 10px; text-align: center;

@@ -63,11 +63,26 @@ function cargarEnVisor(nombre: string, panel: HTMLElement) {
   panel.classList.add("oculto");
 }
 
+/** Monitoreo mínimo de la guía: éxito por modelo, causas de fallo, latencia y versión servida. */
+async function pintarMonitoreo(panel: HTMLElement) {
+  const caja = panel.querySelector<HTMLElement>("#cat-monitoreo")!;
+  try {
+    const m = await api.monitoreo();
+    const fin = (d: Record<string, number>) => Object.entries(d).map(([k, n]) => `${esc(k)}: ${n}`).join(" · ") || "sin datos";
+    caja.innerHTML = `<h3>Monitoreo de esta sesión de la API</h3>
+      <p>Finales de episodio: ${fin(m.fallos)}</p><p>Episodios por versión: ${fin(m.por_modelo)}</p>
+      <p>Latencia ${m.latencia_paso_ms ?? "—"} ms por paso · ${m.errores} errores · sirve ${esc(m.recomendado.modelo ?? "sin promover")}</p>`;
+  } catch {
+    caja.textContent = "El monitoreo en vivo necesita la API.";
+  }
+}
+
 async function abrir(panel: HTMLElement) {
   panel.classList.remove("oculto");
   const cuerpo = panel.querySelector<HTMLElement>("#cat-cuerpo")!;
   const estado = panel.querySelector<HTMLElement>("#cat-estado")!;
   cuerpo.textContent = "Consultando el catálogo…";
+  pintarMonitoreo(panel);
   try {
     const [cat, s] = await Promise.all([api.catalogo(), api.salud()]);
     estado.innerHTML = `API ${esc(s.estado)} · ambiente ${esc(s.ambiente)} · commit ${corto(s.commit)} · web ${esc(corto(COMMIT_WEB))}
@@ -89,8 +104,10 @@ export function montarCatalogo() {
   panel.className = "oculto";
   panel.innerHTML = `<header><h2>Catálogo de modelos</h2><button id="cat-cerrar" aria-label="Cerrar">✕</button></header>
     <p id="cat-estado"></p><div id="cat-cuerpo"></div>
-    <div class="cat-pie"><button id="cat-comparar">Comparar marcadas</button></div><div id="cat-salida" aria-live="polite"></div>`;
+    <div class="cat-pie"><button id="cat-comparar">Comparar marcadas</button></div><div id="cat-salida" aria-live="polite"></div>
+    <div id="cat-monitoreo"></div>`;
   document.body.append(panel);
+  addEventListener("keydown", (ev) => { if (ev.key === "Escape") panel.classList.add("oculto"); });
 
   const boton = document.createElement("button");
   boton.textContent = "Catálogo";
