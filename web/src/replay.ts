@@ -30,9 +30,11 @@ export function activarReplay() {
   };
 }
 
+/** El aviso va en la nota del panel: en replay "cada corrida es una simulación nueva" no es cierto. */
 export function mostrarAviso() {
-  const aviso = document.createElement("p");
-  aviso.id = "aviso-replay";
-  aviso.textContent = "Modo replay: vueltas grabadas con semilla 0 y parámetros base. Los deslizadores y la evaluación en vivo necesitan la API.";
-  document.body.append(aviso);
+  const nota = document.querySelector(".nota-normal");
+  if (!nota) return;
+  nota.textContent = "Modo replay: vueltas grabadas con semilla 0 y parámetros base. Cambiar otro valor necesita la API.";
+  nota.classList.replace("nota-normal", "nota-replay");
+  nota.parentElement?.prepend(nota);  // arriba: en pantallas bajas el final del panel queda bajo el scroll
 }

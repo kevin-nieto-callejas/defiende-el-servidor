@@ -44,7 +44,7 @@ html, body {
   border-left: 3px solid var(--verde); background: var(--panel);
   font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
 }
-#insignia-modo:empty { display: none; }
+#insignia-modo:empty, body.en-vivo #insignia-modo { display: none; }  /* en vivo ya tiene su insignia */
 #insignia-modo[data-modo="referencia"] { border-color: var(--cian); }
 #insignia-modo[data-modo="aleatorio"] { border-color: var(--morado); }
 #insignia-modo[data-modo="entrenamiento"] { border-color: var(--amarillo); }
@@ -293,7 +293,7 @@ body.en-vivo .param small, body.en-vivo .nota-normal { display: none; }
 
 /* ---------- Avisos ---------- */
 #aviso {
-  position: fixed; z-index: 2; top: calc(var(--sup) + 14px); left: 50%; transform: translateX(-50%) skewX(-10deg); padding: 7px 26px;
+  position: fixed; z-index: 2; top: calc(var(--sup) + 40px); left: 50%; transform: translateX(-50%) skewX(-10deg); padding: 7px 26px;
   font-weight: 900; letter-spacing: .08em; font-size: 16px; opacity: 0; transition: opacity .15s; pointer-events: none; white-space: nowrap;
 }
 #aviso.visible { opacity: 1; }
@@ -334,7 +334,7 @@ body.en-vivo #aviso { top: calc(var(--sup) + 56px); }
 @keyframes cargar { from { transform: translateX(-10%); } to { transform: translateX(160%); } }
 #cargando-txt { color: var(--tenue); font-size: 14px; }
 #cargas {
-  position: fixed; z-index: 2; left: 50%; top: calc(var(--sup) + 10px); transform: translateX(-50%); padding: 7px 12px; background: var(--panel);
+  position: fixed; z-index: 2; left: 50%; top: calc(var(--sup) + 40px); transform: translateX(-50%); padding: 7px 12px; background: var(--panel);
   font: 500 11.5px "JetBrains Mono", monospace; color: var(--tenue); max-height: 34vh; overflow: hidden; max-width: calc(100vw - 620px);
 }
 #cargas .error { color: var(--rojo-claro); }

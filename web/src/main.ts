@@ -13,4 +13,5 @@ if (replay) activarReplay();
 await import("../../src/rally/static/app.js");
 montarCatalogo();
 if (replay) mostrarAviso();
+if (innerWidth <= 680) document.body.classList.add("plegado");  // en celular primero se ve la pista
 if (produccion) document.getElementById("btn-vivo")?.remove();  // el entrenamiento no corre en la nube

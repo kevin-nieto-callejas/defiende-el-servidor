@@ -19,9 +19,10 @@
 #cat-monitoreo { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--linea); color: var(--tenue); font-size: 12px; }
 #cat-monitoreo h3 { margin: 0 0 4px; color: var(--texto); font-size: 13px; text-transform: uppercase; }
 #cat-monitoreo p { margin: 2px 0; }
-#aviso-replay {
-  position: fixed; z-index: 4; left: 50%; top: calc(var(--sup) + 34px); transform: translateX(-50%);
-  width: min(440px, calc(100vw - 32px)); margin: 0; padding: 4px 10px; text-align: center;
-  background: var(--panel); border-left: 3px solid var(--rojo); color: var(--tenue); font-size: 12px;
+.nota-replay { padding-left: 8px; border-left: 3px solid var(--rojo); color: var(--texto); }
+@media (max-width: 1400px) { #fps, .calidad span { display: none; } }  /* si no, Catálogo pisa las cámaras */
+@media (max-width: 680px) {
+  #catalogo { padding: 10px; font-size: 12px; }
+  #catalogo th:nth-child(4), #catalogo td:nth-child(4), #catalogo th:nth-child(5), #catalogo td:nth-child(5) { display: none; }
+  #col-der { display: none; }
 }
-@media (max-width: 640px) { #catalogo { padding: 10px; font-size: 12px; } }
