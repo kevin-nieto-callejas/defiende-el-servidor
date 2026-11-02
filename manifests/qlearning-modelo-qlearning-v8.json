@@ -4,7 +4,7 @@
   "etiqueta_git": "modelo-qlearning-v8",
   "run_id": "d7fa27b99e4041a0b39458e39e76bc6e",
   "level_id": "N3",
-  "decision": "aceptado",
+  "decision": "candidato",
   "hipotesis": "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia",
   "environment_version": "0.4-monaco-configurable",
   "ambiente_huella": null,

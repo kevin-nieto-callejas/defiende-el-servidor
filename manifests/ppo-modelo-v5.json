@@ -4,7 +4,7 @@
   "etiqueta_git": "modelo-v5",
   "run_id": "eed70c9b08c248b490fb51f921f4f611",
   "level_id": "N3",
-  "decision": "aceptado",
+  "decision": "candidato",
   "hipotesis": "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4",
   "environment_version": "0.4-monaco-configurable",
   "ambiente_huella": "61fa0dd41b7c",

@@ -30,9 +30,9 @@ VERSIONES = {
     "experimento-v3": ("N2", "rechazado", "Practicar 50 % con lluvia e imitar vueltas perfectas: falló en ambos pisos"),
     "modelo-v4": ("N2", "aceptado", "DAgger corrige los estados a los que llega la red al equivocarse"),
     "modelo-qlearning-v6": ("N2", "reemplazado", "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15"),
-    "modelo-v5": ("N3", "aceptado", None),
+    "modelo-v5": ("N3", "candidato", None),
     "modelo-qlearning-v7": ("N3", "reemplazado", None),
-    "modelo-qlearning-v8": ("N3", "aceptado", None),
+    "modelo-qlearning-v8": ("N3", "candidato", None),
 }
 FINALISTAS = Path("finalistas")   # semillas 1 y 2: DVC las versiona con finalistas.dvc
 FAMILIA = {"ppo": "modelo-v5", "qlearning": "modelo-qlearning-v8"}
