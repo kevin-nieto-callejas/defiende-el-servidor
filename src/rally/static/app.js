@@ -13,6 +13,7 @@ import { crearCarro, crearHumo } from "./carro.js";
 import { pbr, cargas } from "./texturas.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 
 const $ = (id) => document.getElementById(id);
 const API = globalThis.RALLY_API ?? "";  // vacío en el visor local; la URL de la API en Vercel
@@ -43,9 +44,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "h
 // Niveles de calidad. "auto" elige según la tarjeta gráfica: en gráficos integrados
 // (Intel, móviles) usa "media" para mantener la resolución al 100 % y buenos FPS.
 const PRESETS = {
-  alta:  { nombre: "Alta",  px: 1.25, msaa: 4, fxaa: false, bloom: true,  sombras: 2048, cadaSombra: 1 },
-  media: { nombre: "Media", px: 1.0,  msaa: 0, fxaa: true,  bloom: false, sombras: 1024, cadaSombra: 2 },
-  baja:  { nombre: "Baja",  px: 0.8,  msaa: 0, fxaa: true,  bloom: false, sombras: 0,    cadaSombra: 1 },
+  alta:  { nombre: "Alta",  px: 1.25, msaa: 4, fxaa: false, bloom: true,  sombras: 2048, cadaSombra: 1, ao: true },
+  media: { nombre: "Media", px: 1.0,  msaa: 0, fxaa: true,  bloom: false, sombras: 1024, cadaSombra: 2, ao: false },
+  baja:  { nombre: "Baja",  px: 0.8,  msaa: 0, fxaa: true,  bloom: false, sombras: 0,    cadaSombra: 1, ao: false },
 };
 const GPU = (() => {
   const gl = renderer.getContext(), ext = gl.getExtension("WEBGL_debug_renderer_info");
@@ -64,7 +65,8 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = Q.sombras > 0;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate = Q.cadaSombra === 1;   // en "media" las sombras se recalculan un cuadro sí, uno no
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
+// AgX: colores más naturales que ACES (que satura el atardecer hacia naranja)
+renderer.toneMapping = params.get("tono") === "aces" ? THREE.ACESFilmicToneMapping : THREE.AgXToneMapping;
 renderer.toneMappingExposure = 1.05;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 $("escena").appendChild(renderer.domElement);
@@ -76,28 +78,54 @@ cam.position.set(0, 60, 70);
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth, innerHeight,
   { samples: Q.msaa, type: THREE.HalfFloatType }));
 composer.addPass(new RenderPass(scene, cam));
+// Oclusión ambiental: oscurece donde las cosas se tocan (llantas en el asfalto, público
+// en las gradas, base de los muros). Da el "peso" de los juegos AAA; solo en Alta.
+if (Q.ao && !SIN.has("ao")) {
+  const ao = new GTAOPass(scene, cam, innerWidth, innerHeight);
+  ao.updateGtaoMaterial({ radius: 0.8, distanceExponent: 1.5, thickness: 1.5, scale: 1.0, samples: 8 });
+  ao.blendIntensity = 0.85;
+  // El pase de normales del AO dibuja todo sólido: las hojas, la malla y el humo darían halos
+  const ocultarBase = ao.overrideVisibility.bind(ao);
+  ao.overrideVisibility = () => {
+    ocultarBase();
+    scene.traverse((o) => {
+      const m = o.material;
+      if (m && !Array.isArray(m) && (m.transparent || m.alphaTest > 0)) o.visible = false;
+    });
+  };
+  composer.addPass(ao);
+}
 const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.16, 0.5, 0.95);
 if (Q.bloom) composer.addPass(bloom);
 composer.addPass(new OutputPass());
-// Gradación de color: un poco más de contraste y saturación + viñeta (como una cámara de TV)
-composer.addPass(new ShaderPass({
-  uniforms: { tDiffuse: { value: null }, contraste: { value: 1.06 }, saturacion: { value: 1.12 }, vineta: { value: 0.32 } },
+// Gradación de color como una transmisión de TV: contraste en curva S, sombras un poco
+// frías y luces cálidas, viñeta suave y grano fino de cámara
+const gradacion = new ShaderPass({
+  uniforms: { tDiffuse: { value: null }, contraste: { value: 1.1 }, saturacion: { value: 1.18 }, vineta: { value: 0.28 },
+    grano: { value: 0.035 }, tiempo: { value: 0 } },
   vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float contraste, saturacion, vineta; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float contraste, saturacion, vineta, grano, tiempo; varying vec2 vUv;
     void main(){
       vec4 c = texture2D(tDiffuse, vUv);
       float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
       c.rgb = mix(vec3(l), c.rgb, saturacion);
-      c.rgb = (c.rgb - 0.5) * contraste + 0.5;
+      vec3 s = clamp(c.rgb, 0.0, 1.0);
+      c.rgb = mix(s, s * s * (3.0 - 2.0 * s), contraste - 1.0);            // curva S
+      c.rgb += vec3(-0.012, 0.0, 0.016) * (1.0 - l) + vec3(0.014, 0.006, -0.01) * l;   // tonos fríos/cálidos
       float d = distance(vUv, vec2(0.5));
-      c.rgb *= 1.0 - vineta * smoothstep(0.35, 0.85, d);
+      c.rgb *= 1.0 - vineta * smoothstep(0.35, 0.9, d);
+      // Ruido de gradiente intercalado (estable en GPUs Intel, sin patrones)
+      vec2 px = gl_FragCoord.xy + vec2(tiempo * 37.0, tiempo * 17.0);
+      float r = fract(52.9829189 * fract(dot(px, vec2(0.06711056, 0.00583715))));
+      c.rgb += (r - 0.5) * grano * (1.0 - l * 0.6);
       gl_FragColor = c;
     }`,
-}));
+});
 // FXAA: suaviza bordes casi sin costo (en vez de MSAA x4, caro en gráficos integrados)
 const fxaa = new ShaderPass(FXAAShader);
 const ajustarFxaa = () => fxaa.material.uniforms.resolution.value.set(1 / (innerWidth * resolucion), 1 / (innerHeight * resolucion));
 if (Q.fxaa) { composer.addPass(fxaa); ajustarFxaa(); }
+composer.addPass(gradacion);   // después del FXAA: así no emborrona el grano
 let cuadro = 0, hudAcum = 0;
 const controles = new OrbitControls(cam, renderer.domElement);
 controles.enableDamping = true;
@@ -220,40 +248,95 @@ function texturaVallas() {
   return t;
 }
 
-// Malla metálica de seguridad (alambre en rombos, con transparencia)
+// Malla metálica de seguridad: 4 × 4 rombos de alambre por baldosa (6 cm cada rombo).
+// De lejos los mipmaps la vuelven una gasa casi transparente, como una malla real.
 function texturaMalla() {
   const c = document.createElement("canvas");
-  c.width = c.height = 64;
+  c.width = c.height = 256;
   const g = c.getContext("2d");
-  g.strokeStyle = "#d1d5db"; g.lineWidth = 3;
-  g.beginPath(); g.moveTo(0, 0); g.lineTo(64, 64); g.moveTo(64, 0); g.lineTo(0, 64); g.stroke();
+  g.strokeStyle = "#d4d8de"; g.lineWidth = 3.4;
+  for (let i = -4; i <= 4; i++) {
+    g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64 + 256, 256); g.stroke();
+    g.beginPath(); g.moveTo(i * 64 + 256, 0); g.lineTo(i * 64, 256); g.stroke();
+  }
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.anisotropy = 8;
   return t;
 }
 
+// Goma en la línea de carrera: más oscura en el centro de la franja, con vetas
+function texturaGoma() {
+  const c = document.createElement("canvas");
+  c.width = 64; c.height = 256;
+  const g = c.getContext("2d");
+  for (let x = 0; x < 64; x++) {
+    const a = Math.pow(Math.sin((x / 63) * Math.PI), 1.6) * 0.5;
+    for (let y = 0; y < 256; y += 2) {
+      g.fillStyle = `rgba(8,8,10,${a * (0.65 + Math.random() * 0.35)})`;
+      g.fillRect(x, y, 1, 2);
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+// Oscurece y aclara el material en manchas grandes según la posición en el mundo
+// (ruido en el shader): rompe la repetición de las texturas fotográficas.
+function macroVariacion(mat, escala, fuerza) {
+  mat.onBeforeCompile = (sh) => {
+    sh.vertexShader = "varying vec3 vMundo;\n" + sh.vertexShader.replace("#include <worldpos_vertex>",
+      "#include <worldpos_vertex>\n  vMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+    sh.fragmentShader = `varying vec3 vMundo;
+float hashM(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float ruidoM(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hashM(i), hashM(i + vec2(1, 0)), f.x), mix(hashM(i + vec2(0, 1)), hashM(i + vec2(1, 1)), f.x), f.y); }
+` + sh.fragmentShader.replace("#include <map_fragment>", `#include <map_fragment>
+  { vec2 p = vMundo.xz * ${escala.toFixed(4)};
+    float v = ruidoM(p) * 0.6 + ruidoM(p * 3.1) * 0.3 + ruidoM(p * 9.7) * 0.1;
+    diffuseColor.rgb *= 1.0 + (v - 0.5) * ${(fuerza * 2).toFixed(3)}; }`);
+  };
+  mat.customProgramCacheKey = () => "macro" + escala + fuerza;
+}
+
 // ------------------------------------------------------------------ pista
 // Texturas fotográficas (Poly Haven, CC0): asfalto de circuito y pasto en el escape
 const matAsfalto = new THREE.MeshStandardMaterial({ map: texturaAsfalto(), roughness: 0.9, metalness: 0.0 });
-pbr(matAsfalto, "asphalt_track", { repetir: [2, 1], relieve: 0.6 });
+pbr(matAsfalto, "asphalt_track", { repetir: [2, 1], relieve: 0.6, res: CALIDAD === "alta" ? "2k" : "1k" });
+// Parches grandes (reparaciones, desgaste): la foto se repite cada 4 m y sin esto se nota
+macroVariacion(matAsfalto, 0.045, 0.28);
 const matEscape = new THREE.MeshStandardMaterial({ color: 0x4f7a34, roughness: 1 });
 pbr(matEscape, "leafy_grass", { repetir: [1, 1] });
 const matVallas = new THREE.MeshStandardMaterial({ map: texturaVallas(), roughness: 0.45 });
 const matArmco = new THREE.MeshStandardMaterial({ color: 0xc3c8cf, metalness: 0.85, roughness: 0.3 });
-const matMalla = new THREE.MeshStandardMaterial({ map: texturaMalla(), alphaTest: 0.4, side: THREE.DoubleSide, color: 0xb9bec6, metalness: 0.6, roughness: 0.4 });
+const matMalla = new THREE.MeshStandardMaterial({ map: texturaMalla(), transparent: true, depthWrite: false,
+  side: THREE.DoubleSide, color: 0xc9ced6, metalness: 0.7, roughness: 0.35 });
+const matGoma = new THREE.MeshStandardMaterial({ map: texturaGoma(), transparent: true, depthWrite: false, roughness: 0.6,
+  polygonOffset: true, polygonOffsetFactor: -2 });
+// Pianitos (color por vértice + relieve del asfalto) y pintura del borde
+const matPiano = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5 });
+pbr(matPiano, "asphalt_track", { repetir: [1, 1], relieve: 0.3, color: false, res: CALIDAD === "alta" ? "2k" : "1k" });
+const matLinea = new THREE.MeshStandardMaterial({ color: 0xf1f1ee, roughness: 0.55 });
 const puertas = [];
 
-// Cinta a lo largo de la línea central entre dos desvíos laterales (+ = izquierda)
-function cinta(offA, offB, altura, colorPorS = null) {
+// Cinta a lo largo de la línea central entre dos desvíos laterales (+ = izquierda).
+// `altura` puede ser [en offA, en offB] (cinta inclinada) y los desvíos pueden ser
+// funciones del índice (cinta que se mueve, como la línea de carrera).
+function cinta(offA, offB, altura, colorPorS = null, incluir = null) {
   const c = pista.centro, n = c.length;
   const pos = [], col = [], uv = [];
-  const punto = (k, off) => {
-    const [, x, y, h] = c[k % n];
-    return P(x - Math.sin(h) * off, y + Math.cos(h) * off, altura);
+  const [hA, hB] = Array.isArray(altura) ? altura : [altura, altura];
+  const valor = (f, k) => (typeof f === "function" ? f(k % n) : f);
+  const punto = (k, off, alt) => {
+    const [, x, y, h] = c[k % n], o = valor(off, k);
+    return P(x - Math.sin(h) * o, y + Math.cos(h) * o, alt);
   };
+  // Si offA queda a la derecha de offB los triángulos quedarían boca abajo (invisibles): se ordenan
+  const [oA, oB, alA, alB] = valor(offA, 0) <= valor(offB, 0) ? [offA, offB, hA, hB] : [offB, offA, hB, hA];
   for (let i = 0; i < n; i++) {
-    const a1 = punto(i, offA), b1 = punto(i, offB), a2 = punto(i + 1, offA), b2 = punto(i + 1, offB);
+    if (incluir && !incluir(i)) continue;
+    const a1 = punto(i, oA, alA), b1 = punto(i, oB, alB), a2 = punto(i + 1, oA, alA), b2 = punto(i + 1, oB, alB);
     // Orden de vértices con la cara hacia arriba (el eje y se invierte al pasar a three.js)
     for (const p of [a1, a2, b1, b1, a2, b2]) pos.push(p.x, p.y, p.z);
     const s = c[i][0];
@@ -308,15 +391,46 @@ function construirPista(w) {
   const asfalto = new THREE.Mesh(cinta(-w / 2, w / 2, 0.02), matAsfalto);
   asfalto.receiveShadow = true;
   grupoPista.add(asfalto);
-  const matPiano = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6 });
-  const colorPiano = (s) => (Math.floor(s / 2) % 2 ? 0xdc2626 : 0xf5f5f5);
-  for (const [a, b] of [[-w / 2 - 0.4, -w / 2 + 0.7], [w / 2 - 0.7, w / 2 + 0.4]]) {
-    const m = new THREE.Mesh(cinta(a, b, 0.035, colorPiano), matPiano);
-    m.receiveShadow = true;
-    grupoPista.add(m);
+  // Curvatura suavizada (±15 m): dónde hay curva y hacia qué lado
+  const c = pista.centro, n = c.length, paso = pista.largo / n;
+  const ventana = Math.max(1, Math.round(15 / paso));
+  const kSuave = c.map((_, i) => {
+    let t = 0;
+    for (let j = -ventana; j <= ventana; j++) t += c[(i + j + n) % n][4];
+    return t / (2 * ventana + 1);
+  });
+  // Pianitos con relieve (suben 5 cm hacia afuera), rojo y blanco cada metro, solo en las curvas.
+  // Histéresis: la curva "empieza" con κ > 1/90 y "termina" con κ < 1/130 (sin trocitos sueltos).
+  const colorPiano = (s) => (Math.floor(s) % 2 ? 0xc81e1e : 0xf3f3f1);
+  const curva = new Array(n).fill(false);
+  let dentro = false;
+  for (let pasada = 0; pasada < 2; pasada++) {      // dos vueltas: la curva que cruza la meta queda bien
+    for (let i = 0; i < n; i++) {
+      const k = Math.abs(kSuave[i]);
+      dentro = dentro ? k > 1 / 130 : k > 1 / 90;
+      if (pasada === 1) curva[i] = dentro;
+    }
   }
-  grupoPista.add(new THREE.Mesh(cinta(-0.12, 0.12, 0.03, (s) => (Math.floor(s / 3) % 2 ? 0x3a3d43 : 0xe5e5e5)),
-    new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.7 })));
+  const enCurva = (i) => curva[i];
+  for (const lado of [-1, 1]) {
+    const borde0 = lado * (w / 2 - 0.75), borde1 = lado * (w / 2 + 0.5), medio = lado * (w / 2 - 0.1);
+    for (const [a, b, ha, hb] of [[borde0, medio, 0.022, 0.07], [medio, borde1, 0.07, 0.04]]) {
+      const m = new THREE.Mesh(cinta(a, b, [ha, hb], colorPiano, enCurva), matPiano);
+      m.receiveShadow = true;
+      grupoPista.add(m);
+    }
+  }
+  // Líneas blancas del borde de la pista (pintura)
+  for (const lado of [-1, 1]) {
+    grupoPista.add(new THREE.Mesh(cinta(lado * (w / 2 - 0.32), lado * (w / 2 - 0.2), 0.026), matLinea));
+  }
+  // Goma de la línea de carrera: por fuera antes de la curva, pegada adentro en el vértice
+  // y otra vez por fuera a la salida (curvatura aquí menos la de 20 m antes y después)
+  const L = Math.round(20 / paso), kk = (i) => kSuave[((i % n) + n) % n];
+  const linea = (i) => clamp(40 * kk(i) - 30 * (kk(i + L) + kk(i - L)) / 2, -1, 1) * (w / 2 - 1.7);
+  const goma = new THREE.Mesh(cinta((i) => linea(i) - 1.0, (i) => linea(i) + 1.0, 0.024), matGoma);
+  goma.receiveShadow = true;
+  grupoPista.add(goma);
 
   // Zona de escape (pasto) y muros a ambos lados, igual que en el simulador
   const borde = w / 2 + pista.escape;
@@ -332,7 +446,7 @@ function construirPista(w) {
     for (const [geo, mat, sombra] of [
       [pared(off, 0, 1.0, blanco), matVallas, true],
       [pared(off, 1.0, 1.32, blanco, 4), matArmco, true],
-      [pared(off + lado * 0.12, 1.32, 4.2, blanco, 0.45, 6.4), matMalla, false],
+      [pared(off + lado * 0.12, 1.32, 4.4, blanco, 0.24, 12.8), matMalla, false],
     ]) {
       const muro = new THREE.Mesh(geo, mat);
       muro.castShadow = sombra;
@@ -345,7 +459,8 @@ function construirPista(w) {
     const [, x, y, h] = pista.centro[k];
     for (const lado of [-1, 1]) lugaresPoste.push(P(x - Math.sin(h) * lado * (borde + 0.27), y + Math.cos(h) * lado * (borde + 0.27), 2.6));
   }
-  const postes = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.05, 0.05, 3.2, 6), matArmco, lugaresPoste.length);
+  const matPoste = new THREE.MeshStandardMaterial({ color: 0x6b7178, metalness: 0.55, roughness: 0.45 });
+  const postes = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.035, 0.04, 3.4, 6), matPoste, lugaresPoste.length);
   lugaresPoste.forEach((p, i) => postes.setMatrixAt(i, new THREE.Matrix4().makeTranslation(p.x, p.y, p.z)));
   postes.castShadow = true;
   grupoPista.add(postes);
@@ -517,7 +632,11 @@ function aplicarClima() {
   matAsfalto.roughness = mojado ? 0.18 : 1.0;
   matAsfalto.metalness = mojado ? 0.15 : 0.0;
   matAsfalto.color.set(mojado ? 0x6d727c : 0xffffff);
-  matEscape.color.set(mojado ? 0x8a9a86 : 0xffffff);
+  matEscape.color.set(mojado ? 0x7f9a74 : 0xbfe0a0);   // pasto verde (la foto sola sale seca)
+  // Pintura y pianitos mojados brillan; la goma casi no se nota bajo el agua
+  matPiano.roughness = matLinea.roughness = mojado ? 0.15 : 0.5;
+  matGoma.opacity = mojado ? 0.45 : 1;
+  matGoma.roughness = mojado ? 0.2 : 0.6;
   lluvia.visible = mojado;
   if (humo) humo.clima(mojado);
   faro.intensity = mojado ? 60 : 0;
@@ -534,7 +653,7 @@ function prepararCamsTV() {
   camsTV = [];
   for (let i = 0; i < c.length; i += paso) {
     const [, x, y, h] = c[i], lado = (i / paso) % 2 ? 1 : -1, off = lado * (muro + 7);
-    camsTV.push([x - Math.sin(h) * off, y + Math.cos(h) * off, 8]);
+    camsTV.push([x - Math.sin(h) * off, y + Math.cos(h) * off, 13]);   // sobre el techo de las graderías
   }
   // Desde los postes el túnel solo muestra el techo: adentro van cámaras contra la pared
   tunelTV = tramoTunel(pista);
@@ -1091,6 +1210,7 @@ function animar() {
   if (!SIN.has("hud") && (hudAcum >= 0.05 || !reproduciendo)) { hudAcum = 0; actualizarHUD(est); }
   cuadro++;
   if (Q.cadaSombra > 1 && cuadro % Q.cadaSombra === 0) renderer.shadowMap.needsUpdate = true;
+  gradacion.uniforms.tiempo.value = (cuadro % 997) * 0.37;
   medirFps();   // antes de dibujar (ver medirFps)
   if (SIN.has("post")) renderer.render(scene, cam); else composer.render();
 }

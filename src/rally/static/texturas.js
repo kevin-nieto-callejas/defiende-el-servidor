@@ -31,19 +31,20 @@ function cargar(url, srgb) {
 }
 
 // Aplica una textura PBR de Poly Haven a un material existente (no bloquea:
-// el material se ve con su color mientras llegan las imágenes).
-export function pbr(material, nombre, { repetir = [1, 1], relieve = 1, rugosidad = true, res = "1k" } = {}) {
+// el material se ve con su color mientras llegan las imágenes). Con color: false
+// solo pone el relieve y la rugosidad (el color sigue siendo el del material).
+export function pbr(material, nombre, { repetir = [1, 1], relieve = 1, rugosidad = true, res = "1k", color = true } = {}) {
   const url = (mapa) => `${PH}/Textures/jpg/${res}/${nombre}/${nombre}_${mapa}_${res}.jpg`;
   const pedidos = [cargar(url("diff"), true), cargar(url("nor_gl"), false)];
   if (rugosidad) pedidos.push(cargar(url("rough"), false));
   return registrar("textura " + nombre, Promise.all(pedidos)).then(([diff, nor, rough]) => {
     for (const t of [diff, nor, rough]) if (t) { t.repeat.set(...repetir); }
     // Cada material usa su propia copia (para repetir distinto sin afectar a otros)
-    material.map = diff.clone(); material.map.repeat.set(...repetir); material.map.needsUpdate = true;
+    if (color) { material.map = diff.clone(); material.map.repeat.set(...repetir); material.map.needsUpdate = true; }
     material.normalMap = nor.clone(); material.normalMap.repeat.set(...repetir); material.normalMap.needsUpdate = true;
     material.normalScale.set(relieve, relieve);
     if (rough) { material.roughnessMap = rough.clone(); material.roughnessMap.repeat.set(...repetir); material.roughnessMap.needsUpdate = true; }
-    material.color.set(0xffffff);
+    if (color) material.color.set(0xffffff);
     material.needsUpdate = true;
     return material;
   }).catch((e) => { console.warn("Textura no disponible:", nombre, e); return material; });
