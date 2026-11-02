@@ -91,7 +91,7 @@
     "tipo": "qlearning",
     "etiqueta_git": "modelo-qlearning-v7",
     "level_id": "N3",
-    "decision": "aceptado",
+    "decision": "reemplazado",
     "hipotesis": "Si la tabla ve el margen de frenada a 100 m y el pedal se mide en m/s², completa más vueltas con lluvia y en los extremos de los deslizadores que la v6",
     "environment_version": "0.4-monaco-configurable",
     "git_commit": "9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
@@ -112,6 +112,35 @@
         "incidentes_ep": 0.36,
         "recompensa_media": 117.12,
         "progreso_pct": 91.8
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-qlearning-v8",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-qlearning-v8",
+    "level_id": "N3",
+    "decision": "aceptado",
+    "hipotesis": "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "12ab2a66203c31b780f4389a70019c83fdd7c8d0",
+    "model_sha256": "75daeddd7d7960882c5eb22cad23744c37b40557cfd4224b09cff9c6b624e5bb",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 99.0,
+        "tiempo_mediano_s": 81.1,
+        "tiempo_p90_s": 81.5,
+        "incidentes_ep": 0.02,
+        "recompensa_media": 159.52,
+        "progreso_pct": 99.4
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 107.6,
+        "tiempo_p90_s": 108.0,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 145.47,
+        "progreso_pct": 100.0
       }
     }
   },
@@ -315,6 +344,122 @@
         "incidentes_ep": 0.0,
         "recompensa_media": 157.46,
         "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "ppo-modelo-v5-s1",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v5-s1",
+    "level_id": "N3",
+    "decision": "aceptado",
+    "hipotesis": "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "60fee8ce3b605022bb5229f5e2883c361c29b403",
+    "model_sha256": "ea24b02d858695996fdc4b9bcff4cba7174ddd41e3acdf790c8a3b972a3edade",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 68.6,
+        "tiempo_p90_s": 68.7,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 170.36,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 89.3,
+        "tiempo_p90_s": 89.5,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 158.84,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "ppo-modelo-v5-s2",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v5-s2",
+    "level_id": "N3",
+    "decision": "candidato",
+    "hipotesis": "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "691bc79218faa0ac3f74971f3c1c4eb3362f4367",
+    "model_sha256": "72a62f8297e92013ad1e9ee75da8b9a21313229d047193b20cdc670599b937b7",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 69.9,
+        "tiempo_p90_s": 69.9,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 171.27,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 85.1,
+        "tiempo_p90_s": 85.5,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 162.88,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-qlearning-v8-s1",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-qlearning-v8-s1",
+    "level_id": "N3",
+    "decision": "aceptado",
+    "hipotesis": "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "691bc79218faa0ac3f74971f3c1c4eb3362f4367",
+    "model_sha256": "fd6972e955a3e7d6e66dd7c24341f04fb56d2a302b127f970a208e067a785c24",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 81.0,
+        "tiempo_p90_s": 81.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 159.47,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 106.9,
+        "tiempo_p90_s": 107.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 146.37,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-modelo-qlearning-v8-s2",
+    "tipo": "qlearning",
+    "etiqueta_git": "modelo-qlearning-v8-s2",
+    "level_id": "N3",
+    "decision": "candidato",
+    "hipotesis": "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "691bc79218faa0ac3f74971f3c1c4eb3362f4367",
+    "model_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 95.0,
+        "tiempo_mediano_s": 80.7,
+        "tiempo_p90_s": 81.0,
+        "incidentes_ep": 0.1,
+        "recompensa_media": 152.43,
+        "progreso_pct": 96.9
+      },
+      "mojado": {
+        "vueltas_pct": 98.0,
+        "tiempo_mediano_s": 107.4,
+        "tiempo_p90_s": 108.13,
+        "incidentes_ep": 0.04,
+        "recompensa_media": 141.24,
+        "progreso_pct": 98.6
       }
     }
   }

@@ -37,6 +37,7 @@ VERSIONES = {
 FINALISTAS = Path("finalistas")   # semillas 1 y 2: DVC las versiona con finalistas.dvc
 FAMILIA = {"ppo": "modelo-v5", "qlearning": "modelo-qlearning-v8"}
 METRICAS = {"ppo": Path("metrics/semillas.json"), "qlearning": Path("metrics/semillas-qlearning.json")}
+ELEGIDA = {"ppo": 1, "qlearning": 1}   # por configs/seleccion.yaml: más vueltas y luego menor tiempo
 
 
 def _git(*a):
@@ -121,7 +122,7 @@ def manifiesto_finalista(tipo, s):
     datos = pesos.read_bytes()
     return {**manifiesto(familia, tipo), "nombre": f"{tipo}-{familia}-s{s}", "etiqueta_git": f"{familia}-s{s}",
             "run_id": run.info.run_id, "git_commit": run.data.tags["git_commit"], "seed": s,
-            "decision": "candidato", "model_uri": f"dvc://{pesos}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
+            "decision": "aceptado" if ELEGIDA[tipo] == s else "candidato", "model_uri": f"dvc://{pesos}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
             "model_sha256": hashlib.sha256(datos).hexdigest(), "mlflow_modelo": None, "mlflow_version": None,
             "presupuesto": {}, "resultados": {"seco": res["seco"], "mojado": res["mojado"]}}
 

@@ -1,6 +1,6 @@
 {
-  "modelo": "ppo-modelo-v5",
-  "motivo": "rollback: Fin de la prueba: se restaura v5",
+  "modelo": "ppo-modelo-v5-s1",
+  "motivo": "cumple configs/seleccion.yaml",
   "resultados": {
     "seco": {
       "vueltas_pct": 100.0
@@ -9,5 +9,5 @@
       "vueltas_pct": 100.0
     }
   },
-  "fecha": "2026-11-01T17:45:30-0500"
+  "fecha": "2026-11-01T21:57:41-0500"
 }

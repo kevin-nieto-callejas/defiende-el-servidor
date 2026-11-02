@@ -4,7 +4,7 @@
   "etiqueta_git": "modelo-qlearning-v7",
   "run_id": "0db7b9b220a7492a889ff063312bd328",
   "level_id": "N3",
-  "decision": "aceptado",
+  "decision": "reemplazado",
   "hipotesis": "Si la tabla ve el margen de frenada a 100 m y el pedal se mide en m/s², completa más vueltas con lluvia y en los extremos de los deslizadores que la v6",
   "environment_version": "0.4-monaco-configurable",
   "ambiente_huella": null,
