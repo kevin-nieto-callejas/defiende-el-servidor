@@ -80,3 +80,8 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   espera texturas, cielo, carro y shaders. La vuelta y la medición de FPS arrancan cuando todo está listo.
 - Un clon limpio mostró que `dvc pull` pide credenciales y que la web de DagsHub pide iniciar sesión, aunque el
   repositorio no es privado. Se corrigió la documentación, que decía lo contrario.
+
+## 2 de noviembre
+
+- Flujo completo de Prefect con entrenamiento real, en una copia aparte. Reprodujo los resultados oficiales sin
+  ninguna diferencia, aunque el computador se suspendió siete horas a mitad de PPO por batería baja.

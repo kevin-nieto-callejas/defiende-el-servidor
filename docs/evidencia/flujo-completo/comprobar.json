@@ -1,0 +1,7 @@
+{
+  "etapa": "comprobar",
+  "fecha": "2026-11-02T08:58:17-0500",
+  "servido": "ppo-modelo-v5",
+  "commit": "75ece1a8128d656f7c8dac2d522221d319c0d535",
+  "ambiente": "0.4-monaco-configurable"
+}

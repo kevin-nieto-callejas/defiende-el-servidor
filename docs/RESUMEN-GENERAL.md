@@ -90,7 +90,7 @@ Las tablas completas están en la [ficha](ambiente-v0.1.md) y en el [informe](en
 | Modelos y datos versionados | Listos, en DVC con dos remotos | `dvc.lock`, `finalistas.dvc` |
 | Manifiestos con SHA-256 | Listos, 16 versiones | [manifests/](../manifests/) |
 | Experimentos | Listos en DagsHub | [MLflow](https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments) |
-| Pipeline con Prefect | Probado sin entrenar | [pipelines/flujo.py](../pipelines/flujo.py) |
+| Pipeline con Prefect | Probado completo, con entrenamiento real y resultados idénticos | [evidencia/flujo-completo/](evidencia/flujo-completo/) |
 | Rollback | Probado v5 → v4 → v5 contra la API | [manifests/historial.json](../manifests/historial.json) |
 | Evidencia del flujo | Lista | [evidencia/flujo/](evidencia/flujo/) |
 | Monitoreo | Funciona con la API; en replay no hay datos | Catálogo de la web |
