@@ -219,8 +219,8 @@ stages:
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: c644dc24dec4a52764144c6e44c351ec.dir
-      size: 176166
+      md5: 993f3455a1c3ba699a991b456e314091.dir
+      size: 290683
       nfiles: 2
     - path: src/rally/agentes/discreto.py
       hash: md5
@@ -232,8 +232,8 @@ stages:
       size: 16164
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 9d70ca6f0dfacc82e1a9de023a78131e
-      size: 11901
+      md5: 09a72f94850f2991d6d758b24ac25f24
+      size: 12002
     - path: src/rally/env.py
       hash: md5
       md5: f6875de26cd77731571ad4fd817e69a6
@@ -273,15 +273,15 @@ stages:
     outs:
     - path: metrics/evaluacion.json
       hash: md5
-      md5: b64f68436523dd2f6d973f2e8c585647
-      size: 3303
+      md5: 4a0a2dd666924e78d8933c6af8bca5ed
+      size: 3302
   registrar:
     cmd: rally pipeline registrar
     deps:
     - path: metrics/evaluacion.json
       hash: md5
-      md5: b64f68436523dd2f6d973f2e8c585647
-      size: 3303
+      md5: 4a0a2dd666924e78d8933c6af8bca5ed
+      size: 3302
     - path: models/ppo
       hash: md5
       md5: 17fa333e42e58e621fb506ecda6c5afc.dir
@@ -289,8 +289,8 @@ stages:
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: c644dc24dec4a52764144c6e44c351ec.dir
-      size: 176166
+      md5: 993f3455a1c3ba699a991b456e314091.dir
+      size: 290683
       nfiles: 2
     - path: src/rally/agentes/seguimiento.py
       hash: md5
@@ -318,8 +318,8 @@ stages:
     outs:
     - path: metrics/registro.json
       hash: md5
-      md5: afedebabf1681f3913e5d27a84f39570
-      size: 299
+      md5: 57e10d3a35f145cfdad6c86b81c2a2e8
+      size: 298
   generalizacion:
     cmd: rally pipeline generalizacion
     deps:
@@ -330,8 +330,8 @@ stages:
       nfiles: 2
     - path: models/qlearning
       hash: md5
-      md5: c644dc24dec4a52764144c6e44c351ec.dir
-      size: 176166
+      md5: 993f3455a1c3ba699a991b456e314091.dir
+      size: 290683
       nfiles: 2
     - path: src/rally/agentes/discreto.py
       hash: md5
@@ -343,8 +343,8 @@ stages:
       size: 16164
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 9d70ca6f0dfacc82e1a9de023a78131e
-      size: 11901
+      md5: 09a72f94850f2991d6d758b24ac25f24
+      size: 12002
     - path: src/rally/env.py
       hash: md5
       md5: f6875de26cd77731571ad4fd817e69a6
@@ -480,5 +480,5 @@ stages:
     outs:
     - path: metrics/generalizacion.json
       hash: md5
-      md5: 76478a2e49692585ff29514f02f6d6b4
-      size: 39943
+      md5: 9f8df3cc1fe392a5736ab1d90cb68e48
+      size: 39959
