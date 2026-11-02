@@ -35,6 +35,7 @@ addEventListener("unhandledrejection", (e) => mostrarError(e.reason && (e.reason
 let pista, ep = null;
 const alcance = () => (ep ? ep.params.r_max : pista.rayos.alcance);
 let reproduciendo = true, velocidad = 1, tiempo = 0, camara = params.get("cam") || "persecucion";
+let listo = false;   // false mientras se prepara el escenario detrás de la pantalla de carga
 let mu = parseFloat(params.get("mu") || "0.9");
 
 // ------------------------------------------------------------------ escena
@@ -1043,7 +1044,7 @@ function mostrarEpisodio(nuevo) {
   ultimoCP = 1;
   reproduciendo = params.get("pausa") !== "1";
   $("btn-play").textContent = reproduciendo ? "❚❚" : "▶";
-  $("cargando").classList.add("oculto");
+  if (listo) $("cargando").classList.add("oculto");
   const est = estado();
   cam.position.copy(P(est.x, est.y)).add(new THREE.Vector3(-30, 25, 30));
   mirarSuave.copy(P(est.x, est.y));
@@ -1112,7 +1113,7 @@ function animar() {
   const dt = Math.min(reloj.getDelta(), 0.1);
   if (!ep) return;
   const dur = (ep.frames.length - 1) * pista.dt;
-  if (reproduciendo) {
+  if (reproduciendo && listo) {
     tiempo += dt * velocidad;
     if (tiempo >= dur) {
       tiempo = dur;
@@ -1211,7 +1212,7 @@ function animar() {
   cuadro++;
   if (Q.cadaSombra > 1 && cuadro % Q.cadaSombra === 0) renderer.shadowMap.needsUpdate = true;
   gradacion.uniforms.tiempo.value = (cuadro % 997) * 0.37;
-  medirFps();   // antes de dibujar (ver medirFps)
+  if (listo) medirFps();   // antes de dibujar (ver medirFps); el arranque no cuenta como lentitud
   if (SIN.has("post")) renderer.render(scene, cam); else composer.render();
 }
 
@@ -1430,6 +1431,25 @@ function conectar() {
   });
 }
 
+// Mantiene la pantalla de carga hasta que llegan texturas, cielo y carro, y deja correr unos
+// cuadros detrás de ella: ahí se compilan los shaders, que si no traban los primeros segundos.
+// Con internet muy lenta no se espera para siempre: lo que falte aparece después con su indicador.
+async function prepararEscena(limite = 15000) {
+  const t0 = performance.now();
+  let estables = 0;
+  while (estables < 3 && performance.now() - t0 < limite) {
+    await new Promise((r) => setTimeout(r, 100));
+    const lista = [...cargas.values()], ok = lista.filter((e) => e !== "cargando").length;
+    $("cargando-txt").textContent = `Preparando escenario ${ok}/${lista.length}…`;
+    estables = lista.length && ok === lista.length ? estables + 1 : 0;
+  }
+  for (let i = 0; i < 4; i++) await new Promise((r) => requestAnimationFrame(r));
+  listo = true;
+  fpsT0 = performance.now(); fpsCuadros = 0;
+  reloj.getDelta();
+  $("cargando").classList.add("oculto");
+}
+
 // ------------------------------------------------------------------ inicio
 pista = await (await fetch(`${API}/api/pista`)).json();
 {
@@ -1451,3 +1471,4 @@ conectar();
 ponerCamara(camara);
 await cargarEpisodio();
 animar();
+await prepararEscena();
