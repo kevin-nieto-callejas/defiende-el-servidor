@@ -92,3 +92,5 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Hugging Face pasa de PPO v4 a `ppo-modelo-v5-s1`, con la etiqueta `v5-s1`, el manifiesto y el test reservado. El
   SHA-256 del modelo bajado de Hugging Face coincide con el del manifiesto. `rally publicar` no sirvió porque sube
   `models/ppo`, que es la semilla 0.
+- Intento de publicar la API en un Hugging Face Space: el paquete se armó y verificó, pero Hugging Face rechazó
+  crear el Space porque los Spaces con Docker ya exigen la suscripción PRO. No se creó nada. Se decide con el docente.

@@ -506,7 +506,7 @@ del catálogo de la web. En modo replay no hay datos en vivo y la web lo dice.
 | Pieza | Dónde | Estado |
 |---|---|---|
 | Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada, al día con `main` |
-| API | Por definir; propuesta: Hugging Face Space con Docker | Funciona en local, sin publicar |
+| API | Por definir con el docente | Funciona en local, sin publicar. El paquete está listo y verificado, pero el 3 de noviembre Hugging Face respondió que los Spaces con Docker ya exigen la suscripción PRO |
 | Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | Escrito, sin construir |
 | Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v5 semilla 1, etiqueta `v5-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo. Las versiones anteriores siguen en las etiquetas `v1`, `v2` y `v4` |
 
@@ -674,7 +674,7 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 
 | Tarea | Responsable | Prioridad | Depende de |
 |---|---|---|---|
-| Preguntar al docente dónde publicar la API (propuesta: Hugging Face Space) | Kevin, miércoles | Alta | Docente |
+| Preguntar al docente dónde publicar la API. Opciones: Hugging Face PRO (unos 9 USD al mes, sale en minutos), Render gratis (se duerme y su memoria es justa para PyTorch) o una API liviana con numpy dentro de Vercel (gratis, unas horas de trabajo) | Kevin, miércoles | Alta | Docente |
 | Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin, miércoles | Alta | Docente |
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin, miércoles | Media | Docente |
 | Publicar la API, definir `VITE_API_BASE_URL` en Vercel y probar la evaluación en vivo | Equipo | Alta | Respuesta del docente |
