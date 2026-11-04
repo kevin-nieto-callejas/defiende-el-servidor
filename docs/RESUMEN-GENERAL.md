@@ -694,6 +694,10 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 
 - **Hay un solo circuito.** Medimos robustez ante condiciones, no manejo en una pista desconocida. Es la limitación
   más importante; la siguiente hipótesis sería entrenar en pistas generadas al azar y medir en una reservada.
+- **Las 19 pruebas extremas cambian una condición a la vez.** Combinadas, el modelo falla: con diluvio y
+  aceleración 6 completó 1 de 3 vueltas, y con todos los deslizadores al extremo (pista de 6 m, μ 0.4, aceleración
+  6 y sensores de 10 m), 0 de 3. Medido el 3 de noviembre en la API local. Si el docente prueba eso en la web, va a
+  ver el choque: hay que decirlo antes.
 - **La web pública hoy no simula.** Muestra vueltas grabadas y lo dice en pantalla.
 - **Q-learning falla con ruido en sensores:** sus celdas son más finas que el ruido.
 - **La nota de velocidad segura es ayuda ya procesada.** No medimos cuánto depende el agente de ella.

@@ -94,3 +94,6 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   `models/ppo`, que es la semilla 0.
 - Intento de publicar la API en un Hugging Face Space: el paquete se armó y verificó, pero Hugging Face rechazó
   crear el Space porque los Spaces con Docker ya exigen la suscripción PRO. No se creó nada. Se decide con el docente.
+- Probando la web en vivo con todos los deslizadores al extremo, PPO v5 semilla 1 se salió. Con 3 semillas por
+  combinación: diluvio solo, 3 de 3; diluvio con pista de 6 m o sensores de 10 m, 3 de 3; diluvio con aceleración
+  6, 1 de 3; todo al extremo, 0 de 3. Las pruebas extremas nunca combinaron condiciones. Queda como límite.
