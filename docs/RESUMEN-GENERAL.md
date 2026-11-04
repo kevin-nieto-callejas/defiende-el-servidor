@@ -643,8 +643,8 @@ La instalación completa está en la [guía para empezar](guias/empezar.md).
 | Regenerar vueltas grabadas | `.venv/bin/rally replays` |
 | Copiar MLflow a DagsHub | `.venv/bin/rally sincronizar` (necesita `DAGSHUB_TOKEN`) |
 
-La web compilada en el puerto 4173 también habla con la API del 8000, así que funciona en vivo si la API está
-encendida.
+La web compilada (puerto 4173) siempre entra en modo replay si se compiló sin `VITE_API_BASE_URL`. Para la
+simulación en vivo en local, usa `npm run dev` (puerto 5173) con la API encendida.
 
 **No correr `rally test-final`:** ya se usó, y repetirlo para ajustar modelos le quita su valor.
 
