@@ -508,7 +508,7 @@ del catálogo de la web. En modo replay no hay datos en vivo y la web lo dice.
 | Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada, al día con `main` |
 | API | Por definir; propuesta: Hugging Face Space con Docker | Funciona en local, sin publicar |
 | Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | Escrito, sin construir |
-| Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | Tiene PPO v4; falta subir el v5 semilla 1 |
+| Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v5 semilla 1, etiqueta `v5-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo. Las versiones anteriores siguen en las etiquetas `v1`, `v2` y `v4` |
 
 **Por qué el fork:** Vercel no tiene acceso al repositorio de Miguel. Para actualizar la web hay que subir la
 versión a la rama `ambiente-v0.4` del fork. El último cambio de la web es `3450fde`; lo que vino después fue solo
@@ -682,7 +682,6 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 | Dar acceso en DagsHub a los compañeros | Kevin | Alta | — |
 | Nombre del equipo, tercer integrante y contribuciones en ficha, informe y presentación | Equipo | Media | — |
 | Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
-| Publicar el modelo final en Hugging Face; hoy tiene PPO v4 | Kevin | Media | — |
 | Rotar los tokens de Hugging Face y DagsHub | Kevin | Media | — |
 | Reactivar el Turbo del procesador cuando no se entrene | Kevin | Baja | — |
 | Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento y despliegue | Todos | Alta | — |
@@ -831,7 +830,7 @@ debe poder explicar lo que se hizo.
 | Web | https://autonomous-rally.vercel.app |
 | Experimentos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
 | Datos y modelos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
-| Modelo publicado (PPO v4) | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
+| Modelo publicado (PPO v5 semilla 1) | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
 | Ficha del ambiente | [ambiente-v0.1.md](ambiente-v0.1.md) |
 | Informe | [entregas/informe.md](entregas/informe.md) |
 | Presentación | [entregas/presentacion/](entregas/presentacion/) |

@@ -85,3 +85,10 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 
 - Flujo completo de Prefect con entrenamiento real, en una copia aparte. Reprodujo los resultados oficiales sin
   ninguna diferencia, aunque el computador se suspendió siete horas a mitad de PPO por batería baja.
+
+## 3 de noviembre
+
+- Resumen general ampliado para el equipo.
+- Hugging Face pasa de PPO v4 a `ppo-modelo-v5-s1`, con la etiqueta `v5-s1`, el manifiesto y el test reservado. El
+  SHA-256 del modelo bajado de Hugging Face coincide con el del manifiesto. `rally publicar` no sirvió porque sube
+  `models/ppo`, que es la semilla 0.
