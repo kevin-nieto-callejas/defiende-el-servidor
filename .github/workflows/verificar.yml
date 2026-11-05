@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
-      - name: Armar el paquete de la API (sin pesos: los modelos viven en DVC)
+      - name: Armar el paquete de la API sin pesos (los modelos viven en DVC)
         run: |
           pip install gymnasium numpy scipy rich pyyaml
           pip install --no-deps -e .
