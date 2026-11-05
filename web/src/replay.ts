@@ -1,8 +1,8 @@
 /**
- * Modo replay: sin API pública, /api/* se responde con los archivos de public/datos/.
+ * Modo replay: si la API no responde, /api/* se responde con los archivos de public/datos/.
  * Todo se marca como replay; lo que necesita simular responde error, nunca un dato inventado.
  */
-const SIN_API = "Esta función necesita la API de simulación, que aún no está publicada.";
+const SIN_API = "Esta función necesita la API de simulación, que no está respondiendo.";
 
 function destino(url: URL): string | null {
   if (url.pathname === "/api/pista") return "/datos/pista.json";
@@ -31,10 +31,11 @@ export function activarReplay() {
 }
 
 /** El aviso va en la nota del panel: en replay "cada corrida es una simulación nueva" no es cierto. */
-export function mostrarAviso() {
+export function mostrarAviso(motivo: string | null) {
   const nota = document.querySelector(".nota-normal");
   if (!nota) return;
-  nota.textContent = "Modo replay: vueltas grabadas con semilla 0 y parámetros base. Cambiar otro valor necesita la API.";
+  nota.textContent = `Modo replay: la API ${motivo ?? "no está disponible"}. Se ven vueltas grabadas con semilla 0 `
+    + "y parámetros base; cambiar otro valor necesita la API.";
   nota.classList.replace("nota-normal", "nota-replay");
   nota.parentElement?.prepend(nota);  // arriba: en pantallas bajas el final del panel queda bajo el scroll
 }

@@ -4,7 +4,7 @@
 funciona todo, qué hicimos día por día, qué resultados hay, dónde está cada cosa, qué falta y cómo responder las
 preguntas de la sustentación. Si después de leerlo te queda una duda, revisa la sección 16, de preguntas frecuentes.
 
-Última actualización: 3 de noviembre de 2026, sobre el commit `53cb1aa` de `main`.
+Última actualización: 5 de noviembre de 2026, sobre el commit `97c1dc4` de `main` más los cambios de la API en Vercel.
 
 ## Contenido
 
@@ -42,9 +42,9 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
 | Avance estimado frente a la rúbrica | Cerca del 85 % (estimación del equipo, no una medición) |
-| Lo que más falta | Publicar la API para evaluar en vivo desde la web; depende de lo que diga el docente |
-| Web pública | https://autonomous-rally.vercel.app (modo replay: muestra vueltas grabadas) |
-| Pruebas automáticas | 54 pasando |
+| Lo que más falta | Armar el paquete de la API con los modelos reales y desplegarlo (un comando y un push); datos del equipo |
+| Web pública | https://autonomous-rally.vercel.app (hoy en replay; con el paquete desplegado simula en vivo en `/api`) |
+| Pruebas automáticas | 60 (59 pasan y 1 se activa cuando existe el paquete de Vercel) |
 | Versiones de modelos con manifiesto | 16 |
 
 **Nota sobre el nombre:** el repositorio se llama `defiende-el-servidor` porque empezó con otro proyecto. Ese plan
@@ -82,7 +82,7 @@ con el ambiente compatible con ese modelo**.
 |---|---:|---|---|
 | Versionamiento y recuperación | 30 % | Casi completo | Que el docente pueda entrar a DagsHub: hoy pide iniciar sesión |
 | Diseño experimental y análisis | 25 % | Casi completo | Nada técnico; ensayar la explicación |
-| Pipeline, despliegue, monitoreo y rollback | 20 % | Parcial | Publicar la API y conectar la web |
+| Pipeline, despliegue, monitoreo y rollback | 20 % | Casi completo | Desplegar el paquete de la API y evaluar desde la URL |
 | Ambiente y agente | 10 % | Completo | Intercambiar la ficha con otro equipo |
 | Defensa, informe y presentación | 15 % | Material listo | Nombres, contribuciones y ensayo |
 
@@ -105,10 +105,10 @@ con el ambiente compatible con ese modelo**.
 | Test reservado, usado una sola vez | Listo | `metrics/test-final.json` |
 | Orquestador | Listo: Prefect, probado completo con entrenamiento | [evidencia/flujo-completo/](evidencia/flujo-completo/) |
 | Promoción y rollback | Listo: probado v5 → v4 → v5 | [manifests/historial.json](../manifests/historial.json) |
-| Monitoreo | Listo en la API; en replay no hay datos en vivo | `/api/monitoreo` |
-| Web pública en Vercel | Lista en modo replay | https://autonomous-rally.vercel.app |
-| API pública | **Falta**: se pregunta al docente dónde publicarla | `src/rally/api.py`, `deploy/api/` |
-| Contenedor | **Falta construirlo**: no ha habido Docker | `deploy/api/Dockerfile` |
+| Monitoreo | Listo en la API; en Vercel cuenta por instancia y dice desde cuándo | `/api/monitoreo` |
+| Web pública en Vercel | Lista; detecta la API y, si no responde, entra en replay diciendo por qué | https://autonomous-rally.vercel.app |
+| API pública | **Lista para desplegar**: función de Vercel en la misma URL, gratis. Falta empaquetar con los modelos reales y hacer push | `web/api/`, `deploy/api/empaquetar.py` |
+| Contenedor | GitHub Actions lo construye y prueba sus rutas en cada push | `deploy/api/Dockerfile`, `.github/workflows/verificar.yml` |
 | Informe | Borrador completo | [entregas/informe.md](entregas/informe.md) |
 | Presentación | Lista, 14 diapositivas, sin ensayar | [entregas/presentacion/](entregas/presentacion/) |
 
@@ -484,7 +484,7 @@ marca como no ejecutables. Código: `src/rally/historicos.py`; evidencia: `docs/
 | 4. Registrar | Regenera los manifiestos |
 | 5. Seleccionar | Aplica los criterios al candidato |
 | 6. Promover | Si pasa, lo deja como recomendado |
-| 7. Publicar | Actualiza el catálogo |
+| 7. Publicar | Actualiza el catálogo y rearma el paquete de la API de Vercel |
 | 8. Comprobar | Pregunta a la API qué modelo sirve |
 
 Se probó dos veces: sin entrenar ([evidencia/flujo/](evidencia/flujo/)) y completo con entrenamiento real, en una
@@ -495,20 +495,33 @@ computador se suspendió 7 horas a mitad de PPO por batería baja y el flujo sig
 Prefect vive en un entorno aparte (`~/.venvs/rally-flujo`) para no mezclar sus dependencias con las del
 entrenamiento.
 
+Como Vercel despliega desde git, la etapa 7 deja el paquete listo y la publicación termina con commit y push.
+Después se comprueba la URL pública con `pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app`.
+El rollback también rearma el paquete, para que la web sirva la versión restaurada.
+
 ### 8.8 Monitoreo
 
 La API lleva la cuenta de lo que sirve: versión del modelo y del ambiente, commit, episodios corridos, errores,
 fallos por causa (choque, salida, estancado, tiempo) y latencia por paso. Se ve en `/api/monitoreo` y en el panel
-del catálogo de la web. En modo replay no hay datos en vivo y la web lo dice.
+del catálogo de la web. En modo replay no hay datos en vivo y la web lo dice. En Vercel cada instancia de la
+función lleva su propia cuenta y se reinicia cuando Vercel la recicla; la respuesta dice desde cuándo cuenta.
 
 ### 8.9 Despliegue
 
 | Pieza | Dónde | Estado |
 |---|---|---|
-| Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada, al día con `main` |
-| API | Por definir con el docente | Funciona en local, sin publicar. El paquete está listo y verificado, pero el 3 de noviembre Hugging Face respondió que los Spaces con Docker ya exigen la suscripción PRO |
-| Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | Escrito, sin construir |
+| Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada. La versión con detección de la API está en `main`, falta subirla al fork |
+| API | Vercel, función de Python en `web/api/index.py`, en el mismo dominio | Lista y probada con modelos de prueba. Falta armar `web/api/_paquete` con los modelos reales y desplegar. Hugging Face quedó descartado: los Spaces con Docker exigen PRO |
+| Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | GitHub Actions lo construye sin pesos y prueba sus rutas en cada push. Queda como alternativa para un host con Docker |
 | Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v5 semilla 1, etiqueta `v5-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo. Las versiones anteriores siguen en las etiquetas `v1`, `v2` y `v4` |
+
+**Por qué numpy en la API publicada:** una función de Vercel no puede cargar PyTorch, que pesa más que su límite.
+La red de PPO es una red pequeña (24 entradas, dos capas de 256 con tanh y 2 salidas), así que su cuenta se
+reproduce en numpy. `deploy/api/empaquetar.py --vercel` exporta los pesos y, antes de guardarlos, compara las
+acciones de numpy y PyTorch en unas 7 000 observaciones: vueltas reales en seco y con lluvia y observaciones al
+azar. Si alguna difiere en más de 1e-5, no se empaqueta. Cada archivo se llama con el SHA-256 del modelo original
+y lo guarda adentro, así la identidad sigue siendo la del manifiesto. La API dice en cada respuesta qué motor usó
+(`numpy`, `pytorch`, `tabla` o `reglas`).
 
 **Por qué el fork:** Vercel no tiene acceso al repositorio de Miguel. Para actualizar la web hay que subir la
 versión a la rama `ambiente-v0.4` del fork. El último cambio de la web es `3450fde`; lo que vino después fue solo
@@ -543,15 +556,16 @@ documentación, así que la web publicada está al día.
 
 ### 9.2 Modo replay y modo en vivo
 
-| | Replay (hoy en Vercel) | En vivo (con API) |
+| | Replay (si la API no responde) | En vivo (con API) |
 |---|---|---|
 | Qué muestra | Vueltas grabadas de antemano con la condición base | La simulación que corre la API en Python |
 | Deslizadores | Avisan que hace falta la API | Corren el experimento con esos parámetros |
 | Evaluar y comparar | No disponibles | Disponibles |
 | Monitoreo | Sin datos | Con datos |
 
-La web lo dice en pantalla con una insignia. Cuando exista la API pública, basta definir `VITE_API_BASE_URL` en
-Vercel y recompilar.
+Al cargar, la web pregunta a `/api/salud`. Si responde, simula en vivo; si no, entra en replay y la nota del
+panel dice por qué (por ejemplo, "la API respondió 500"). La primera consulta puede tardar unos segundos mientras
+la función arranca.
 
 ### 9.3 Correcciones recientes de la web
 
@@ -569,7 +583,10 @@ Falla conocida sin corregir: hacia el segundo 26, la cámara atraviesa el arco v
 ## 10. La API
 
 FastAPI, en [src/rally/api.py](../src/rally/api.py). Simula con el mismo Python del entrenamiento: **Python es la
-autoridad del mundo; el navegador solo dibuja.** Cada respuesta dice qué modelo, ambiente y commit la produjo.
+autoridad del mundo; el navegador solo dibuja.** Cada respuesta dice qué modelo, ambiente, commit y motor la
+produjo. Publicada, corre como función de Vercel ([web/api/index.py](../web/api/index.py)): el commit es el que
+Vercel desplegó y `commit_paquete` es el commit del que salió el paquete. Las versiones anteriores a la v6 de
+Q-learning responden 409: se conservan solo como evidencia.
 
 | Ruta | Qué devuelve |
 |---|---|
@@ -597,6 +614,7 @@ Correrla en local: `.venv/bin/rally api` (puerto 8000).
 | `src/rally/pipeline.py` | Las etapas que corre DVC |
 | `src/rally/generalizacion.py` | Las 19 pruebas extremas |
 | `src/rally/historicos.py` | Catálogo y adaptadores para modelos viejos |
+| `src/rally/agentes/red_numpy.py` | Red de PPO en numpy y su exportación verificada contra PyTorch |
 | `src/rally/manifiesto.py` | Genera los manifiestos |
 | `src/rally/seleccion.py` | Criterios, promoción y rollback |
 | `src/rally/semillas.py` | Contraste de tres semillas |
@@ -612,7 +630,9 @@ Correrla en local: `.venv/bin/rally api` (puerto 8000).
 | `metrics/` | Resultados oficiales, semillas y test reservado |
 | `params.yaml`, `dvc.yaml`, `dvc.lock` | Parámetros, etapas y receta exacta |
 | `finalistas.dvc` | Pesos de las semillas 1 y 2 |
-| `deploy/api/` | Contenedor de la API |
+| `deploy/api/` | Empaquetado de la API (Vercel o contenedor) y Dockerfile |
+| `web/api/` | Función de Vercel con la API; `_paquete/` tiene código, manifiestos y modelos en numpy |
+| `.github/workflows/verificar.yml` | Pruebas, web, paquete y contenedor en cada push |
 | `scripts/` | Mediciones y automatización de la corrida final |
 | `tests/` | Pruebas del ambiente, la API y la selección |
 | `docs/` | Esta documentación; el índice está en [docs/README.md](README.md) |
@@ -642,6 +662,9 @@ La instalación completa está en la [guía para empezar](guias/empezar.md).
 | Rollback | `~/.venvs/rally-flujo/bin/python pipelines/flujo.py --rollback "motivo"` |
 | Regenerar vueltas grabadas | `.venv/bin/rally replays` |
 | Copiar MLflow a DagsHub | `.venv/bin/rally sincronizar` (necesita `DAGSHUB_TOKEN`) |
+| Armar la API de Vercel | `.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --vercel` |
+| Revisar que el paquete está al día | `.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --verificar` |
+| Comprobar la URL pública | `~/.venvs/rally-flujo/bin/python pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app` |
 
 La web compilada (puerto 4173) siempre entra en modo replay si se compiló sin `VITE_API_BASE_URL`. Para la
 simulación en vivo en local, usa `npm run dev` (puerto 5173) con la API encendida.
@@ -674,11 +697,12 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 
 | Tarea | Responsable | Prioridad | Depende de |
 |---|---|---|---|
-| Preguntar al docente dónde publicar la API. Opciones: Hugging Face PRO (unos 9 USD al mes, sale en minutos), Render gratis (se duerme y su memoria es justa para PyTorch) o una API liviana con numpy dentro de Vercel (gratis, unas horas de trabajo) | Kevin, miércoles | Alta | Docente |
-| Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin, miércoles | Alta | Docente |
-| Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin, miércoles | Media | Docente |
-| Publicar la API, definir `VITE_API_BASE_URL` en Vercel y probar la evaluación en vivo | Equipo | Alta | Respuesta del docente |
-| Construir y probar el contenedor en un equipo con Docker | Equipo | Alta | Alguien con Docker |
+| Armar el paquete con los modelos reales: `dvc pull -r dagshub` y `deploy/api/empaquetar.py web/api/_paquete --vercel`; revisar el diff y hacer commit | Kevin (tiene la caché de DVC) | Alta | — |
+| Subir `main` a la rama `ambiente-v0.4` del fork, dejar vacía `VITE_API_BASE_URL` en Vercel y comprobar con `flujo.py --comprobar` | Kevin | Alta | El paquete |
+| Probar desde la URL: catálogo, cargar un modelo viejo y el recomendado, evaluar y comparar | Equipo | Alta | El despliegue |
+| Revisar el primer resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | Push a su repositorio |
+| Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
+| Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
 | Dar acceso en DagsHub a los compañeros | Kevin | Alta | — |
 | Nombre del equipo, tercer integrante y contribuciones en ficha, informe y presentación | Equipo | Media | — |
 | Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
@@ -686,7 +710,8 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 | Reactivar el Turbo del procesador cuando no se entrene | Kevin | Baja | — |
 | Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento y despliegue | Todos | Alta | — |
 
-**Lo técnico está terminado.** Lo que falta es publicar la API, decisiones del docente y datos del equipo.
+**Lo técnico está terminado.** Lo que falta es desplegar el paquete de la API, las respuestas del docente y los
+datos del equipo.
 
 ---
 
@@ -698,12 +723,14 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
   aceleración 6 completó 1 de 3 vueltas, y con todos los deslizadores al extremo (pista de 6 m, μ 0.4, aceleración
   6 y sensores de 10 m), 0 de 3. Medido el 3 de noviembre en la API local. Si el docente prueba eso en la web, va a
   ver el choque: hay que decirlo antes.
-- **La web pública hoy no simula.** Muestra vueltas grabadas y lo dice en pantalla.
+- **En la URL pública, PPO corre en numpy.** Se verificó contra PyTorch con una diferencia máxima de 1e-5 en las
+  acciones; el contenedor sí usa PyTorch. Si la API no responde, la web muestra vueltas grabadas y lo dice.
+- **El monitoreo publicado es por instancia de la función.** Vercel puede reiniciarla y la cuenta vuelve a cero.
 - **Q-learning falla con ruido en sensores:** sus celdas son más finas que el ruido.
 - **La nota de velocidad segura es ayuda ya procesada.** No medimos cuánto depende el agente de ella.
 - **Las hipótesis de v1 a v4 y de Q-learning v6 se escribieron después de entrenar,** y están marcadas así en MLflow.
 - **Los modelos viejos corren con adaptador** y reproducen su resultado con diferencias de 0.2 a 0.5 s.
-- **El contenedor no se ha construido.**
+- **El contenedor se prueba sin pesos en GitHub Actions.** El paquete con modelos se armó el 3 de noviembre, pero esa imagen no ha corrido en un host.
 
 ---
 
@@ -822,7 +849,7 @@ debe poder explicar lo que se hizo.
 | DagsHub | Servicio en la nube que guarda el remoto de DVC y la copia de MLflow |
 | Prefect | Orquestador de flujos en Python |
 | FastAPI | Biblioteca de Python para la API |
-| Vercel | Servicio donde está publicada la web |
+| Vercel | Servicio donde están publicadas la web y la API (función de Python) |
 
 ---
 

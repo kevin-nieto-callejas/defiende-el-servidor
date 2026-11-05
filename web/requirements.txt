@@ -1,0 +1,9 @@
+# Dependencias de la función de Vercel (web/api/index.py). Sin PyTorch: las redes corren en numpy.
+# Mismas versiones que requirements.txt de la raíz.
+fastapi==0.162.0
+gymnasium==1.4.0
+numpy==2.5.4
+pydantic==2.14.1
+PyYAML==6.0.3
+rich==15.0.0
+scipy==1.18.1

@@ -26,13 +26,23 @@ app = FastAPI(title="Autonomous Rally API", version=VERSION)
 origenes = [o for o in os.environ.get("RALLY_ORIGENES", "*").split(",") if o]
 app.add_middleware(CORSMiddleware, allow_origins=origenes, allow_methods=["GET", "POST"], allow_headers=["*"])
 
-monitor = {"episodios": 0, "errores": 0, "por_modelo": {}, "fallos": {}, "latencia_ms": []}
+# En Vercel cada instancia de la función lleva su propia cuenta: el monitoreo dice desde cuándo
+monitor = {"episodios": 0, "errores": 0, "por_modelo": {}, "fallos": {}, "latencia_ms": [],
+           "instancia_desde": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+PAQUETE = Path("paquete.json")   # lo escribe deploy/api/empaquetar.py: commit del que salió el paquete
+
+
+def paquete():
+    return json.loads(PAQUETE.read_text(encoding="utf-8")) if PAQUETE.exists() else None
 
 
 def commit_servido():
-    env = os.environ.get("RALLY_COMMIT")
-    if env:
-        return env
+    """Commit desplegado: el que fija el contenedor, el que entrega Vercel o el de git en local."""
+    for var in ("RALLY_COMMIT", "VERCEL_GIT_COMMIT_SHA"):
+        if os.environ.get(var):
+            return os.environ[var]
+    if paquete():
+        return paquete()["commit"]
     try:
         return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
     except (OSError, subprocess.CalledProcessError):
@@ -48,21 +58,22 @@ def recomendado():
 def _politica(nombre):
     """Piloto de referencia o versión del catálogo; errores como HTTP, nunca un replay disfrazado."""
     if nombre in MODOS:
-        return lambda semilla: policies.crear(nombre, semilla), MODOS[nombre]
+        return lambda semilla: policies.crear(nombre, semilla), MODOS[nombre], "reglas"
     try:
         pol = historicos.piloto(nombre)
     except KeyError:
         raise HTTPException(404, f"No existe la versión {nombre}") from None
     except historicos.SinAdaptador as e:
         raise HTTPException(409, f"{nombre} no tiene adaptador validado: {e}") from None
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ValueError) as e:
         raise HTTPException(503, str(e)) from None
-    return lambda semilla: pol, "evaluacion"
+    return lambda semilla: pol, "evaluacion", pol.motor
 
 
-def _identidad(nombre, params, modo):
+def _identidad(nombre, params, modo, motor):
     m = historicos.manifiesto(nombre) if nombre not in MODOS else {}
-    return {"modelo": nombre, "modo": modo, "ambiente_servido": VERSION, "commit_servido": commit_servido(),
+    return {"modelo": nombre, "modo": modo, "motor": motor, "ambiente_servido": VERSION,
+            "commit_servido": commit_servido(),
             "ambiente_del_modelo": m.get("environment_version"), "model_sha256": m.get("model_sha256"),
             "adaptador": bool(m) and m["contrato"]["observaciones"] != 24, "params": params}
 
@@ -87,7 +98,9 @@ class Evaluacion(BaseModel):
 @app.get("/api/salud")
 def salud():
     lat = monitor["latencia_ms"]
+    p = paquete()
     return {"estado": "ok", "ambiente": VERSION, "commit": commit_servido(), "recomendado": recomendado(),
+            "commit_paquete": p["commit"] if p else None, "instancia_desde": monitor["instancia_desde"],
             "episodios": monitor["episodios"], "errores": monitor["errores"],
             "latencia_paso_ms": round(float(np.mean(lat)), 3) if lat else None}
 
@@ -123,7 +136,7 @@ def modelo(nombre: str):
 def episodio(piloto: str, semilla: int = Query(0, ge=0), ancho: float = 8.0, mu: float = 0.9,
              a_max: float = 4.0, r_max: float = 20.0):
     modelo = piloto
-    crear, modo = _politica(modelo)
+    crear, modo, motor = _politica(modelo)
     params = dict(ancho=ancho, mu=mu, a_max=a_max, r_max=r_max)
     t0 = time.perf_counter()
     try:
@@ -133,14 +146,14 @@ def episodio(piloto: str, semilla: int = Query(0, ge=0), ancho: float = 8.0, mu:
         raise HTTPException(500, f"Falló la simulación: {e}") from e
     ms = 1000 * (time.perf_counter() - t0) / max(len(ep["frames"]), 1)
     _registrar(modelo, ep["resultado"], ms)
-    return {**ep, **_identidad(modelo, leer_parametros(params), modo), "id": monitor["episodios"],
+    return {**ep, **_identidad(modelo, leer_parametros(params), modo, motor), "id": monitor["episodios"],
             "latencia_paso_ms": round(ms, 3)}
 
 
 @app.post("/api/evaluar")
 def evaluar(e: Evaluacion):
     """Evaluación del modelo congelado: resultados por caso, no una demostración elegida."""
-    crear, modo = _politica(e.modelo)
+    crear, modo, motor = _politica(e.modelo)
     params = dict(ancho=e.ancho, mu=e.mu, a_max=e.a_max, r_max=e.r_max)
     casos, t0 = [], time.perf_counter()
     for s in range(e.semilla_inicial, e.semilla_inicial + e.episodios):
@@ -151,7 +164,7 @@ def evaluar(e: Evaluacion):
     for c in casos:
         fines[c["resultado"]] = fines.get(c["resultado"], 0) + 1
     tiempos = [c["tiempo"] for c in casos if c["resultado"] == "exito"]
-    return {**_identidad(e.modelo, leer_parametros(params), modo), "casos": casos, "fallos_por_causa": fines,
+    return {**_identidad(e.modelo, leer_parametros(params), modo, motor), "casos": casos, "fallos_por_causa": fines,
             "vueltas_pct": round(100 * len(tiempos) / e.episodios, 1),
             "tiempo_mediano_s": float(np.median(tiempos)) if tiempos else None,
             "segundos": round(time.perf_counter() - t0, 2)}

@@ -97,14 +97,30 @@ al repositorio de Miguel. Publicarla requiere subir la versión a ese fork y des
 - Output: `dist`
 
 Después de cambiar modelos, regenera las vueltas grabadas con `.venv/bin/rally replays` antes de compilar.
-Cuando exista la API, define `VITE_API_BASE_URL` en Vercel y la web dejará el modo replay.
+`VITE_API_BASE_URL` se deja vacía: la web usa la API de su mismo dominio.
 
 ## 7. Publicar la API
 
-El destino está por acordar con el docente. El paquete se arma con:
+La API va en el mismo proyecto de Vercel, como función de Python en `web/api/index.py`. Es gratis y no necesita
+otro servicio. Necesita los modelos bajados con `dvc pull`:
 
 ```bash
-.venv/bin/python deploy/api/empaquetar.py ../rally-space
+.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --vercel
+.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --verificar
 ```
 
-Verifica el SHA-256 de cada modelo. El contenedor todavía no se ha construido.
+El primer comando copia el código y los manifiestos, comprueba el SHA-256 de cada modelo, exporta las redes de PPO
+a numpy y verifica que den las mismas acciones que PyTorch en unas 7 000 observaciones (vueltas reales en seco y
+con lluvia, más observaciones al azar). Las tablas Q ya son numpy. Revisa el diff, haz commit de
+`web/api/_paquete/`, súbelo a la rama del fork y espera el despliegue. Después comprueba:
+
+```bash
+curl https://autonomous-rally.vercel.app/api/salud
+~/.venvs/rally-flujo/bin/python pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app
+```
+
+Si cambias `src/` o `manifests/` y no vuelves a empaquetar, `pytest` y GitHub Actions fallan con
+`test_paquete_de_vercel_al_dia_con_el_repositorio`: así la web nunca sirve otra versión sin que se note.
+
+El contenedor (Docker, con PyTorch) sigue disponible para otro host: `.venv/bin/python deploy/api/empaquetar.py
+../rally-space`. GitHub Actions lo construye sin pesos y prueba sus rutas en cada push.

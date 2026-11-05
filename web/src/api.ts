@@ -26,6 +26,8 @@ export interface Salud {
   errores: number;
   latencia_paso_ms: number | null;
   recomendado: { modelo: string | null };
+  commit_paquete?: string | null;
+  instancia_desde?: string;
 }
 
 export interface Evaluacion {
@@ -35,6 +37,7 @@ export interface Evaluacion {
   ambiente_del_modelo: string | null;
   ambiente_servido: string;
   adaptador: boolean;
+  motor: string;
   commit_servido: string;
   segundos: number;
 }

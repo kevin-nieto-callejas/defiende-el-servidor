@@ -1,6 +1,8 @@
 """Carga cualquier versión del catálogo como piloto, con el contrato de su familia.
 
-Los pesos se buscan por SHA-256 en RALLY_MODELOS (el despliegue) o en la caché de DVC. Las
+Los pesos se buscan por SHA-256 en RALLY_MODELOS (el despliegue) o en la caché de DVC. Si en
+RALLY_MODELOS hay un `<sha256>.npz` exportado (agentes/red_numpy.py), la red de PPO corre en
+numpy, sin PyTorch: así sirve la API publicada en Vercel. Las
 familias viejas corren sobre el ambiente actual con un adaptador: reciben solo sus primeras
 observaciones y los rayos divididos por el alcance, como en su ambiente original.
 `scripts/analisis/validar_historicos.py` compara cada adaptador contra los resultados guardados.
@@ -64,7 +66,30 @@ def adaptar(obs, n_obs):
     return a
 
 
+def _ubicar_npz(m):
+    """Exportación a numpy de ese SHA-256 (red de PPO o tabla Q), si el despliegue la trae."""
+    base = os.environ.get("RALLY_MODELOS")
+    ruta = Path(base) / f"{m['model_sha256']}.npz" if base else None
+    return ruta if ruta and ruta.exists() else None
+
+
+class _PPONumpy:
+    motor = "numpy"
+
+    def __init__(self, ruta, m):
+        from rally.agentes.red_numpy import RedNumpy
+        self.red = RedNumpy(ruta)
+        if self.red.fuente_sha256 != m["model_sha256"]:
+            raise ValueError(f"{ruta.name} no se exportó del modelo de {m['nombre']}")
+        self.n_obs = self.red.n_obs
+
+    def __call__(self, obs, info):
+        return np.clip(self.red(adaptar(obs, self.n_obs)), -1, 1)
+
+
 class _PPOHistorico:
+    motor = "pytorch"
+
     def __init__(self, ruta):
         from stable_baselines3 import PPO
         self.model = PPO.load(ruta, device="cpu")
@@ -76,8 +101,14 @@ class _PPOHistorico:
 
 
 class _TablaHistorica:
-    def __init__(self, ruta):
-        self.q = np.load(ruta)["q"]
+    motor = "tabla"
+
+    def __init__(self, ruta, m=None):
+        with np.load(ruta, allow_pickle=False) as z:
+            self.q = z["q"]
+            fuente = str(z["fuente_sha256"]) if "fuente_sha256" in z.files else None
+        if m and fuente and fuente != m["model_sha256"]:
+            raise ValueError(f"{Path(ruta).name} no se exportó de la tabla de {m['nombre']}")
         if self.q.shape == (int(np.prod(_FORMA_V6)), len(ACCIONES)):
             self.actual = False
         elif self.q.shape[1] == len(ACCIONES) and self.q.shape[0] == 117_600:
@@ -103,6 +134,12 @@ def piloto(nombre):
     """Piloto de esa versión; se carga una sola vez."""
     if nombre not in _pilotos:
         m = manifiesto(nombre)
-        ruta = _ubicar(m)
-        _pilotos[nombre] = _PPOHistorico(ruta) if m["tipo"] == "ppo" else _TablaHistorica(ruta)
+        if not ejecutable(m):
+            raise SinAdaptador("discretización anterior a la v6: se conserva solo como evidencia")
+        npz = _ubicar_npz(m)
+        if npz:
+            _pilotos[nombre] = _PPONumpy(npz, m) if m["tipo"] == "ppo" else _TablaHistorica(npz, m)
+        else:
+            ruta = _ubicar(m)
+            _pilotos[nombre] = _PPOHistorico(ruta) if m["tipo"] == "ppo" else _TablaHistorica(ruta)
     return _pilotos[nombre]

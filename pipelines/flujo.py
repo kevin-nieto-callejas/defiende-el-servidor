@@ -5,6 +5,7 @@ proyecto. Cada tarea deja evidencia en runs/flujo/ aunque el flujo falle despué
 
     ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --candidato ppo-modelo-v5 --tipo ppo
     ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --rollback "motivo"
+    ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app
 """
 import argparse
 import json
@@ -80,7 +81,15 @@ def promover(veredicto):
 
 @task(name="7-publicar-catalogo")
 def publicar():
-    return _evidencia("publicar", {"catalogo": json.loads((RAIZ / "manifests/catalogo.json").read_text(encoding="utf-8"))[-1]["nombre"]})
+    """Catálogo y paquete de la API de Vercel (código, manifiestos y modelos en numpy, verificados)."""
+    _correr(str(RAIZ / ".venv/bin/python"), "deploy/api/empaquetar.py", "web/api/_paquete", "--vercel", timeout=1800)
+    paquete = json.loads((RAIZ / "web/api/_paquete/paquete.json").read_text(encoding="utf-8"))
+    return _evidencia("publicar", {
+        "catalogo": json.loads((RAIZ / "manifests/catalogo.json").read_text(encoding="utf-8"))[-1]["nombre"],
+        "paquete_vercel": {"commit": paquete["commit"], "huella_src": paquete["huella_src"],
+                           "modelos": {k: v["npz_sha256"] for k, v in paquete["modelos"].items()}},
+        "siguiente_paso": "revisar el diff, hacer commit y push a la rama de Vercel; luego --comprobar <url>",
+    })
 
 
 @task(name="8-comprobar-version-servida", retries=2, retry_delay_seconds=5)
@@ -110,6 +119,13 @@ def pipeline(candidato: str, tipo: str = "ppo", api: str = "http://127.0.0.1:800
 @flow(name="autonomous-rally-rollback")
 def rollback(motivo: str, api: str = "http://127.0.0.1:8000"):
     _evidencia("rollback", {"salida": _correr(RALLY, "seleccionar", "--rollback", motivo)[-300:]})
+    publicar()   # la web publicada también debe servir la versión restaurada
+    return comprobar(api)
+
+
+@flow(name="autonomous-rally-comprobar")
+def comprobar_publicada(api: str):
+    """Después del despliegue: la URL pública sirve el modelo recomendado del repositorio."""
     return comprobar(api)
 
 
@@ -120,8 +136,11 @@ if __name__ == "__main__":
     a.add_argument("--api", default="http://127.0.0.1:8000")
     a.add_argument("--sin-entrenar", action="store_true")
     a.add_argument("--rollback")
+    a.add_argument("--comprobar", metavar="URL", help="solo comprobar la versión que sirve esa URL")
     x = a.parse_args()
-    if x.rollback:
+    if x.comprobar:
+        print(comprobar_publicada(x.comprobar.rstrip("/")))
+    elif x.rollback:
         print(rollback(x.rollback, x.api))
     else:
         print(pipeline(x.candidato, x.tipo, x.api, x.sin_entrenar))

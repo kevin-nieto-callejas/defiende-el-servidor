@@ -3,5 +3,15 @@
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/((?!assets/|datos/).*)", "destination": "/index.html" }]
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "api/_paquete/**",
+      "excludeFiles": "{node_modules,public,dist,src,scripts}/**",
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/((?!assets/|datos/|api/).*)", "destination": "/index.html" }
+  ]
 }

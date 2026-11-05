@@ -98,13 +98,15 @@ y 0.2 s con lluvia frente a la v4, así que no se debe atribuir toda la ganancia
 | Pipeline | DVC por etapas y Prefect para validar, probar, seleccionar y publicar |
 | Monitoreo | La API reporta versión servida, episodios, errores, fallos por causa y latencia |
 | Rollback | Probado v5 → v4 → v5, comprobando la versión que sirve la API |
-| Despliegue | Web en Vercel; API pendiente de acordar con el docente |
+| Despliegue | Web y API en Vercel, en la misma URL. La API es una función de Python: mismo ambiente, PPO en numpy verificado contra PyTorch. El contenedor se construye y se prueba en GitHub Actions en cada push |
 
 ## Límites
 
 - **Un solo circuito.** Medimos robustez ante condiciones, no manejo en un trazado desconocido.
-- **La web pública está en modo replay** hasta acordar dónde vive la API. Falta la evaluación en vivo desde la URL.
-- **El contenedor de la API no se ha construido** en este equipo.
+- **En la URL pública, PPO corre en numpy.** Se verificó contra PyTorch (diferencia máxima 1e-5 en las acciones),
+  pero no es la misma biblioteca del entrenamiento. El contenedor sí usa PyTorch.
+- **El monitoreo de la API publicada es por instancia:** Vercel puede tener varias instancias y reiniciarlas; cada
+  respuesta dice desde cuándo cuenta la suya.
 - **Q-learning pierde resolución** al discretizar: el ruido de sensores supera el tamaño de las celdas y lo deja entre 9 y 35 %.
 - **La nota de velocidad segura es información ya procesada.** No medimos cuánto depende el agente de ella.
 - **Las tablas Q anteriores a la v6** usan otra discretización y quedan solo como evidencia.
@@ -113,7 +115,7 @@ y 0.2 s con lluvia frente a la v4, así que no se debe atribuir toda la ganancia
 ## Pendiente antes de la entrega
 
 - Intercambio de la ficha con otro equipo.
-- Acordar con el docente dónde se publica la API.
+- Armar el paquete de la API con los modelos reales, desplegarlo y probar una evaluación desde la URL.
 
 ## Contribuciones
 

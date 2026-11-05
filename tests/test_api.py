@@ -57,3 +57,8 @@ def test_catalogo_marca_las_tablas_antiguas_como_evidencia():
     assert filas["qlearning-modelo-v1"]["ejecutable"] is False
     assert filas["ppo-modelo-v1"]["ejecutable"] is True
     assert len(filas["ppo-modelo-v4"]["model_sha256"]) == 64
+
+
+def test_tabla_antigua_es_conflicto_y_no_un_fallo_del_servidor():
+    """Las tablas anteriores a la v6 se muestran como evidencia: la API lo dice con 409."""
+    assert cliente.get("/api/episodio", params={"piloto": "qlearning-modelo-v1"}).status_code == 409

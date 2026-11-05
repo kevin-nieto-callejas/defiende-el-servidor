@@ -97,3 +97,18 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Probando la web en vivo con todos los deslizadores al extremo, PPO v5 semilla 1 se salió. Con 3 semillas por
   combinación: diluvio solo, 3 de 3; diluvio con pista de 6 m o sensores de 10 m, 3 de 3; diluvio con aceleración
   6, 1 de 3; todo al extremo, 0 de 3. Las pruebas extremas nunca combinaron condiciones. Queda como límite.
+
+## 5 de noviembre
+
+- La API se publica como función de Vercel, en el mismo dominio de la web: es gratis y cumple lo que pide el
+  enunciado sin contratar un servicio. PyTorch no cabe en una función, así que la red de PPO se exporta a numpy
+  (`src/rally/agentes/red_numpy.py`). Antes de guardar cada red se comparan sus acciones con las de PyTorch en
+  unas 7 000 observaciones; con modelos de prueba la diferencia máxima fue 9e-8.
+- `deploy/api/empaquetar.py --vercel` arma `web/api/_paquete` y `--verificar` comprueba que coincida con `src/`
+  y `manifests/`. Una prueba lo revisa en cada `pytest`.
+- La web ya no decide el modo por una variable: pregunta a `/api/salud` y, si no responde, entra en replay con el
+  motivo en pantalla. Probado en un navegador sin ventana con la API arriba (catálogo, evaluación con adaptador)
+  y con la API caída (replay con "la API respondió 500").
+- GitHub Actions corre pruebas, compila la web, revisa el paquete y construye el contenedor en cada push. Aquí no
+  se pudo construir la imagen porque el registro de Docker estaba bloqueado en el entorno de trabajo.
+- Las tablas Q anteriores a la v6 ahora responden 409 en la API (antes, 503 por pesos no encontrados).

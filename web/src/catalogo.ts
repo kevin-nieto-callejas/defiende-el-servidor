@@ -40,7 +40,7 @@ function resumen(nombre: string, e: Evaluacion): string {
   const fallos = Object.entries(e.fallos_por_causa).map(([k, n]) => `${k}: ${n}`).join(" · ");
   return `<tr><td><b>${esc(nombre)}</b></td><td class="mono">${e.vueltas_pct}%</td>
     <td class="mono">${e.tiempo_mediano_s ?? "—"} s</td><td>${esc(fallos)}</td>
-    <td>${esc(e.ambiente_del_modelo ?? e.ambiente_servido)}${e.adaptador ? " (adaptador)" : ""}</td></tr>`;
+    <td>${esc(e.ambiente_del_modelo ?? e.ambiente_servido)}${e.adaptador ? " (adaptador)" : ""} · ${esc(e.motor)}</td></tr>`;
 }
 
 async function correr(nombres: string[], salida: HTMLElement) {
@@ -69,7 +69,8 @@ async function pintarMonitoreo(panel: HTMLElement) {
   try {
     const m = await api.monitoreo();
     const fin = (d: Record<string, number>) => Object.entries(d).map(([k, n]) => `${esc(k)}: ${n}`).join(" · ") || "sin datos";
-    caja.innerHTML = `<h3>Monitoreo de esta sesión de la API</h3>
+    const desde = m.instancia_desde ? ` (instancia activa desde ${esc(m.instancia_desde)})` : "";
+    caja.innerHTML = `<h3>Monitoreo de la API${desde}</h3>
       <p>Finales de episodio: ${fin(m.fallos)}</p><p>Episodios por versión: ${fin(m.por_modelo)}</p>
       <p>Latencia ${m.latencia_paso_ms ?? "—"} ms por paso · ${m.errores} errores · sirve ${esc(m.recomendado.modelo ?? "sin promover")}</p>`;
   } catch {

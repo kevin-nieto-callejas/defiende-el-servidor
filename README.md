@@ -9,7 +9,7 @@ vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/
 
 | Entrega | Dónde |
 |---|---|
-| Web publicada | https://autonomous-rally.vercel.app (modo replay hasta publicar la API) |
+| Web publicada | https://autonomous-rally.vercel.app (la API corre en la misma URL, en `/api`; sin ella, modo replay) |
 | Ficha del ambiente y niveles | [docs/ambiente-v0.1.md](docs/ambiente-v0.1.md) |
 | Experimentos (MLflow) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
 | Datos y modelos (DVC) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
@@ -26,20 +26,28 @@ Git + DVC ──► Entrenamiento en PC (dvc repro, orquestado por Prefect)
                  └─ manifests/: pesos, SHA-256, contrato, ambiente, resultados
                           │
                           ▼
-Vercel (web/: Vite, TypeScript, three.js) ──HTTPS──► API (FastAPI): simula con el mismo Python del entrenamiento
+Vercel ─┬─ web/: Vite, TypeScript, three.js
+        └─ web/api/: función con la API (FastAPI): el mismo Python del entrenamiento; PPO corre en numpy
 ```
 
 Python es la autoridad del mundo: el navegador solo dibuja lo que la API simula. La velocidad de animación
-no cambia las reglas. Cada respuesta dice qué modelo, ambiente y modo la produjo.
+no cambia las reglas. Cada respuesta dice qué modelo, ambiente, modo y motor la produjo.
+
+La API se publica gratis como función de Vercel, en el mismo dominio de la web. Una función no puede cargar
+PyTorch (pesa más que el límite), así que la red de PPO se exporta a numpy y, antes de guardarse, se compara
+contra PyTorch: la diferencia máxima permitida es 1e-5 en las acciones. El ambiente es el mismo código Python.
+El contenedor de `deploy/api/` sigue disponible para un host con Docker y usa PyTorch.
 
 ```
 src/rally/      ambiente, pista, pilotos, agentes, pipeline, API y selección
 src/rally/static/  visor 3D (lo comparten `rally web` y la web de Vercel)
 web/            aplicación Vite + TypeScript: catálogo, evaluación y comparación
+web/api/        función de Vercel con la API; `_paquete/` lo arma deploy/api/empaquetar.py
 pipelines/      flujo de Prefect
 manifests/      identidad de cada modelo y catálogo
 configs/        criterios fijados de selección
-deploy/api/     contenedor de la API
+deploy/api/     empaquetado de la API (Vercel o contenedor) y Dockerfile
+.github/        integración continua: pruebas, web, paquete y contenedor en cada push
 tests/          reglas, trampas, agentes, API y selección
 ```
 
@@ -62,7 +70,7 @@ dvc pull -r dagshub                           # datos y modelos
 |---|---|---|
 | `HF_TOKEN` | `.env` | Publicar en Hugging Face |
 | `DAGSHUB_TOKEN` | `.env` | Copiar MLflow a DagsHub |
-| `VITE_API_BASE_URL` | Vercel | URL HTTPS de la API (pública) |
+| `VITE_API_BASE_URL` | Vercel (opcional) | URL de una API externa. Vacía, la web usa `/api` de su propio dominio |
 | `RALLY_ORIGENES` | API | Orígenes permitidos por CORS |
 | `RALLY_MODELOS` | API | Carpeta de pesos por SHA-256 |
 
@@ -128,11 +136,21 @@ La evidencia del flujo de Prefect y del rollback de v5 a v4 y de vuelta está en
 
 ## Publicar
 
+Web y API van juntas en Vercel (Root Directory `web`, Build `npm run build`, Output `dist`). Desde un equipo con
+los modelos bajados de DVC:
+
 ```bash
-.venv/bin/python deploy/api/empaquetar.py ../rally-space   # carpeta para el Space, con pesos verificados
+.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --vercel     # exporta y verifica cada modelo
+.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --verificar  # el paquete coincide con src/ y manifests/
+git add web/api/_paquete && git diff --staged --stat                    # revisar, commit y push a la rama de Vercel
+~/.venvs/rally-flujo/bin/python pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app
 ```
 
-En Vercel: Root Directory `web`, Build `npm run build`, Output `dist`, y la variable `VITE_API_BASE_URL`.
+La web pregunta a `/api/salud` al cargar: si responde, simula en vivo; si no, entra en replay y dice por qué.
+La etapa 7 del flujo de Prefect rearma el paquete sola, también después de un rollback.
+
+Contenedor (Docker, PyTorch): `.venv/bin/python deploy/api/empaquetar.py ../rally-space`. GitHub Actions lo
+construye y lo prueba en cada push ([.github/workflows/verificar.yml](.github/workflows/verificar.yml)).
 
 ## Antecedente
 
