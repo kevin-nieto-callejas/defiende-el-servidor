@@ -408,12 +408,52 @@ PUERTO = Pista(
     descripcion="Circuito portuario técnico: chicanes y horquillas cerradas",
 )
 
-PISTAS = {"monaco": MONACO, "bosque": BOSQUE, "puerto": PUERTO}
+# Pista RESERVADA para la prueba final de generalización: ningún modelo entrena en ella y no
+# se usa para elegir hiperparámetros ni el mejor punto del entrenamiento (rally.agentes.ppo
+# se niega a entrenar con ella). Su curva más cerrada (11 m) está dentro de lo que miden las
+# notas de curvatura (radio de Mónaco, 9.5 m): si un modelo falla aquí, no es por el sensor.
+SIERRA = Pista(
+    "sierra",
+    [
+        ("Puente", -170.0, -80.0, 15.0),
+        ("Molino", 60.0, -100.0, 30.0),
+        ("Mirador Alto", 170.0, -40.0, 18.0),
+        ("Paso", 120.0, 30.0, 12.0),
+        ("Paso salida", 170.0, 90.0, 12.0),
+        ("Cumbre", 100.0, 150.0, 25.0),
+        ("Bajada", -20.0, 120.0, 40.0),
+        ("Laguna", -60.0, 160.0, 11.0),
+        ("Laguna salida", -130.0, 150.0, 14.0),
+        ("Cañón", -110.0, 40.0, 20.0),
+        ("Refugio", -180.0, 10.0, 12.0),
+    ],
+    ["Mirador Alto", "Paso salida", "Bajada", "Laguna salida", "Cañón", "Refugio"],
+    descripcion="Circuito de montaña de curvas mixtas; reservado para la prueba de generalización",
+)
+
+PISTAS = {"monaco": MONACO, "bosque": BOSQUE, "puerto": PUERTO, "sierra": SIERRA}
+RESERVADAS = {"sierra"}
+
+
+def validar_entrenamiento(pistas):
+    """Lista de pistas para entrenar (None = Mónaco); falla si incluye una reservada."""
+    nombres = ["monaco"] if pistas is None else ([pistas] if isinstance(pistas, str) else list(pistas))
+    for n in nombres:
+        obtener(n)
+    prohibidas = RESERVADAS & set(nombres)
+    if prohibidas:
+        raise ValueError(f"No se puede entrenar con pistas reservadas para la prueba: {sorted(prohibidas)}")
+    return nombres
 
 
 def registrar(pista):
     PISTAS[pista.nombre] = pista
     return pista
+
+
+def largo(info):
+    """Largo de la pista en la que va el episodio (para expresar el progreso en %)."""
+    return obtener(info.get("pista")).LAP
 
 
 def obtener(nombre=None):

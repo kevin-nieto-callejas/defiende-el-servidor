@@ -46,7 +46,7 @@ def _caso(args):
             done = term or trunc
         out.append({"ok": info["outcome"] == "exito", "t": info["t"], "r": total,
                     "inc": info["off_track_events"] + (info["outcome"] == "choque"),
-                    "prog": info["s_best"] / track.LAP})
+                    "prog": info["s_best"] / track.largo(info)})
     return prueba["nombre"], out
 
 
@@ -75,7 +75,7 @@ def _entrenar(tipo, s):
             from rally.agentes import ppo
             huella = hashlib.sha1(json.dumps([amb, pt, VERSION, _config_ambiente()[1]], sort_keys=True).encode()
                                   + DEMOS.read_bytes()).hexdigest()[:16]
-            ppo.entrenar(amb, pt, DEMOS, salida, None, _evaluador_rapido(amb, p["evaluacion"]),
+            ppo.entrenar(amb, pt, DEMOS, salida, None, _evaluador_rapido(amb, p["evaluacion"], pistas=pt.get("pistas")),
                          ppo.PuntoGuardado(punto_dir, huella))
             return salida / "modelo.zip"
         from rally.agentes.qlearning import entrenar

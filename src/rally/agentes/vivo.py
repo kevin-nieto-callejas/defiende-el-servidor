@@ -57,7 +57,7 @@ class Grabador:
             "episodio": self.n_episodio, "pasos_totales": int(pasos_totales),
             "resultado": info["outcome"], "tiempo": round(info["t"], 2),
             "recompensa": round(self.total, 2),
-            "progreso": round(max(info["s_best"], 0) / track.LAP * 100, 1),
+            "progreso": round(max(info["s_best"], 0) / track.largo(info) * 100, 1),
         }
         self.curva.append(resumen)
         _guardar("episodio.json", {

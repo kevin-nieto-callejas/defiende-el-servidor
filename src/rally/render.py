@@ -330,7 +330,7 @@ def hud(info, obs, action, reward, total, politica, mu, cfg, paso):
         else:
             cps.append(f"{n} ", style="grey50")
     tbl.add_row("Checkpoints", cps)
-    prog = max(0.0, info["s_best"]) / track.LAP
+    prog = max(0.0, info["s_best"]) / track.largo(info)
     p = bar(prog, 18, "bold green", 0, 1)
     p.append(f" {prog * 100:3.0f}%", style="bold")
     tbl.add_row("Vuelta", p)
@@ -395,8 +395,8 @@ def resumen(info, total, politica, mu):
     tbl.add_row("Piloto", politica)
     tbl.add_row("Piso", f"{'seco' if mu >= 0.75 else 'mojado'} (μ={mu:.2f})")
     tbl.add_row("Tiempo", f"{info['t']:.1f} s" + (" (tiempo de vuelta)" if ok else ""))
-    tbl.add_row("Progreso", f"{max(0, info['s_best']):.1f} / {track.LAP:.1f} m "
-                            f"({max(0, info['s_best']) / track.LAP * 100:.0f}%)")
+    tbl.add_row("Progreso", f"{max(0, info['s_best']):.1f} / {track.largo(info):.1f} m "
+                            f"({max(0, info['s_best']) / track.largo(info) * 100:.0f}%)")
     tbl.add_row("Salidas de pista", str(info["off_track_events"]))
     tbl.add_row("Recompensa total", Text(f"{total:+.2f}", style="bold green" if total >= 0 else "bold red"))
     return Panel(tbl, title=f"[bold]{titulo}[/]",

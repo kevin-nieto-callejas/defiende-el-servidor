@@ -48,7 +48,7 @@ def test_reset_puede_elegir_o_sortear_la_pista():
     assert math.hypot(info["x"] - x, info["y"] - y) < 1.0  # arranca en la meta del Puerto
 
 
-@pytest.mark.parametrize("nombre", ["bosque", "puerto"])
+@pytest.mark.parametrize("nombre", ["bosque", "puerto", "sierra"])
 @pytest.mark.parametrize("piloto,mu", [("experto", 0.9), ("maestro", 0.5)])
 def test_los_pilotos_de_referencia_completan(nombre, piloto, mu):
     env = AutonomousRallyEnv(pista=nombre, mu=mu)
@@ -60,3 +60,56 @@ def test_los_pilotos_de_referencia_completan(nombre, piloto, mu):
             obs, _, term, trunc, info = env.step(pol(obs, info))
             done = term or trunc
         assert info["outcome"] == "exito", (nombre, piloto, s, info["outcome"], info["next_cp"])
+
+
+def test_sierra_reservada_no_se_puede_entrenar():
+    assert track.validar_entrenamiento(None) == ["monaco"]
+    assert track.validar_entrenamiento(["monaco", "bosque", "puerto"]) == ["monaco", "bosque", "puerto"]
+    with pytest.raises(ValueError, match="reservadas"):
+        track.validar_entrenamiento(["monaco", "sierra"])
+    with pytest.raises(ValueError, match="Pista desconocida"):
+        track.validar_entrenamiento(["monacco"])
+
+
+def test_sierra_no_tiene_curvas_mas_cerradas_que_las_que_mide_el_sensor():
+    from rally.env import R_NOTA
+    assert track.SIERRA.R >= R_NOTA
+
+
+def test_entrenamiento_ppo_sortea_solo_las_pistas_pedidas():
+    pytest.importorskip("stable_baselines3")
+    from rally.agentes.ppo import crear_env
+    env = crear_env({}, {"semilla": 0, "pistas": ["bosque", "puerto"]}, 0)()
+    vistas = {env.reset()[1]["pista"] for _ in range(20)}
+    assert vistas == {"bosque", "puerto"}
+    assert crear_env({}, {"semilla": 0}, 0)().reset()[1]["pista"] == "monaco"  # versiones anteriores
+    with pytest.raises(ValueError, match="reservadas"):
+        crear_env({}, {"semilla": 0, "pistas": ["sierra"]}, 0)
+
+
+def test_progreso_usa_el_largo_de_la_pista_del_episodio():
+    assert track.largo({"pista": "bosque"}) == track.BOSQUE.LAP != track.MONACO.LAP
+    assert track.largo({}) == track.MONACO.LAP
+
+
+def test_evaluador_rapido_recorre_las_pistas_de_entrenamiento(monkeypatch):
+    pytest.importorskip("mlflow")
+    from rally import pipeline
+    vistas = []
+    real = pipeline.AutonomousRallyEnv
+
+    def espia(*a, pista=None, **kw):
+        vistas.append(pista)
+        return real(*a, pista=pista, **kw)
+
+    monkeypatch.setattr(pipeline, "AutonomousRallyEnv", espia)
+
+    class Quieto:
+        def predict(self, obs, deterministic=True):
+            return np.zeros(2, dtype=np.float32), None
+
+    pe = {"mu_seco": 0.9, "mu_mojado": 0.5, "semilla_eval_rapida": 10000}
+    m = pipeline._evaluador_rapido({}, pe, n=1, pistas=["monaco", "bosque"])(Quieto())
+    assert set(vistas) == {"monaco", "bosque"} and m["seco_vueltas_pct"] == 0
+    with pytest.raises(ValueError, match="reservadas"):
+        pipeline._evaluador_rapido({}, pe, pistas=["sierra"])

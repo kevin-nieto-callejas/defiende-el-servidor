@@ -38,7 +38,7 @@ def _lote(args):
             done = term or trunc
         out.append({"ok": info["outcome"] == "exito", "t": info["t"], "r": total,
                     "inc": info["off_track_events"] + (info["outcome"] == "choque"),
-                    "prog": info["s_best"] / track.LAP})
+                    "prog": info["s_best"] / track.largo(info)})
     return piloto, prueba["nombre"], out
 
 
