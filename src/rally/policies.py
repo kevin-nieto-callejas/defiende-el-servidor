@@ -41,10 +41,11 @@ class PurePursuit:
     def __call__(self, obs, info):
         x, y, psi, v = info["x"], info["y"], info["psi"], info["v"]
         s = info["s"]
+        pista = track.obtener(info.get("pista"))
 
         # Dirección: pure pursuit sobre la línea central
         ld = min(max(4.0 + 0.5 * v, 5.0), 14.0)
-        tx, ty = track.point_at(s + ld)
+        tx, ty = pista.point_at(s + ld)
         alpha = track.wrap_angle(math.atan2(ty - y, tx - x) - psi)
         delta = math.atan2(2 * self.wheelbase * math.sin(alpha), ld)
         u_dir = float(np.clip(delta / self.delta_max, -1, 1))
@@ -52,7 +53,7 @@ class PurePursuit:
         # Velocidad objetivo: la que permita frenar a tiempo para cada curva que viene
         v_obj = self.v_recta
         for k in range(0, 61, 2):
-            vc = self.v_curva(track.curvature_at(s + k))
+            vc = self.v_curva(pista.curvature_at(s + k))
             v_obj = min(v_obj, math.sqrt(vc**2 + 2 * self.freno * max(k - 2, 0)))
         u_acel = float(np.clip(0.8 * (v_obj - v), -1, 1))
         if self.tope is not None:
