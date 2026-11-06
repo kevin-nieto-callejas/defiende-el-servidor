@@ -98,6 +98,18 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   combinación: diluvio solo, 3 de 3; diluvio con pista de 6 m o sensores de 10 m, 3 de 3; diluvio con aceleración
   6, 1 de 3; todo al extremo, 0 de 3. Las pruebas extremas nunca combinaron condiciones. Queda como límite.
 
+## 6 de noviembre
+
+- Los compañeros veían "necesita la API" al pasar a lluvia en la web pública. No era un fallo de la lluvia: en replay
+  solo hay vueltas con la semilla 0 y los valores base, y cualquier deslizador o semilla distinta pide la API.
+- Se unió la rama `api-vercel` de Allison a `main` con el paquete de modelos reales (2.8 MB, sin tokens ni la
+  semilla reservada). El primer build en Vercel falló con `unused_function`: Vercel busca la función leyendo
+  `index.py` y no reconoce un `app` definido dentro de un `if`. Se reprodujo con `vercel build` 65.11.0 en local y
+  se corrigió dejando `app` al nivel del módulo. La función pesa 191 MB, bajo el límite de 500.
+- API publicada en https://autonomous-rally.vercel.app. Probada desde la URL: seco y lluvia con PPO v5-s1 y
+  Q-learning v8-s1, pista de 10 m con semilla 7, y evaluar 10 vueltas con lluvia en 8.4 s. Ya no sale el aviso de
+  replay.
+
 ## 5 de noviembre
 
 - La API se publica como función de Vercel, en el mismo dominio de la web: es gratis y cumple lo que pide el

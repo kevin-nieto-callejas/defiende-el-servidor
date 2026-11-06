@@ -41,9 +41,9 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | Modelo recomendado | `ppo-modelo-v5-s1`: red neuronal PPO, versión 5, semilla 1 |
 | Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
-| Avance estimado frente a la rúbrica | Cerca del 85 % (estimación del equipo, no una medición) |
-| Lo que más falta | Armar el paquete de la API con los modelos reales y desplegarlo (un comando y un push); datos del equipo |
-| Web pública | https://autonomous-rally.vercel.app (hoy en replay; con el paquete desplegado simula en vivo en `/api`) |
+| Avance estimado frente a la rúbrica | Cerca del 91 % (estimación del equipo, no una medición) |
+| Lo que más falta | Datos del equipo, acceso a DagsHub, respuestas del docente y ensayo |
+| Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api` desde el 6 de noviembre) |
 | Pruebas automáticas | 60 (59 pasan y 1 se activa cuando existe el paquete de Vercel) |
 | Versiones de modelos con manifiesto | 16 |
 
@@ -107,7 +107,7 @@ con el ambiente compatible con ese modelo**.
 | Promoción y rollback | Listo: probado v5 → v4 → v5 | [manifests/historial.json](../manifests/historial.json) |
 | Monitoreo | Listo en la API; en Vercel cuenta por instancia y dice desde cuándo | `/api/monitoreo` |
 | Web pública en Vercel | Lista; detecta la API y, si no responde, entra en replay diciendo por qué | https://autonomous-rally.vercel.app |
-| API pública | **Lista para desplegar**: función de Vercel en la misma URL, gratis. Falta empaquetar con los modelos reales y hacer push | `web/api/`, `deploy/api/empaquetar.py` |
+| API pública | **Publicada**: función de Vercel en la misma URL, gratis, con los modelos reales. Probada desde la URL: lluvia, deslizadores, semillas y evaluar | `web/api/`, `deploy/api/empaquetar.py` |
 | Contenedor | GitHub Actions lo construye y prueba sus rutas en cada push | `deploy/api/Dockerfile`, `.github/workflows/verificar.yml` |
 | Informe | Borrador completo | [entregas/informe.md](entregas/informe.md) |
 | Presentación | Lista, 14 diapositivas, sin ensayar | [entregas/presentacion/](entregas/presentacion/) |
@@ -403,7 +403,7 @@ rally seleccionar ──► aplica configs/seleccion.yaml ──► promover o r
 Prefect (pipelines/flujo.py) orquesta todo           rollback: vuelve al anterior
       │
       ▼
-API (FastAPI) sirve el recomendado ──► web en Vercel (hoy en replay)
+API (FastAPI) sirve el recomendado ──► web en Vercel (en vivo; replay si la API no responde)
 ```
 
 ### 8.1 Git
@@ -511,7 +511,7 @@ función lleva su propia cuenta y se reinicia cuando Vercel la recicla; la respu
 | Pieza | Dónde | Estado |
 |---|---|---|
 | Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada. La versión con detección de la API está en `main`, falta subirla al fork |
-| API | Vercel, función de Python en `web/api/index.py`, en el mismo dominio | Lista y probada con modelos de prueba. Falta armar `web/api/_paquete` con los modelos reales y desplegar. Hugging Face quedó descartado: los Spaces con Docker exigen PRO |
+| API | Vercel, función de Python en `web/api/index.py`, en el mismo dominio | Publicada el 6 de noviembre con `web/api/_paquete` (modelos reales, 2.8 MB). La función pesa 191 MB, bajo el límite de 500. Hugging Face quedó descartado: los Spaces con Docker exigen PRO |
 | Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | GitHub Actions lo construye sin pesos y prueba sus rutas en cada push. Queda como alternativa para un host con Docker |
 | Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v5 semilla 1, etiqueta `v5-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo. Las versiones anteriores siguen en las etiquetas `v1`, `v2` y `v4` |
 
@@ -697,9 +697,7 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 
 | Tarea | Responsable | Prioridad | Depende de |
 |---|---|---|---|
-| Armar el paquete con los modelos reales: `dvc pull -r dagshub` y `deploy/api/empaquetar.py web/api/_paquete --vercel`; revisar el diff y hacer commit | Kevin (tiene la caché de DVC) | Alta | — |
-| Subir `main` a la rama `ambiente-v0.4` del fork, dejar vacía `VITE_API_BASE_URL` en Vercel y comprobar con `flujo.py --comprobar` | Kevin | Alta | El paquete |
-| Probar desde la URL: catálogo, cargar un modelo viejo y el recomendado, evaluar y comparar | Equipo | Alta | El despliegue |
+| Probar desde la URL: catálogo, cargar un modelo viejo y el recomendado, evaluar y comparar | Equipo | Alta | — |
 | Revisar el primer resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | Push a su repositorio |
 | Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
@@ -710,8 +708,7 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 | Reactivar el Turbo del procesador cuando no se entrene | Kevin | Baja | — |
 | Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento y despliegue | Todos | Alta | — |
 
-**Lo técnico está terminado.** Lo que falta es desplegar el paquete de la API, las respuestas del docente y los
-datos del equipo.
+**Lo técnico está terminado y publicado.** Lo que falta son las respuestas del docente y los datos del equipo.
 
 ---
 
@@ -783,8 +780,12 @@ y haz commit de `params.yaml` y `dvc.lock`. Luego `dvc push`, `rally sincronizar
 Enciende la API (`rally api`) y la web (`npm run dev` en `web/`), y abre http://localhost:5173.
 
 **¿Por qué la web pública dice "replay"?**
-Porque la API todavía no está publicada en internet. Vercel solo sirve archivos estáticos; la simulación necesita
-Python.
+Desde el 6 de noviembre no debería: la API corre como función de Vercel en la misma URL. Si sale replay, la función
+no respondió y la nota del panel dice por qué. Recarga; la primera carrera tras un rato sin uso tarda unos segundos.
+
+**¿Qué es el "EXPERIMENTO #28" de la telemetría?**
+Un contador de vueltas simuladas por la API desde que se encendió; vuelve a 1 si se reinicia. El modelo es el de la
+etiqueta de arriba (por ejemplo `ppo-modelo-v5-s1`), y su run de MLflow está en el manifiesto.
 
 **¿Por qué la web sale de un fork?**
 Vercel no tenía acceso al repositorio de Miguel. El fork de Kevin tiene el mismo código.
