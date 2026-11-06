@@ -1,0 +1,56 @@
+{
+  "nombre": "qlearning-modelo-qlearning-v6",
+  "tipo": "qlearning",
+  "etiqueta_git": "modelo-qlearning-v6",
+  "run_id": "14eb699c59124d1a893adb5d5e000fee",
+  "level_id": "N2",
+  "decision": "reemplazado",
+  "hipotesis": "DAgger tabular y bin de lluvia: mejora la tabla de 0 % a 60/15",
+  "environment_version": "0.3-monaco-lluvia",
+  "ambiente_huella": null,
+  "git_commit": "8712e76afff177b55b286cbc4662501b69045654",
+  "config_sha256": "6af2e998a304628f137d3cf4d6b397969e96ba7257b3d42001ee683cdf3cb52e",
+  "model_uri": "dvc://models/qlearning/q_table.npz@8712e76afff177b55b286cbc4662501b69045654",
+  "model_md5_dvc": "c46752125b26ca79b419d9df2a2ba27e",
+  "model_sha256": "7fd9346e9f9c0bc9ff4869cb7ff3cbb6fc26333a2ac432af9092f46cd537c391",
+  "mlflow_modelo": "rally-qlearning",
+  "mlflow_version": 6,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en 8712e76afff177b55b286cbc4662501b69045654",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "episodios": 960,
+    "segundos": 872.1
+  },
+  "contrato": {
+    "observaciones": 20,
+    "orden": "ver src/rally/env.py en 8712e76afff177b55b286cbc4662501b69045654",
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 60.0,
+      "tiempo_mediano_s": 80.15,
+      "tiempo_p90_s": 81.1,
+      "incidentes_ep": 0.8,
+      "recompensa_media": 96.38,
+      "progreso_pct": 81.7
+    },
+    "mojado": {
+      "vueltas_pct": 15.0,
+      "tiempo_mediano_s": 102.2,
+      "tiempo_p90_s": 103.84,
+      "incidentes_ep": 1.64,
+      "recompensa_media": 29.45,
+      "progreso_pct": 75.0
+    }
+  }
+}

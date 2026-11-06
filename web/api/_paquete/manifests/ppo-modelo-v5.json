@@ -1,0 +1,82 @@
+{
+  "nombre": "ppo-modelo-v5",
+  "tipo": "ppo",
+  "etiqueta_git": "modelo-v5",
+  "run_id": "eed70c9b08c248b490fb51f921f4f611",
+  "level_id": "N3",
+  "decision": "candidato",
+  "hipotesis": "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4",
+  "environment_version": "0.4-monaco-configurable",
+  "ambiente_huella": "61fa0dd41b7c",
+  "git_commit": "9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
+  "config_sha256": "301e78b33149c78b5616cc1ff73d770da7075cdd5d3c4f836a0d466884ac3eec",
+  "model_uri": "dvc://models/ppo/modelo.zip@9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
+  "model_md5_dvc": "077bef1c2918d1d1a88a4043945e81bb",
+  "model_sha256": "c9ca342280bc39e8bfddc5c735e924c8cfb2dbf81766942e7a046ea4ec489e86",
+  "mlflow_modelo": "rally-ppo",
+  "mlflow_version": 5,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en 9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "pasos": 3000000,
+    "episodios": 3821,
+    "segundos": 5329.6
+  },
+  "contrato": {
+    "observaciones": 24,
+    "orden": [
+      "v/25 m/s",
+      "ω/2 rad/s",
+      "sin φ",
+      "cos φ",
+      "d/(w/2)",
+      "eψ/π rad",
+      "rayo -90°/40 m",
+      "rayo -60°/40 m",
+      "rayo -30°/40 m",
+      "rayo 0°/40 m",
+      "rayo 30°/40 m",
+      "rayo 60°/40 m",
+      "rayo 90°/40 m",
+      "curvatura a 10 m·R",
+      "curvatura a 25 m·R",
+      "curvatura a 50 m·R",
+      "agarre usado",
+      "derrape",
+      "μ estimado/1.2",
+      "lluvia",
+      "ancho/12 m",
+      "a_max/6 m/s²",
+      "r_max/40 m",
+      "velocidad segura/25 m/s"
+    ],
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 75.9,
+      "tiempo_p90_s": 76.0,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 165.33,
+      "progreso_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 92.0,
+      "tiempo_p90_s": 92.4,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 157.46,
+      "progreso_pct": 100.0
+    }
+  }
+}

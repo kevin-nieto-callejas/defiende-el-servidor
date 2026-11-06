@@ -1,0 +1,57 @@
+{
+  "nombre": "ppo-modelo-v4",
+  "tipo": "ppo",
+  "etiqueta_git": "modelo-v4",
+  "run_id": "881772cccb024f6793d776f6da977dc7",
+  "level_id": "N2",
+  "decision": "aceptado",
+  "hipotesis": "DAgger corrige los estados a los que llega la red al equivocarse",
+  "environment_version": "0.3-monaco-lluvia",
+  "ambiente_huella": "61fa0dd41b7c",
+  "git_commit": "c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+  "config_sha256": "07dc905cae76630c73a6d5aa80903e4010fa8f279e5484d3f04e96846e8e3cfb",
+  "model_uri": "dvc://models/ppo/modelo.zip@c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+  "model_md5_dvc": "eedaf8d83cb097ed013bc713e57d8b94",
+  "model_sha256": "4c4c8dd6e5319c49fc4fd86b664ba5ac57b0e9ce59ffdb3f1ec0421a6546550c",
+  "mlflow_modelo": "rally-ppo",
+  "mlflow_version": 4,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "pasos": 2000000,
+    "episodios": 2298,
+    "segundos": 1738.9
+  },
+  "contrato": {
+    "observaciones": 20,
+    "orden": "ver src/rally/env.py en c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 75.6,
+      "tiempo_p90_s": 75.6,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 166.46,
+      "progreso_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 91.8,
+      "tiempo_p90_s": 91.91,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 157.54,
+      "progreso_pct": 100.0
+    }
+  }
+}

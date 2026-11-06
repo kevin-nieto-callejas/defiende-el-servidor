@@ -1,0 +1,132 @@
+{
+  "commit": "138325fa3d90968df29d47bd66afd154f4de5aa2",
+  "fecha": "2026-11-06T10:16:38-0500",
+  "destino": "vercel",
+  "huella_src": "d985415c7fbc96ad17d4ddbbcd6d69fae941fb61713f4bc7220d1522414f50df",
+  "huella_manifests": "d5a43750eb1ede340dff1959f6b49fed811343ba4039b239309972dd64ea02ab",
+  "modelos": {
+    "ppo-experimento-v3": {
+      "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
+      "npz_sha256": "8c67f7c943ed393ab298467773063c29d6f290e5cb63f25204ad37485b3a0e29",
+      "n_obs": 20,
+      "capas": [
+        128,
+        128,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 8.940696716308594e-07,
+      "motor": "numpy"
+    },
+    "qlearning-modelo-qlearning-v6": {
+      "fuente_sha256": "7fd9346e9f9c0bc9ff4869cb7ff3cbb6fc26333a2ac432af9092f46cd537c391",
+      "npz_sha256": "79b7dd80a6aadf42b0ec916c8112bcd839a4e86aa3958357a8cacd13d0d30da5",
+      "motor": "tabla"
+    },
+    "qlearning-modelo-qlearning-v7": {
+      "fuente_sha256": "044117e0b142baebd3064af0b9d0e3ba937744dcfde98048c0d4c5cc3ea9bb25",
+      "npz_sha256": "caf9718d2236d95ea91b71d7473e131a40e1c44ec886e1d1ecae4f8d36e8dc60",
+      "motor": "tabla"
+    },
+    "qlearning-modelo-qlearning-v8": {
+      "fuente_sha256": "75daeddd7d7960882c5eb22cad23744c37b40557cfd4224b09cff9c6b624e5bb",
+      "npz_sha256": "aff6a57f45ccf1093e127ec69c101d056cfb5ca81e230153c008bdc434720010",
+      "motor": "tabla"
+    },
+    "ppo-modelo-v1": {
+      "fuente_sha256": "2d84f5a42600380bad099af1d305556564c49c41ecc7dfee50326a5fa583504a",
+      "npz_sha256": "5f7f95e11e9537be60e12ecb2a2c06dc4d94e0fa26e9bd99576b3aa1b7cf4426",
+      "n_obs": 16,
+      "capas": [
+        128,
+        128,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 1.0132789611816406e-06,
+      "motor": "numpy"
+    },
+    "ppo-modelo-v2": {
+      "fuente_sha256": "b0da00bc09c46b3c349d61e4c906a95347ef08931075949a44de720dfb701203",
+      "npz_sha256": "0b99f9d672efc1dabcf1ae71bf52b0c4f7a85eb8697309a9ea6f5c67b02241d2",
+      "n_obs": 19,
+      "capas": [
+        128,
+        128,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 6.556510925292969e-07,
+      "motor": "numpy"
+    },
+    "ppo-modelo-v4": {
+      "fuente_sha256": "4c4c8dd6e5319c49fc4fd86b664ba5ac57b0e9ce59ffdb3f1ec0421a6546550c",
+      "npz_sha256": "59c955e004fb096876bd522b186fa5979aa12122c9c4ad7661a43273ebbe3398",
+      "n_obs": 20,
+      "capas": [
+        128,
+        128,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 2.0265579223632812e-06,
+      "motor": "numpy"
+    },
+    "ppo-modelo-v5": {
+      "fuente_sha256": "c9ca342280bc39e8bfddc5c735e924c8cfb2dbf81766942e7a046ea4ec489e86",
+      "npz_sha256": "14acf2652fbe14e13306fef76d474523676021ecc3665e01f1f6599a106b6b5c",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 1.3113021850585938e-06,
+      "motor": "numpy"
+    },
+    "ppo-modelo-v5-s1": {
+      "fuente_sha256": "ea24b02d858695996fdc4b9bcff4cba7174ddd41e3acdf790c8a3b972a3edade",
+      "npz_sha256": "ca35fe72cbcb86521008d9d93fc5c13efb577eac13fa3839853e8f58b7629690",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 1.0132789611816406e-06,
+      "motor": "numpy"
+    },
+    "ppo-modelo-v5-s2": {
+      "fuente_sha256": "72a62f8297e92013ad1e9ee75da8b9a21313229d047193b20cdc670599b937b7",
+      "npz_sha256": "5e2d568aa59517f274f382eaa1f404381aad0ae0d2b1a1ea849f9d631ffd44cf",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 1.3709068298339844e-06,
+      "motor": "numpy"
+    },
+    "qlearning-modelo-qlearning-v8-s1": {
+      "fuente_sha256": "fd6972e955a3e7d6e66dd7c24341f04fb56d2a302b127f970a208e067a785c24",
+      "npz_sha256": "4020e3df63e23cc3a65e25a0951d06c2e1a65895f8343a5b8efb84ae060602b4",
+      "motor": "tabla"
+    },
+    "qlearning-modelo-qlearning-v8-s2": {
+      "fuente_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
+      "npz_sha256": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2",
+      "motor": "tabla"
+    }
+  }
+}

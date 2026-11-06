@@ -1,0 +1,57 @@
+{
+  "nombre": "ppo-modelo-v1",
+  "tipo": "ppo",
+  "etiqueta_git": "modelo-v1",
+  "run_id": "288cbd82085f4eeaa76383b61664a9f1",
+  "level_id": "N1",
+  "decision": "reemplazado",
+  "hipotesis": "Primer modelo: entrenado solo en seco",
+  "environment_version": "0.1-monaco",
+  "ambiente_huella": null,
+  "git_commit": "c59ef6d107767f0cf3260bde5d0c24eb564dfcfe",
+  "config_sha256": "65c4d4e03b79f1b3b5adfaba558deba780c59579ce598114dca874f1d53aa046",
+  "model_uri": "dvc://models/ppo/modelo.zip@c59ef6d107767f0cf3260bde5d0c24eb564dfcfe",
+  "model_md5_dvc": "98252045e17077bd4d17252a9f2cb8d0",
+  "model_sha256": "2d84f5a42600380bad099af1d305556564c49c41ecc7dfee50326a5fa583504a",
+  "mlflow_modelo": "rally-ppo",
+  "mlflow_version": 1,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en c59ef6d107767f0cf3260bde5d0c24eb564dfcfe",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero",
+  "presupuesto": {
+    "pasos": 1000000,
+    "episodios": 1297,
+    "segundos": 1196.1
+  },
+  "contrato": {
+    "observaciones": 16,
+    "orden": "ver src/rally/env.py en c59ef6d107767f0cf3260bde5d0c24eb564dfcfe",
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 77.6,
+      "tiempo_p90_s": 77.8,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 164.81,
+      "progreso_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 2.0,
+      "recompensa_media": 10.61,
+      "progreso_pct": 57.6
+    }
+  }
+}

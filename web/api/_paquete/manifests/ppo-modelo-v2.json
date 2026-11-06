@@ -1,0 +1,57 @@
+{
+  "nombre": "ppo-modelo-v2",
+  "tipo": "ppo",
+  "etiqueta_git": "modelo-v2",
+  "run_id": "883ba34ac38c4ea7bac71b1fd1ed28f5",
+  "level_id": "N1",
+  "decision": "reemplazado",
+  "hipotesis": "Un sensor de agarre debería ayudar con lluvia: no ayudó",
+  "environment_version": "0.2-monaco-agarre",
+  "ambiente_huella": "61fa0dd41b7c",
+  "git_commit": "f1f5ab437311ea365ba650adb20dcf9666f18573",
+  "config_sha256": "ec1a21bf635c5261baaa0626f68901f483d4d222aac28af9100f029cf0babb17",
+  "model_uri": "dvc://models/ppo/modelo.zip@f1f5ab437311ea365ba650adb20dcf9666f18573",
+  "model_md5_dvc": "55c1d2b612b51c532dfba4f273b301bc",
+  "model_sha256": "b0da00bc09c46b3c349d61e4c906a95347ef08931075949a44de720dfb701203",
+  "mlflow_modelo": "rally-ppo",
+  "mlflow_version": 2,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en f1f5ab437311ea365ba650adb20dcf9666f18573",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero",
+  "presupuesto": {
+    "pasos": 3000000,
+    "episodios": 3716,
+    "segundos": 2076.5
+  },
+  "contrato": {
+    "observaciones": 19,
+    "orden": "ver src/rally/env.py en f1f5ab437311ea365ba650adb20dcf9666f18573",
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 63.1,
+      "tiempo_p90_s": 67.8,
+      "incidentes_ep": 0.22,
+      "recompensa_media": 174.63,
+      "progreso_pct": 99.9
+    },
+    "mojado": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 2.0,
+      "recompensa_media": -44.3,
+      "progreso_pct": 11.6
+    }
+  }
+}

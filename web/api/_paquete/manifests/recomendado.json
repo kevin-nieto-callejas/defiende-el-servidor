@@ -1,0 +1,13 @@
+{
+  "modelo": "ppo-modelo-v5-s1",
+  "motivo": "cumple configs/seleccion.yaml",
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0
+    }
+  },
+  "fecha": "2026-11-01T21:57:41-0500"
+}

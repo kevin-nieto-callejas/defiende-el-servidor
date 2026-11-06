@@ -1,0 +1,81 @@
+{
+  "nombre": "qlearning-modelo-qlearning-v8",
+  "tipo": "qlearning",
+  "etiqueta_git": "modelo-qlearning-v8",
+  "run_id": "d7fa27b99e4041a0b39458e39e76bc6e",
+  "level_id": "N3",
+  "decision": "candidato",
+  "hipotesis": "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia",
+  "environment_version": "0.4-monaco-configurable",
+  "ambiente_huella": null,
+  "git_commit": "12ab2a66203c31b780f4389a70019c83fdd7c8d0",
+  "config_sha256": "b7a28b4e1b0f093be85029b003e8fb48933dd968fb12cf94fc21a68a34752de3",
+  "model_uri": "dvc://models/qlearning/q_table.npz@12ab2a66203c31b780f4389a70019c83fdd7c8d0",
+  "model_md5_dvc": "eca716c19d9089d4f0f78b13563cb7b4",
+  "model_sha256": "75daeddd7d7960882c5eb22cad23744c37b40557cfd4224b09cff9c6b624e5bb",
+  "mlflow_modelo": "rally-qlearning",
+  "mlflow_version": 8,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en 12ab2a66203c31b780f4389a70019c83fdd7c8d0",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "episodios": 1400,
+    "segundos": 3258.6
+  },
+  "contrato": {
+    "observaciones": 24,
+    "orden": [
+      "v/25 m/s",
+      "ω/2 rad/s",
+      "sin φ",
+      "cos φ",
+      "d/(w/2)",
+      "eψ/π rad",
+      "rayo -90°/40 m",
+      "rayo -60°/40 m",
+      "rayo -30°/40 m",
+      "rayo 0°/40 m",
+      "rayo 30°/40 m",
+      "rayo 60°/40 m",
+      "rayo 90°/40 m",
+      "curvatura a 10 m·R",
+      "curvatura a 25 m·R",
+      "curvatura a 50 m·R",
+      "agarre usado",
+      "derrape",
+      "μ estimado/1.2",
+      "lluvia",
+      "ancho/12 m",
+      "a_max/6 m/s²",
+      "r_max/40 m",
+      "velocidad segura/25 m/s"
+    ],
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 99.0,
+      "tiempo_mediano_s": 81.1,
+      "tiempo_p90_s": 81.5,
+      "incidentes_ep": 0.02,
+      "recompensa_media": 159.52,
+      "progreso_pct": 99.4
+    },
+    "mojado": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 107.6,
+      "tiempo_p90_s": 108.0,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 145.47,
+      "progreso_pct": 100.0
+    }
+  }
+}
