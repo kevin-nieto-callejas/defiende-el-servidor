@@ -15,11 +15,16 @@ problema es del agente, no del trazado.
 Cada modelo es el .zip de PyTorch o su exportación a numpy (.npz) que sirve la API de Vercel
 (web/api/_paquete/pesos/<sha256>.npz); la exportación se comparó con PyTorch al crearse.
 
+La Sierra es la prueba reservada (docs/experimentos/v6-pistas.md): por defecto NO se corre.
+`--reservada` corre solo la Sierra y se niega si su resultado ya existe: se usa una sola vez,
+con el modelo ya elegido y la regla de elección en un commit anterior.
+
 Uso:
   python scripts/analisis/sobreajuste_pistas.py \\
       --modelo ppo-modelo-v5=RUTA.npz:monaco \\
       --modelo ppo-modelo-v6-pistas=models/ppo/modelo.zip:monaco,bosque,puerto \\
       [--episodios 100] [--salida metrics/sobreajuste-pistas.json]
+  python scripts/analisis/sobreajuste_pistas.py --reservada --modelo ... --salida metrics/sierra-v6.json
 
 Después de los dos puntos van las pistas con las que se entrenó cada modelo.
 """
@@ -42,7 +47,8 @@ PUERTO_R95 = track.registrar(track.Pista(
     "puerto_r95", [(n, x, y, max(r, track.MONACO.R)) for n, x, y, r in track.PUERTO.VERTICES],
     track.PUERTO.GATE_CORNERS, descripcion="Control: el Puerto sin curvas más cerradas que Mónaco"))
 
-PISTAS = ["monaco", "bosque", "puerto", "sierra", "puerto_r95"]
+PISTAS_VALIDACION = ["monaco", "bosque", "puerto", "puerto_r95"]
+PISTAS_RESERVADAS = sorted(track.RESERVADAS)
 REFERENCIAS = ["experto", "maestro"]
 
 
@@ -114,7 +120,11 @@ def main(argv=None):
     ap.add_argument("--modelo", type=_modelo, action="append", required=True, metavar="NOMBRE=RUTA:PISTAS")
     ap.add_argument("--episodios", type=int, default=100)
     ap.add_argument("--salida", default="metrics/sobreajuste-pistas.json")
+    ap.add_argument("--reservada", action="store_true", help="corre SOLO la pista reservada, una única vez")
     a = ap.parse_args(argv)
+    PISTAS = PISTAS_RESERVADAS if a.reservada else PISTAS_VALIDACION
+    if a.reservada and Path(a.salida).exists():
+        raise SystemExit(f"La prueba reservada ya se corrió ({a.salida}). No se repite.")
 
     p = yaml.safe_load(Path("params.yaml").read_text(encoding="utf-8"))
     ambiente, pe = p["ambiente"], p["evaluacion"]
@@ -136,6 +146,8 @@ def main(argv=None):
     salida = {
         "pregunta": "¿Los modelos manejan en pistas que nunca vieron al entrenar?",
         "ambiente_version": VERSION,
+        "prueba_reservada": a.reservada,
+        "fecha": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "protocolo": {"episodios": a.episodios, "semillas": [semillas[0], semillas[-1]],
                       "condiciones": condiciones, "ambiente": ambiente},
         "pistas": {n: {"largo_m": round(track.obtener(n).LAP, 1), "curvas": len(track.obtener(n).VERTICES),
