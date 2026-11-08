@@ -13,6 +13,8 @@ __pycache__/
 !/data/raw/.gitkeep
 !/data/processed/.gitkeep
 !/models/.gitkeep
+# Control del experimento v6: lo versiona DVC con este archivo
+!/models/control-ppo-monaco.dvc
 
 # MLflow local
 mlruns/

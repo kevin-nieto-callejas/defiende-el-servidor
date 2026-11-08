@@ -33,7 +33,18 @@ VERSIONES = {
     "modelo-v5": ("N3", "candidato", None),
     "modelo-qlearning-v7": ("N3", "reemplazado", None),
     "modelo-qlearning-v8": ("N3", "candidato", None),
+    "modelo-v6-pistas": ("N3", "candidato", None),
 }
+# Dónde se entrenó cada versión cuando no fue en el PC de siempre: la huella del ambiente
+# (ambiente_huella) cambia entre Linux y macOS por el redondeo del último bit en la geometría.
+PLATAFORMAS = {
+    "modelo-v6-pistas": {"maquina": "MacBook de Miguel, Intel Core i3-1000NG4 (x86_64), 8 GB",
+                         "sistema": "macOS 15.8", "python": "3.12.14", "torch": "2.2.2",
+                         "stable_baselines3": "2.4.1", "numpy": "1.26.4"},
+}
+# Versiones que no salen de `dvc repro` completo (la etapa evaluar también necesita la tabla Q):
+# sus resultados con la suite de la ficha están en este archivo, en el commit de la etiqueta.
+RESULTADOS = {"modelo-v6-pistas": "metrics/v6-ficha.json"}
 FINALISTAS = Path("finalistas")   # semillas 1 y 2: DVC las versiona con finalistas.dvc
 FAMILIA = {"ppo": "modelo-v5", "qlearning": "modelo-qlearning-v8"}
 METRICAS = {"ppo": Path("metrics/semillas.json"), "qlearning": Path("metrics/semillas-qlearning.json")}
@@ -73,7 +84,10 @@ def manifiesto(rev, tipo):
     pesos = _cache(hijos[ARCHIVO[tipo]])
     info = json.loads(_cache(hijos["info.json"]).read_text())
     try:
-        ev = json.loads(_git("show", f"{commit}:metrics/evaluacion.json"))["resultados"].get(tipo)
+        if rev in RESULTADOS:
+            ev = json.loads(_git("show", f"{commit}:{RESULTADOS[rev]}"))["resultados"]
+        else:
+            ev = json.loads(_git("show", f"{commit}:metrics/evaluacion.json"))["resultados"].get(tipo)
     except (subprocess.CalledProcessError, ValueError):
         ev = None
     nivel, decision, hipotesis = VERSIONES.get(rev, (None, None, None))
@@ -99,6 +113,8 @@ def manifiesto(rev, tipo):
         "contrato": {"observaciones": n_obs, "orden": OBS_0_4 if n_obs == 24 else f"ver src/rally/env.py en {commit}",
                      "acciones": ACCIONES, "clipping": "[-1, 1]", "paso_s": 0.1},
         "resultados": ev,
+        "pistas_entrenamiento": info.get("pistas_entrenamiento", ["monaco"]),
+        "entrenamiento_plataforma": PLATAFORMAS.get(rev),
     }
 
 

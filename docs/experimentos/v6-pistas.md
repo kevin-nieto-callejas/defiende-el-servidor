@@ -159,7 +159,7 @@ La lectura completa es más fina que "entrenar en más pistas generaliza":
 1. **La v5-s1 sí memorizó Mónaco.** Da 100 % en Mónaco y 0 % en el Puerto y en la Sierra, aunque el maestro
    completa las dos. El modelo que hoy publica el proyecto no sabe manejar fuera de su pista.
 2. **El control, solo Mónaco, también completa la Sierra.** Terminar la vuelta no exige practicar en varias
-   pistas; lo que se pierde es velocidad: el control es el más lento de los modelos que completan.
+   pistas; lo que se pierde es velocidad: el control es el más lento de los modelos entrenados que completan.
 3. **Lo que aportan las tres pistas es poder afinar sin memorizar.** La v6 siguió mejorando con PPO hasta el
    final (su mejor punto es el paso 3 000 000) y es 11 % más rápida que el control en la Sierra (68.8 contra
    77.3 s en seco, 88.0 contra 99.4 s con lluvia), sin perder vueltas en ninguna pista.
