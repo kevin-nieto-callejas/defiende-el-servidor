@@ -1,0 +1,27 @@
+{
+  "modelo": "runs/npz/v6.npz",
+  "motor": "numpy",
+  "model_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
+  "npz_sha256": "971abab9a166794b7236b4234991936f90ec5cc90202d4f5e0e809a39a8a9ee6",
+  "max_diferencia_con_pytorch": 7.152557373046875e-07,
+  "suite": "ficha-100-semillas-0-99",
+  "pista": "monaco",
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 69.8,
+      "tiempo_p90_s": 69.8,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 170.64,
+      "progreso_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 86.6,
+      "tiempo_p90_s": 86.7,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 161.03,
+      "progreso_pct": 100.0
+    }
+  }
+}

@@ -4,6 +4,9 @@ Mismo protocolo y mismas métricas que la etapa `evaluar` (pipeline._metricas): 
 la 0, seco μ = 0.9 y lluvia μ = 0.5, ambiente base, en Mónaco. Sirve para modelos que no salen de
 `dvc repro` completo (la etapa `evaluar` también necesita la tabla Q).
 
+Con el .npz (exportación a numpy de agentes/red_numpy.py) corre mucho más rápido que con PyTorch en
+varios procesos, y es el mismo motor que sirve la API.
+
 Uso:  python scripts/analisis/evaluar_ficha.py RUTA/modelo.{zip,npz} --salida metrics/v6-ficha.json
 """
 import argparse
@@ -63,7 +66,14 @@ def main(argv=None):
         for mu, out in ex.map(lote, trabajos):
             filas.setdefault(mu, []).extend(out)
     res = {nombre: _metricas(filas[mu]) for nombre, mu in cond.items()}
-    salida = {"modelo": a.modelo, "sha256": hashlib.sha256(Path(a.modelo).read_bytes()).hexdigest(),
+    sha = hashlib.sha256(Path(a.modelo).read_bytes()).hexdigest()
+    motor = {"motor": "pytorch", "model_sha256": sha}
+    if a.modelo.endswith(".npz"):
+        import numpy as np
+        with np.load(a.modelo, allow_pickle=False) as z:   # exportación verificada contra PyTorch
+            motor = {"motor": "numpy", "model_sha256": str(z["fuente_sha256"]), "npz_sha256": sha,
+                     "max_diferencia_con_pytorch": float(z["max_diferencia"])}
+    salida = {"modelo": a.modelo, **motor,
               "suite": "ficha-100-semillas-0-99", "pista": "monaco", "resultados": res}
     Path(a.salida).parent.mkdir(parents=True, exist_ok=True)
     Path(a.salida).write_text(json.dumps(salida, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
