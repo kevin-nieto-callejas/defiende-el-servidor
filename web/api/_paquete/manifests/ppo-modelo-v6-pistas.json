@@ -1,0 +1,95 @@
+{
+  "nombre": "ppo-modelo-v6-pistas",
+  "tipo": "ppo",
+  "etiqueta_git": "modelo-v6-pistas",
+  "run_id": "a09ed36cd1bb46229665c93f659c87ea",
+  "level_id": "N3",
+  "decision": "candidato",
+  "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
+  "environment_version": "0.4-monaco-configurable",
+  "ambiente_huella": "d56c0fcd9d9d",
+  "git_commit": "f9d5e25381c79f28aafc1d77f65612210c01c3c7",
+  "config_sha256": "a958dd3e589b840777e7f9e4620659210b9e86d9255bdf201a29f9ec51d1ac7e",
+  "model_uri": "dvc://models/ppo/modelo.zip@f9d5e25381c79f28aafc1d77f65612210c01c3c7",
+  "model_md5_dvc": "096992aa566642122a7dacac6354a901",
+  "model_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
+  "mlflow_modelo": "rally-ppo",
+  "mlflow_version": 1,
+  "normalization_uri": null,
+  "runtime_ref": "requirements.txt y pyproject.toml en f9d5e25381c79f28aafc1d77f65612210c01c3c7",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "pasos": 3000000,
+    "episodios": 3697,
+    "segundos": 5646.4
+  },
+  "contrato": {
+    "observaciones": 24,
+    "orden": [
+      "v/25 m/s",
+      "ω/2 rad/s",
+      "sin φ",
+      "cos φ",
+      "d/(w/2)",
+      "eψ/π rad",
+      "rayo -90°/40 m",
+      "rayo -60°/40 m",
+      "rayo -30°/40 m",
+      "rayo 0°/40 m",
+      "rayo 30°/40 m",
+      "rayo 60°/40 m",
+      "rayo 90°/40 m",
+      "curvatura a 10 m·R",
+      "curvatura a 25 m·R",
+      "curvatura a 50 m·R",
+      "agarre usado",
+      "derrape",
+      "μ estimado/1.2",
+      "lluvia",
+      "ancho/12 m",
+      "a_max/6 m/s²",
+      "r_max/40 m",
+      "velocidad segura/25 m/s"
+    ],
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 69.8,
+      "tiempo_p90_s": 69.8,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 170.64,
+      "progreso_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 86.6,
+      "tiempo_p90_s": 86.7,
+      "incidentes_ep": 0.0,
+      "recompensa_media": 161.03,
+      "progreso_pct": 100.0
+    }
+  },
+  "pistas_entrenamiento": [
+    "monaco",
+    "bosque",
+    "puerto"
+  ],
+  "entrenamiento_plataforma": {
+    "maquina": "MacBook de Miguel, Intel Core i3-1000NG4 (x86_64), 8 GB",
+    "sistema": "macOS 15.8",
+    "python": "3.12.14",
+    "torch": "2.2.2",
+    "stable_baselines3": "2.4.1",
+    "numpy": "1.26.4"
+  }
+}

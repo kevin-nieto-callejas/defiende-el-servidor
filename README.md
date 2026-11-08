@@ -122,10 +122,15 @@ son pilotos de referencia.
 | `modelo-qlearning-v7` | Ver el margen de frenada y medir el pedal en m/s² | 87 % / 81 %; 64.8 % en extremos | Reemplazado |
 | `modelo-qlearning-v8` (semilla 0) | Practicar con carros lentos y ruido | 99 % / 100 %; 85.0 % en extremos | Candidato |
 | **`qlearning-modelo-qlearning-v8-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 81.0 s y 106.9 s; 85.9 % en extremos | **Elegido de su agente** |
+| `ppo-modelo-v6-pistas` | Practicar en tres pistas (Mónaco, Bosque y Puerto) evita memorizar Mónaco | 100 % / 100 %, 69.8 s y 86.6 s; **100 % / 100 % en la Sierra, que nunca vio** (v5-s1: 0 %) | Candidato |
 
 Resultados: seco / lluvia con 100 vueltas por condición. Las semillas 1 y 2 están en `finalistas/`, versionadas con
-DVC. Los detalles, las pruebas de extremos y los límites están en la ficha. Limitación principal: hay un solo
-circuito.
+DVC. Los detalles, las pruebas de extremos y los límites están en la ficha.
+
+**Generalización a otras pistas** (`src/rally/track.py`): además de Mónaco hay tres circuitos, Bosque, Puerto y
+Sierra; la Sierra está reservada y ningún modelo entrena en ella. La v5-s1 da 0 % en el Puerto y en la Sierra:
+memorizó Mónaco. La v6, entrenada en tres pistas, completa todas. Experimento, control, regla de elección y
+límites en [docs/experimentos/v6-pistas.md](docs/experimentos/v6-pistas.md).
 
 **Test reservado** (`rally test-final`, una sola corrida, semillas fuera del repositorio):
 PPO semilla 1 dio 100 % / 100 % y 99.9 % en extremos; Q-learning semilla 1, 99 % / 99 % y 84.8 %. Resultado en

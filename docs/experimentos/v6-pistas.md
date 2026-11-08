@@ -92,6 +92,8 @@ la hipótesis, y **no cambia la elección** ni lleva a reentrenar o ajustar nada
 El Mac se apagó por batería en el paso 400 008 de la v6. El entrenamiento continuó desde el punto de guardado de
 ese paso (MLflow lo registra con la etiqueta `reanudado_desde_paso`); el run interrumpido quedó como `KILLED`
 con una nota.
+Por eso `presupuesto.segundos` del manifiesto (5 646 s) cuenta solo la parte reanudada; DAgger y los primeros
+400 000 pasos de PPO tomaron unas 3.5 horas más, con pausas por la suspensión del Mac.
 
 Los dos modelos se exportaron a numpy (`agentes/red_numpy.py`) y se compararon con PyTorch en 6 846 observaciones:
 diferencia máxima de 7.2e-07 en la v6 y 5.4e-07 en el control. Todas las evaluaciones usan esa exportación,

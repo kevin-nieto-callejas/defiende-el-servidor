@@ -7,7 +7,9 @@ y artefactos, y después los modelos registrados (versiones, etiquetas y alias).
 Es idempotente: cada corrida copiada lleva la etiqueta `origen_run_id`, así que
 volver a correrlo solo sube lo nuevo.
 
-Credenciales: DAGSHUB_TOKEN en el archivo .env (no se sube a git).
+Credenciales: DAGSHUB_TOKEN en el archivo .env (no se sube a git). Si el token es de otro
+integrante con acceso de escritura, DAGSHUB_USUARIO en .env dice de quién es; el destino sigue
+siendo el repositorio de DagsHub del proyecto.
 """
 
 import os
@@ -40,7 +42,7 @@ def _credenciales():
     token = leer_env("DAGSHUB_TOKEN")
     if not token:
         raise SystemExit("Falta DAGSHUB_TOKEN en el archivo .env")
-    os.environ["MLFLOW_TRACKING_USERNAME"] = DAGSHUB_USUARIO
+    os.environ["MLFLOW_TRACKING_USERNAME"] = leer_env("DAGSHUB_USUARIO") or DAGSHUB_USUARIO
     os.environ["MLFLOW_TRACKING_PASSWORD"] = token
 
 
