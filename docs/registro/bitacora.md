@@ -109,6 +109,8 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - API publicada en https://autonomous-rally.vercel.app. Probada desde la URL: seco y lluvia con PPO v5-s1 y
   Q-learning v8-s1, pista de 10 m con semilla 7, y evaluar 10 vueltas con lluvia en 8.4 s. Ya no sale el aviso de
   replay.
+- Allison y Miguel quedan como colaboradores de DagsHub con permiso Write, invitados por correo. Ya pueden hacer
+  `dvc pull` y rearmar el paquete de la API con los modelos reales.
 
 ## 5 de noviembre
 

@@ -42,7 +42,7 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
 | Avance estimado frente a la rúbrica | Cerca del 91 % (estimación del equipo, no una medición) |
-| Lo que más falta | Datos del equipo, acceso a DagsHub, respuestas del docente y ensayo |
+| Lo que más falta | Datos del equipo, respuestas del docente y ensayo |
 | Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api` desde el 6 de noviembre) |
 | Pruebas automáticas | 60 (59 pasan y 1 se activa cuando existe el paquete de Vercel) |
 | Versiones de modelos con manifiesto | 16 |
@@ -701,7 +701,6 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 | Revisar el primer resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | Push a su repositorio |
 | Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
-| Dar acceso en DagsHub a los compañeros | Kevin | Alta | — |
 | Nombre del equipo, tercer integrante y contribuciones en ficha, informe y presentación | Equipo | Media | — |
 | Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
 | Rotar los tokens de Hugging Face y DagsHub | Kevin | Media | — |
@@ -765,8 +764,9 @@ En DVC: `models/` para la versión del pipeline y `finalistas/` para las semilla
 manifiesto de cada versión dice dónde están y su SHA-256.
 
 **No me funciona `dvc pull`.**
-Pide usuario y token de DagsHub (sección 8.2 y la guía). Si tu cuenta no puede leer el repositorio, pídele a Kevin
-que te agregue.
+Pide usuario y token de DagsHub (sección 8.2 y la guía). Allison (`allisonloangorayo-sudo`) y Miguel (`melomm11`)
+son colaboradores con permiso Write desde el 6 de noviembre: crea tu token en DagsHub (User settings → Tokens) y
+configúralo con `dvc remote modify dagshub --local`, que lo deja fuera de git.
 
 **¿Puedo cambiar el ambiente o los pilotos?**
 Sí, en una rama. Pero si cambias `env.py`, `policies.py` o `pipeline.py`, `dvc repro` puede querer reentrenar PPO,
