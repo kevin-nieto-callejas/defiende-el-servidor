@@ -79,6 +79,63 @@ Van los tres modelos congelados porque la hipótesis compara la v6 con el contro
 script se niega a correr si `metrics/sierra-v6.json` ya existe. El resultado se guarda tal cual, aunque contradiga
 la hipótesis, y **no cambia la elección** ni lleva a reentrenar o ajustar nada.
 
-## Resultados
+## Entrenamiento
 
-Pendiente: se agregan al terminar el entrenamiento.
+| | Control | v6 |
+|---|---|---|
+| DAgger | 20 iteraciones, 100 % en la evaluación rápida desde la 2 | igual |
+| PPO | 3 000 000 de pasos, 3 879 episodios | 3 000 000 de pasos, 3 697 episodios |
+| Mejor punto (evaluación rápida en sus pistas de entrenamiento) | paso 400 008 | paso 3 000 000 |
+| SHA-256 del modelo | `8b469b4ffe8c…` | `528ea053635d…` |
+| Run de MLflow | `af40fef528594dafb7675aab0f0c1900` | `a09ed36cd1bb46229665c93f659c87ea` |
+
+El Mac se apagó por batería en el paso 400 008 de la v6. El entrenamiento continuó desde el punto de guardado de
+ese paso (MLflow lo registra con la etiqueta `reanudado_desde_paso`); el run interrumpido quedó como `KILLED`
+con una nota.
+
+Los dos modelos se exportaron a numpy (`agentes/red_numpy.py`) y se compararon con PyTorch en 6 846 observaciones:
+diferencia máxima de 7.2e-07 en la v6 y 5.4e-07 en el control. Todas las evaluaciones usan esa exportación,
+igual que la API publicada.
+
+## Fase A: resultados (`metrics/sobreajuste-pistas.json`)
+
+Vueltas completas en 100 semillas, seco / lluvia, y tiempo mediano en segundos.
+
+| Piloto | Mónaco | Bosque | Puerto | Puerto r9.5 |
+|---|---|---|---|---|
+| Experto (asume piso seco) | 100 / 0 · 77.4 s | 100 / 0 · 66.9 s | 100 / 0 · 89.2 s | 100 / 0 · 88.8 s |
+| Maestro | 100 / 100 · 80.8 / 103.8 s | 100 / 100 · 69.2 / 86.3 s | 100 / 100 · 92.9 / 119.3 s | 100 / 100 · 92.4 / 118.9 s |
+| v5, semilla 0 (Kevin) | 100 / 100 · 75.9 / 92.0 s | **0 / 0** | **0 / 0** | **0 / 0** |
+| v5, semilla 1 (Kevin) | 100 / 100 · 68.6 / 89.3 s | 100 / 100 · 62.5 / 79.9 s | **0 / 0** | **0 / 0** |
+| Control, solo Mónaco | 100 / 100 · 79.6 / 100.2 s | 100 / **30** · 68.8 / 87.7 s | 100 / 100 · 88.4 / 114.8 s | 100 / 100 · 88.4 / 114.4 s |
+| **v6, tres pistas** | 100 / 100 · 69.8 / 86.6 s | 100 / 100 · 65.4 / 77.6 s | 100 / 100 · 78.8 / 99.5 s | 100 / 100 · 78.9 / 99.4 s |
+
+Que el experto dé 0 % con lluvia es lo esperado: maneja como si el piso estuviera seco. El control choca con
+lluvia en el Bosque en 70 de 100 vueltas, todas en el último tramo antes de la meta (la Horquilla del Lago).
+
+## Elección (antes de la Sierra)
+
+| Condición | Seco | Lluvia | ¿Cumple? |
+|---|---|---|---|
+| 1. Mónaco: vueltas ≥ control − 5 | 100 ≥ 95 | 100 ≥ 95 | sí |
+| 1. Mónaco: tiempo ≤ 1.05 × control | 69.8 ≤ 83.6 s | 86.6 ≤ 105.2 s | sí |
+| 2. Puerto ≥ 95 % | 100 | 100 | sí |
+
+**Elegimos la v6.** Esta elección queda fija: el resultado de la Sierra no la cambia.
+
+### Lo que la fase A ya enseña, y que matiza la hipótesis
+
+- **Entrenar en una sola pista no basta para explicar el sobreajuste.** El control, entrenado solo en Mónaco,
+  completa el Puerto el 100 % de las veces; la v5 y la v5-s1 dan 0 %. Una diferencia visible es cuánto
+  afinó con PPO: el mejor punto del control fue el paso 400 008, casi la red recién imitada del maestro, y es
+  más lento que las v5 en Mónaco (79.6 s contra 68.6 a 75.9 s), mientras que la v6 sí siguió mejorando su
+  tiempo hasta el paso 3 000 000. Nuestra hipótesis es que afinar mucho en una sola pista lleva a memorizarla
+  y afinar en tres no; no lo comprobamos, porque en el repositorio no está registrado el mejor paso de las v5.
+- **La semilla importa.** La v5 y la v5-s1 tienen la misma configuración: una completa el Bosque y la otra
+  no. Con una sola semilla por modelo, nuestras conclusiones sobre el control y la v6 tienen el mismo límite.
+- El control y la v6 no son del mismo computador que las v5 (ver Diseño), así que comparamos la v6 con el
+  control y usamos las v5 solo como referencia.
+
+## Fase B: Sierra
+
+Pendiente: se corre una sola vez después del commit de esta elección.
