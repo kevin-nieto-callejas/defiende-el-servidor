@@ -136,6 +136,45 @@ lluvia en el Bosque en 70 de 100 vueltas, todas en el último tramo antes de la 
 - El control y la v6 no son del mismo computador que las v5 (ver Diseño), así que comparamos la v6 con el
   control y usamos las v5 solo como referencia.
 
-## Fase B: Sierra
+## Fase B: Sierra (`metrics/sierra-v6.json`)
 
-Pendiente: se corre una sola vez después del commit de esta elección.
+Corrida una sola vez, el 8 de noviembre de 2026 a las 03:01, sobre el commit de la elección (`bc081e8`), con
+100 semillas en seco y con lluvia.
+
+| Piloto | Seco | Lluvia | Dónde falla |
+|---|---|---|---|
+| Experto (asume piso seco) | 100 % · 74.8 s | 0 % | con lluvia, antes del Mirador Alto |
+| Maestro | 100 % · 78.0 s | 100 % · 99.8 s | |
+| v5, semilla 1 (la recomendada hoy) | **0 %** | **0 %** | antes de la salida del Paso, en las 200 vueltas |
+| Control, solo Mónaco | 100 % · 77.3 s | 100 % · 99.4 s | |
+| **v6, tres pistas** | **100 % · 68.8 s** | **100 % · 88.0 s** | |
+
+## Conclusión
+
+**La hipótesis se cumple.** La v6 completa el 100 % de las vueltas en la Sierra, que ningún modelo vio al
+entrenar (pedíamos al menos 80 %), y en Mónaco no pierde frente al control: completa lo mismo y es más rápida.
+
+La lectura completa es más fina que "entrenar en más pistas generaliza":
+
+1. **La v5-s1 sí memorizó Mónaco.** Da 100 % en Mónaco y 0 % en el Puerto y en la Sierra, aunque el maestro
+   completa las dos. El modelo que hoy publica el proyecto no sabe manejar fuera de su pista.
+2. **El control, solo Mónaco, también completa la Sierra.** Terminar la vuelta no exige practicar en varias
+   pistas; lo que se pierde es velocidad: el control es el más lento de los modelos que completan.
+3. **Lo que aportan las tres pistas es poder afinar sin memorizar.** La v6 siguió mejorando con PPO hasta el
+   final (su mejor punto es el paso 3 000 000) y es 11 % más rápida que el control en la Sierra (68.8 contra
+   77.3 s en seco, 88.0 contra 99.4 s con lluvia), sin perder vueltas en ninguna pista.
+
+## Errores que aceptamos y límites
+
+- **Una semilla por modelo.** La v5 y la v5-s1 muestran que la semilla puede cambiar el resultado en una
+  pista nueva. Para afirmar que la v6 generaliza mejor en general hacen falta más semillas del control y de la
+  v6 (`rally semillas`), y no lo hicimos por tiempo de cómputo (unas 3 horas por modelo en el Mac).
+- **Cuatro pistas, todas del mismo generador.** Rectas y arcos de radio constante, con escape y muro igual de
+  anchos; la Sierra es nueva pero de la misma familia. No probamos curvas de radio variable, pendientes ni
+  pistas mucho más largas.
+- **La regla de elección no miró las pruebas extremas** (ruido, ancho, alcance de sensores) de la ficha. La
+  v6 entra al catálogo como **candidata**; promoverla es del flujo de selección (`configs/seleccion.yaml`).
+- **Plataforma.** El control y la v6 se entrenaron en macOS (Intel) con PyTorch 2.2.2 y numpy 1.26; las v5,
+  en WSL con PyTorch 2.15. La huella del ambiente cambia entre plataformas (`d56c0fcd9d9d` en macOS,
+  `61fa0dd41b7c` en Linux) porque la geometría difiere en el último bit; las demostraciones del experto dan
+  las mismas 20 904 acciones en las dos (observaciones con diferencia menor a 1e-11).
