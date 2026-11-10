@@ -23,6 +23,7 @@ const lerpAng = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const params = new URLSearchParams(location.search);
 const SIN = new Set((params.get("sin") || "").split(","));   // diagnóstico de rendimiento
+const PISTA_PEDIDA = (params.get("pista") || "monaco").toLowerCase();   // ?pista=bosque
 
 // Si algo falla, se muestra en la pantalla de carga en vez de quedarse girando
 function mostrarError(msg) {
@@ -997,7 +998,7 @@ async function cargarEpisodio() {
   $("cargando-txt").textContent = `Simulando en Python (${piloto})…`;
   $("cargando").classList.remove("oculto");
   $("resultado").classList.add("oculto");
-  const q = new URLSearchParams({ piloto, semilla });
+  const q = new URLSearchParams({ piloto, semilla, pista: pista.pista ?? "monaco" });
   for (const { k } of PARAMS) q.set(k, valorParam(k));
   const fallo = (texto) => {
     $("cargando-txt").textContent = texto;
@@ -1356,6 +1357,22 @@ function conectar() {
   sel.value = params.get("piloto") || pista.recomendado || "experto";
   $("inp-semilla").value = params.get("semilla") || "0";
 
+  // Selector de pista: solo si la API dice cuáles hay (el replay sin API trae solo Mónaco)
+  const selPista = $("sel-pista");
+  if (pista.pistas?.length > 1) {
+    for (const p of pista.pistas) {
+      selPista.insertAdjacentHTML("beforeend", `<option value="${p.nombre}" title="${p.descripcion}">${p.titulo} · ${p.largo} m</option>`);
+    }
+    selPista.value = pista.pista;
+    selPista.onchange = () => {
+      if (selPista.value === "monaco") params.delete("pista"); else params.set("pista", selPista.value);
+      for (const k of ["t", "pausa"]) params.delete(k);
+      location.search = params.toString();   // recarga: el escenario se arma con la pista nueva
+    };
+  } else {
+    $("campo-pista").classList.add("oculto");
+  }
+
   construirParametros();
   $("btn-correr").onclick = cargarEpisodio;
   $("btn-azar").onclick = () => { sortear(); cargarEpisodio(); };
@@ -1453,7 +1470,21 @@ async function prepararEscena(limite = 15000) {
 }
 
 // ------------------------------------------------------------------ inicio
-pista = await (await fetch(`${API}/api/pista`)).json();
+// La pista se elige con ?pista=: el escenario se construye una vez a partir de su geometría.
+// Si la pedida no está disponible (reservada, desconocida o sin API), se carga Mónaco y se avisa.
+let avisoPista = "";
+{
+  let r = await fetch(`${API}/api/pista?pista=${encodeURIComponent(PISTA_PEDIDA)}`);
+  if (!r.ok && PISTA_PEDIDA !== "monaco") {
+    const e = await r.json().catch(() => ({}));
+    avisoPista = `${e.detail ?? `La pista ${PISTA_PEDIDA} no está disponible`}. Se muestra Mónaco.`;
+    params.delete("pista");
+    history.replaceState(null, "", `${location.pathname}${params.toString() ? `?${params}` : ""}`);
+    r = await fetch(`${API}/api/pista`);
+  }
+  pista = await r.json();
+}
+$("subtitulo-pista").textContent = `${pista.titulo ?? "Mónaco"} · AutonomousRally-v0`;
 {
   const [MX, MY] = pista.mapa;
   // Cámara de sombras de 120 m que sigue al carro (más detalle que cubrir todo el mapa)
@@ -1474,3 +1505,4 @@ ponerCamara(camara);
 await cargarEpisodio();
 animar();
 await prepararEscena();
+if (avisoPista) aviso(avisoPista, "cesped", 8000);

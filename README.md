@@ -82,6 +82,10 @@ cd web && npm ci && npm run dev   # web en http://localhost:5173
 rally web                      # visor local con entrenamiento en vivo, http://localhost:8765
 ```
 
+El selector **Pista** del panel (o `?pista=bosque` en la URL) cambia entre Mónaco, Bosque y Puerto; la API recibe
+el mismo parámetro en `/api/pista`, `/api/episodio` y `/api/evaluar`. La Sierra no se ofrece: es la prueba
+reservada de generalización y la API responde 403 si se pide.
+
 ## Reproducir
 
 ```bash

@@ -21,6 +21,11 @@ function condiciones(): Record<string, number> {
   return c;
 }
 
+/** Pista que se ve en el visor (?pista=): la evaluación corre en esa misma pista. */
+function pistaActual(): string {
+  return new URLSearchParams(location.search).get("pista") ?? "monaco";
+}
+
 function fila(v: Version, recomendado: string | null): string {
   const r = v.resultados ?? {};
   const acciones = v.ejecutable
@@ -44,13 +49,13 @@ function resumen(nombre: string, e: Evaluacion): string {
 }
 
 async function correr(nombres: string[], salida: HTMLElement) {
-  const c = condiciones();
-  salida.textContent = `Evaluando ${nombres.join(", ")} con 10 semillas…`;
+  const c = condiciones(), pista = pistaActual();
+  salida.textContent = `Evaluando ${nombres.join(", ")} en ${pista} con 10 semillas…`;
   try {
-    const res = await Promise.all(nombres.map((n) => api.evaluar(n, c)));
+    const res = await Promise.all(nombres.map((n) => api.evaluar(n, c, pista)));
     salida.innerHTML = `<table><thead><tr><th>Versión</th><th>Vueltas</th><th>Tiempo</th><th>Fin</th><th>Ambiente</th></tr></thead>
       <tbody>${res.map((e, i) => resumen(nombres[i], e)).join("")}</tbody></table>
-      <p>Condición: ${esc(JSON.stringify(c))} · modelo congelado · API en ${corto(res[0].commit_servido)}</p>`;
+      <p>Pista: ${esc(pista)} · condición: ${esc(JSON.stringify(c))} · modelo congelado · API en ${corto(res[0].commit_servido)}</p>`;
   } catch (e) {
     salida.textContent = `Error del servicio: ${(e as Error).message}`;
   }

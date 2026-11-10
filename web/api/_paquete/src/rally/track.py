@@ -128,8 +128,9 @@ class Pista:
     """
 
     def __init__(self, nombre, vertices, gate_corners, start_fraction=0.35, descripcion="",
-                 sentido="antihorario"):
+                 sentido="antihorario", titulo=None):
         self.nombre = nombre
+        self.titulo = titulo or nombre.capitalize()  # nombre para mostrar en la web
         self.descripcion = descripcion
         self.sentido = sentido
         self.VERTICES = list(vertices)
@@ -359,7 +360,7 @@ _N_LARGO, _N_ANCHO = 9, 5  # puntos del contorno: cada 0.5 m en el largo, ~0.45 
 # ------------------------------------------------------------- pistas
 
 MONACO = Pista("monaco", VERTICES, GATE_CORNERS, START_FRACTION,
-               descripcion="Circuito urbano inspirado en Mónaco: horquilla, túnel y chicanas")
+               descripcion="Circuito urbano inspirado en Mónaco: horquilla, túnel y chicanas", titulo="Mónaco")
 
 # Pistas para medir si el agente aprendió a manejar o solo memorizó Mónaco. Se diseñaron
 # distintas a propósito: el Bosque es rápido y gira en sentido HORARIO (Mónaco gira sobre

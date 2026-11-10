@@ -14,9 +14,9 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from rally import historicos, policies
+from rally import historicos, policies, track
 from rally.env import VERSION
-from rally.web import correr_episodio, datos_pista, leer_parametros
+from rally.web import PistaNoDisponible, correr_episodio, datos_pista, leer_parametros, leer_pista
 
 RECOMENDADO = Path("manifests/recomendado.json")
 MODOS = {"aleatoria": "aleatorio", "experto": "referencia", "prudente": "referencia", "maestro": "referencia"}
@@ -70,6 +70,14 @@ def _politica(nombre):
     return lambda semilla: pol, "evaluacion", pol.motor
 
 
+def _pista(nombre):
+    """Pista pedida: 403 si es la reservada para la prueba, 404 si no existe."""
+    try:
+        return leer_pista(nombre)
+    except PistaNoDisponible as e:
+        raise HTTPException(403 if (nombre or "").strip().lower() in track.RESERVADAS else 404, str(e)) from None
+
+
 def _identidad(nombre, params, modo, motor):
     m = historicos.manifiesto(nombre) if nombre not in MODOS else {}
     return {"modelo": nombre, "modo": modo, "motor": motor, "ambiente_servido": VERSION,
@@ -93,6 +101,7 @@ class Evaluacion(BaseModel):
     mu: float = 0.9
     a_max: float = 4.0
     r_max: float = 20.0
+    pista: str = "monaco"
 
 
 @app.get("/api/salud")
@@ -111,8 +120,8 @@ def monitoreo():
 
 
 @app.get("/api/pista")
-def pista():
-    d = datos_pista()
+def pista(pista: str = "monaco"):
+    d = datos_pista(_pista(pista))
     versiones = {f["nombre"]: f"{f['level_id']} · {f['decision']}" for f in historicos.catalogo() if f["ejecutable"]}
     d["pilotos"] = {**{k: policies.POLITICAS[k][0] for k in MODOS}, **versiones}
     d["recomendado"] = recomendado().get("modelo")
@@ -134,19 +143,21 @@ def modelo(nombre: str):
 
 @app.get("/api/episodio")
 def episodio(piloto: str, semilla: int = Query(0, ge=0), ancho: float = 8.0, mu: float = 0.9,
-             a_max: float = 4.0, r_max: float = 20.0):
+             a_max: float = 4.0, r_max: float = 20.0, pista: str = "monaco"):
     modelo = piloto
+    pista = _pista(pista)
     crear, modo, motor = _politica(modelo)
     params = dict(ancho=ancho, mu=mu, a_max=a_max, r_max=r_max)
     t0 = time.perf_counter()
     try:
-        ep = correr_episodio(modelo, semilla, politica=crear(semilla), **params)
+        ep = correr_episodio(modelo, semilla, politica=crear(semilla), pista=pista, **params)
     except Exception as e:
         monitor["errores"] += 1
         raise HTTPException(500, f"Falló la simulación: {e}") from e
     ms = 1000 * (time.perf_counter() - t0) / max(len(ep["frames"]), 1)
     _registrar(modelo, ep["resultado"], ms)
-    return {**ep, **_identidad(modelo, leer_parametros(params), modo, motor), "id": monitor["episodios"],
+    return {**ep, **_identidad(modelo, {**leer_parametros(params), "pista": pista}, modo, motor),
+            "id": monitor["episodios"],
             "latencia_paso_ms": round(ms, 3)}
 
 
@@ -154,17 +165,19 @@ def episodio(piloto: str, semilla: int = Query(0, ge=0), ancho: float = 8.0, mu:
 def evaluar(e: Evaluacion):
     """Evaluación del modelo congelado: resultados por caso, no una demostración elegida."""
     crear, modo, motor = _politica(e.modelo)
+    pista = _pista(e.pista)
     params = dict(ancho=e.ancho, mu=e.mu, a_max=e.a_max, r_max=e.r_max)
     casos, t0 = [], time.perf_counter()
     for s in range(e.semilla_inicial, e.semilla_inicial + e.episodios):
-        ep = correr_episodio(e.modelo, s, politica=crear(s), **params)
+        ep = correr_episodio(e.modelo, s, politica=crear(s), pista=pista, **params)
         _registrar(e.modelo, ep["resultado"], 0.0)
         casos.append({k: ep[k] for k in ("semilla", "resultado", "tiempo", "recompensa", "salidas", "progreso")})
     fines = {}
     for c in casos:
         fines[c["resultado"]] = fines.get(c["resultado"], 0) + 1
     tiempos = [c["tiempo"] for c in casos if c["resultado"] == "exito"]
-    return {**_identidad(e.modelo, leer_parametros(params), modo, motor), "casos": casos, "fallos_por_causa": fines,
+    return {**_identidad(e.modelo, {**leer_parametros(params), "pista": pista}, modo, motor), "casos": casos,
+            "fallos_por_causa": fines,
             "vueltas_pct": round(100 * len(tiempos) / e.episodios, 1),
             "tiempo_mediano_s": float(np.median(tiempos)) if tiempos else None,
             "segundos": round(time.perf_counter() - t0, 2)}
