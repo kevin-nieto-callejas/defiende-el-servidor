@@ -112,6 +112,28 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Allison y Miguel quedan como colaboradores de DagsHub con permiso Write, invitados por correo. Ya pueden hacer
   `dvc pull` y rearmar el paquete de la API con los modelos reales.
 
+## Del 6 al 8 de noviembre: experimento v6 (Miguel, rama `1Experiment`)
+
+- Pregunta: ¿el PPO aprendió a manejar o memorizó Mónaco? Agregamos tres pistas: Bosque (rápida, sentido
+  horario), Puerto (técnica) y Sierra (reservada para la prueba; el código no deja entrenar con ella).
+  Mónaco quedó idéntica: comparamos la geometría, los rayos y los choques con la versión anterior en 5 000
+  puntos al azar.
+- La v5-s1 da 100 % en Mónaco y **0 %** en el Puerto, donde el maestro da 100 %. Con el Puerto abierto a curvas
+  de 9.5 m sigue en 0 %: no es solo que las curvas sean más cerradas que las de Mónaco.
+- Entrenamos en el Mac de Miguel la v6 (Mónaco, Bosque y Puerto) y un control solo con Mónaco, con la misma
+  configuración y la misma semilla. Escribimos la regla de elección y el uso único de la Sierra antes de ver
+  resultados (commit `941798f`).
+- El Mac se suspendió al cerrar la tapa con batería y después se apagó. La v6 siguió desde el punto de
+  guardado del paso 400 008; el run interrumpido quedó como `KILLED` en MLflow.
+- Fase A: la v6 completa 100 % en Mónaco, Bosque y Puerto, en seco y con lluvia, y es más rápida que el
+  control. Elegida la v6 (commit `bc081e8`).
+- Sierra, una sola vez: v6 100 % (68.8 s / 88.0 s), control 100 % (77.3 s / 99.4 s), v5-s1 0 %. La hipótesis se
+  cumple; el control también completa, así que lo que aportan las tres pistas es poder afinar con PPO sin
+  memorizar. Detalle, tablas y límites en [experimentos/v6-pistas.md](../experimentos/v6-pistas.md).
+- La huella del ambiente cambia entre Linux y macOS (`61fa0dd41b7c` frente a `d56c0fcd9d9d`) con el mismo
+  código: la geometría difiere en el último bit. Las demostraciones del experto dan las mismas 20 904 acciones
+  en las dos plataformas. El manifiesto de la v6 dice en qué máquina se entrenó.
+
 ## 5 de noviembre
 
 - La API se publica como función de Vercel, en el mismo dominio de la web: es gratis y cumple lo que pide el

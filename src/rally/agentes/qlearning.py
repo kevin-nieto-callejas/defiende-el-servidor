@@ -135,7 +135,7 @@ def evaluar(politica, env, n=10, mu_seco=0.9, mu_mojado=0.5):
                 obs, _, term, trunc, info = env.step(a_mando(ACCIONES[politica(obs)], obs))
                 done = term or trunc
             ok += info["outcome"] == "exito"
-            prog += info["s_best"] / track.LAP
+            prog += info["s_best"] / track.largo(info)
             if info["outcome"] == "exito":
                 tiempos.append(info["t"])
         if nombre in ("seco", "mojado"):

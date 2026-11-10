@@ -38,7 +38,8 @@ qlearning:
   semilla: 0
 
 ppo:
-  hipotesis: "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4"
+  hipotesis: "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración"
+  pistas: [monaco, bosque, puerto]   # v6: cada episodio sortea una; la Sierra queda reservada para la prueba
   pasos: 3000000        # v5: más condiciones que practicar
   n_envs: 12
   learning_rate: 0.0001  # v4: más bajo para no deshacer lo imitado

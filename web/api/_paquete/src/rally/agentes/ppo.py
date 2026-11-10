@@ -9,6 +9,7 @@
 3. Dominio aleatorio (opcional): en cada episodio se sortean adherencia, ancho,
    aceleración y alcance de sensores dentro de los rangos de la ficha, y los sensores
    llevan ruido, para que el modelo maneje bien en cualquier experimento del visor.
+   Con `pistas` en params.yaml también se sortea la pista (nunca una reservada).
 4. Se guarda el mejor modelo de las evaluaciones rápidas: si PPO empeora la red,
    el resultado final nunca queda peor que lo mejor que se vio.
 """
@@ -24,6 +25,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
+from rally import track
 from rally.env import RAYO_REF, AutonomousRallyEnv
 
 
@@ -72,8 +74,12 @@ class RuidoSensores(gym.ObservationWrapper):
 
 
 def crear_env(ambiente, ppo_params, rank):
+    # `pistas` (opcional): cada episodio sortea una de estas pistas. Sin la clave, solo Mónaco,
+    # igual que todas las versiones anteriores.
+    pistas = track.validar_entrenamiento(ppo_params.get("pistas"))
+
     def _f():
-        env = AutonomousRallyEnv(**ambiente)
+        env = AutonomousRallyEnv(**ambiente, pista=pistas)
         if ppo_params.get("dominio_aleatorio"):
             env = DominioAleatorio(env, ppo_params)
         if ppo_params.get("ruido_sensores"):

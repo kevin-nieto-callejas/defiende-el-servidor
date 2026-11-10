@@ -5,20 +5,20 @@ stages:
     deps:
     - path: src/rally/env.py
       hash: md5
-      md5: f6875de26cd77731571ad4fd817e69a6
-      size: 15049
+      md5: 668ca9bcf309ada03852762945e5e014
+      size: 16545
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 1a6f68e0615799ee63e4c85a203a42f9
-      size: 18215
+      md5: 24539757306c1d0f299f1bf6a03602b7
+      size: 19177
     - path: src/rally/policies.py
       hash: md5
-      md5: 74303d81c39f4a1f9c8065b89e349c53
-      size: 5012
+      md5: 269bb512094b81903f5f013f11113264
+      size: 5061
     - path: src/rally/track.py
       hash: md5
-      md5: 292b0621f3fc86bcbb1e90d5d1540fa4
-      size: 13526
+      md5: a7a295dd393ef27c8203f0917e634b0a
+      size: 21565
     params:
       params.yaml:
         ambiente:
@@ -36,7 +36,7 @@ stages:
     outs:
     - path: data/processed/demos.npz
       hash: md5
-      md5: 32c9296b0532492ea8c1ac1138b9425b
+      md5: 28a52abdda30952dc81a0ce0eccb40ec
       size: 1155184
     - path: data/processed/escenarios.json
       hash: md5
@@ -124,28 +124,28 @@ stages:
     deps:
     - path: data/processed/demos.npz
       hash: md5
-      md5: 32c9296b0532492ea8c1ac1138b9425b
+      md5: 28a52abdda30952dc81a0ce0eccb40ec
       size: 1155184
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: b903423ce6237910ff26104c908f622e
-      size: 16164
+      md5: f5e13bb6edfa414b4f9c2ccbc94cc9d9
+      size: 16497
     - path: src/rally/env.py
       hash: md5
-      md5: f6875de26cd77731571ad4fd817e69a6
-      size: 15049
+      md5: 668ca9bcf309ada03852762945e5e014
+      size: 16545
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 1a6f68e0615799ee63e4c85a203a42f9
-      size: 18215
+      md5: 24539757306c1d0f299f1bf6a03602b7
+      size: 19177
     - path: src/rally/policies.py
       hash: md5
-      md5: 74303d81c39f4a1f9c8065b89e349c53
-      size: 5012
+      md5: 269bb512094b81903f5f013f11113264
+      size: 5061
     - path: src/rally/track.py
       hash: md5
-      md5: 292b0621f3fc86bcbb1e90d5d1540fa4
-      size: 13526
+      md5: a7a295dd393ef27c8203f0917e634b0a
+      size: 21565
     params:
       params.yaml:
         ambiente:
@@ -157,9 +157,14 @@ stages:
         evaluacion.mu_seco: 0.9
         evaluacion.semilla_eval_rapida: 10000
         ppo:
-          hipotesis: Si la red conoce la configuración del carro y practica 
-            todos los deslizadores con ruido, completa los extremos sin perder 
-            más de 5 % de tiempo frente a la v4
+          hipotesis: 'v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto)
+            en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra,
+            que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco
+            frente al control entrenado solo en Mónaco con la misma configuración'
+          pistas:
+          - monaco
+          - bosque
+          - puerto
           pasos: 3000000
           n_envs: 12
           learning_rate: 0.0001
@@ -202,8 +207,8 @@ stages:
     outs:
     - path: models/ppo
       hash: md5
-      md5: 17fa333e42e58e621fb506ecda6c5afc.dir
-      size: 1774271
+      md5: e5763f6fff5d6e74ddadfc5cae4cfb6d.dir
+      size: 1776665
       nfiles: 2
   evaluar:
     cmd: rally pipeline evaluar

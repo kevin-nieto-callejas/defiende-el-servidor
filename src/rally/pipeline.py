@@ -155,15 +155,21 @@ def _ejemplo_obs():
     return np.zeros((1, AutonomousRallyEnv().observation_space.shape[0]), dtype=np.float32)
 
 
-def _evaluador_rapido(ambiente, pe, n=5):
-    """Evaluación corta durante el entrenamiento: seco, mojado y extremos de los deslizadores."""
+def _evaluador_rapido(ambiente, pe, n=5, pistas=None):
+    """Evaluación corta durante el entrenamiento: seco, mojado y extremos de los deslizadores.
+
+    Con varias pistas de entrenamiento, seco y mojado corren `n` vueltas en cada una y los
+    extremos se reparten entre ellas. Nunca usa una pista reservada: elegir el mejor punto
+    del entrenamiento mirándola sería ajustar el modelo a la prueba.
+    """
+    pistas = track.validar_entrenamiento(pistas)
     ms, mm = pe["mu_seco"], pe["mu_mojado"]
     extremos = [{"mu": 0.4}, {"mu": 0.75}, {"mu": ms, "track_width": 12.0}, {"mu": mm, "track_width": 6.0},
                 {"mu": mm, "track_width": 12.0}, {"mu": ms, "r_max": 10.0}, {"mu": mm, "r_max": 40.0},
                 {"mu": mm, "a_max": 6.0}, {"mu": ms, "a_max": 2.0}]
 
-    def correr(modelo, cond, veces):
-        env = AutonomousRallyEnv(**{**ambiente, **cond})
+    def correr(modelo, cond, veces, pista="monaco"):
+        env = AutonomousRallyEnv(**{**ambiente, **cond}, pista=pista)
         ok, prog, tiempos = 0, 0.0, []
         for k in range(veces):
             obs, info = env.reset(seed=pe["semilla_eval_rapida"] + k)
@@ -173,19 +179,28 @@ def _evaluador_rapido(ambiente, pe, n=5):
                 obs, _, term, trunc, info = env.step(a)
                 done = term or trunc
             ok += info["outcome"] == "exito"
-            prog += info["s_best"] / track.LAP
+            prog += info["s_best"] / track.largo(info)
             if info["outcome"] == "exito":
                 tiempos.append(info["t"])
+        return ok, prog, tiempos
+
+    def correr_pistas(modelo, cond, veces):
+        ok, prog, tiempos = 0, 0.0, []
+        for pista in pistas:
+            o, p_, t = correr(modelo, cond, veces, pista)
+            ok, prog, tiempos = ok + o, prog + p_, tiempos + t
         return ok, prog, tiempos
 
     def evaluar(modelo):
         res = {}
         for nombre, mu in (("seco", ms), ("mojado", mm)):
-            ok, prog, tiempos = correr(modelo, {"mu": mu}, n)
-            res[f"{nombre}_vueltas_pct"] = 100 * ok / n
-            res[f"{nombre}_progreso_pct"] = 100 * prog / n
+            ok, prog, tiempos = correr_pistas(modelo, {"mu": mu}, n)
+            total = n * len(pistas)
+            res[f"{nombre}_vueltas_pct"] = 100 * ok / total
+            res[f"{nombre}_progreso_pct"] = 100 * prog / total
             res[f"{nombre}_tiempo_s"] = round(float(np.mean(tiempos)), 2) if tiempos else None
-        res["robusto_vueltas_pct"] = round(float(np.mean([100 * correr(modelo, c, 2)[0] / 2 for c in extremos])), 1)
+        res["robusto_vueltas_pct"] = round(float(np.mean(
+            [100 * correr(modelo, c, 2, pistas[i % len(pistas)])[0] / 2 for i, c in enumerate(extremos)])), 1)
         return res
     return evaluar
 
@@ -245,7 +260,9 @@ def etapa_ppo(vivo=False):
     salida = Path("models/ppo")
     grabador = Grabador("ppo", amb) if vivo else None
     t0 = time.time()
-    with _run("ppo", pp, {"algoritmo": "PPO", "hipotesis": pp["hipotesis"]}) as run:
+    pistas = track.validar_entrenamiento(pp.get("pistas"))
+    with _run("ppo", pp, {"algoritmo": "PPO", "hipotesis": pp["hipotesis"],
+                          "pistas_entrenamiento": ",".join(pistas)}) as run:
         mlflow.log_input(_dataset_mlflow(), context="demostraciones")
         # Punto de guardado: si el computador se apaga, el próximo `dvc repro` sigue donde quedó.
         # La huella junta parámetros, versión del ambiente y dataset: si algo cambia, empieza de cero.
@@ -253,12 +270,14 @@ def etapa_ppo(vivo=False):
         huella = hashlib.sha1(json.dumps([amb, pp, VERSION, _config_ambiente()[1]], sort_keys=True).encode()
                               + DEMOS.read_bytes()).hexdigest()[:16]
         punto = ppo.PuntoGuardado("runs/ppo-punto", huella)
-        _, n_ep = ppo.entrenar(amb, pp, DEMOS, salida, grabador, _evaluador_rapido(amb, p["evaluacion"]), punto)
+        _, n_ep = ppo.entrenar(amb, pp, DEMOS, salida, grabador,
+                               _evaluador_rapido(amb, p["evaluacion"], pistas=pistas), punto)
         version = _registrar_modelo("ppo", salida / "modelo.zip", _ejemplo_obs())
         info = json.loads((salida / "info.json").read_text(encoding="utf-8"))
         info.update({"mlflow_run_id": run.info.run_id, "mlflow_modelo": seguimiento.MODELOS["ppo"],
                      "ambiente_version": VERSION, "ambiente_huella": _config_ambiente()[1],
-                     "mlflow_version": version, "segundos": round(time.time() - t0, 1)})
+                     "mlflow_version": version, "segundos": round(time.time() - t0, 1),
+                     "pistas_entrenamiento": pistas})
         _escribir_json(salida / "info.json", info)
     print(f"PPO listo: {salida} ({n_ep} episodios, MLflow {seguimiento.MODELOS['ppo']} v{version})")
 
@@ -279,7 +298,7 @@ def _evaluar_lote(args):
             done = term or trunc
         out.append({"ok": info["outcome"] == "exito", "t": info["t"], "r": total,
                     "inc": info["off_track_events"] + (info["outcome"] == "choque"),
-                    "prog": info["s_best"] / track.LAP})
+                    "prog": info["s_best"] / track.largo(info)})
     return piloto, mu, out
 
 

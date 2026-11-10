@@ -1,9 +1,9 @@
 {
-  "commit": "138325fa3d90968df29d47bd66afd154f4de5aa2",
-  "fecha": "2026-11-06T10:16:38-0500",
+  "commit": "f9d5e25381c79f28aafc1d77f65612210c01c3c7",
+  "fecha": "2026-11-08T10:48:02-0500",
   "destino": "vercel",
-  "huella_src": "d985415c7fbc96ad17d4ddbbcd6d69fae941fb61713f4bc7220d1522414f50df",
-  "huella_manifests": "d5a43750eb1ede340dff1959f6b49fed811343ba4039b239309972dd64ea02ab",
+  "huella_src": "487f6c8f4eeec654ed6d3d2bdb8efb19b4e2168db791b1c7bc554dc5b81e625e",
+  "huella_manifests": "054779fd81883bf91b52a0e50849b617d500cc4d3daaea76842c1d0d9d5665a0",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
@@ -127,6 +127,20 @@
       "fuente_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
       "npz_sha256": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2",
       "motor": "tabla"
+    },
+    "ppo-modelo-v6-pistas": {
+      "fuente_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
+      "npz_sha256": "971abab9a166794b7236b4234991936f90ec5cc90202d4f5e0e809a39a8a9ee6",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 7.152557373046875e-07,
+      "motor": "numpy"
     }
   }
 }

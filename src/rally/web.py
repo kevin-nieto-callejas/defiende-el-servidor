@@ -131,7 +131,7 @@ def correr_episodio(piloto="experto", semilla=0, politica=None, **params):
         "modo": "evaluacion" if piloto in policies.MODELOS else "aleatorio" if piloto == "aleatoria" else "referencia",
         "resultado": info["outcome"], "tiempo": _r(info["t"], 2), "recompensa": _r(total, 2),
         "salidas": info["off_track_events"],
-        "progreso": _r(max(info["s_best"], 0) / track.LAP * 100, 1),
+        "progreso": _r(max(info["s_best"], 0) / track.largo(info) * 100, 1),
         "frames": frames,
     }
 
