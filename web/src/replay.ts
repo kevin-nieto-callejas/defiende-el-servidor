@@ -5,7 +5,11 @@
 const SIN_API = "Esta función necesita la API de simulación, que no está respondiendo.";
 
 function destino(url: URL): string | null {
-  if (url.pathname === "/api/pista") return "/datos/pista.json";
+  if (url.pathname === "/api/pista") {
+    // Solo Mónaco está grabada: otra pista sin API es un error, nunca la geometría de Mónaco
+    const pedida = (url.searchParams.get("pista") ?? "monaco").toLowerCase();
+    return pedida === "monaco" ? "/datos/pista.json" : null;
+  }
   if (url.pathname === "/api/modelos") return "/datos/modelos.json";
   if (url.pathname === "/api/salud") return "/datos/salud.json";
   if (url.pathname === "/api/episodio") {

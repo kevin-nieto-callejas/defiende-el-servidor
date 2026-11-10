@@ -24,7 +24,7 @@
       <span class="bandera" aria-hidden="true"></span>
       <div>
         <h1>AUTONOMOUS RALLY</h1>
-        <p>Mónaco · AutonomousRally-v0</p>
+        <p id="subtitulo-pista">Mónaco · AutonomousRally-v0</p>
       </div>
     </div>
     <nav id="camaras" aria-label="Cámaras">
@@ -69,6 +69,9 @@
         <p>Maneja el agente que se está entrenando. Sal de EN VIVO para correr tus propios experimentos.</p>
       </div>
       <fieldset id="controles-experimento" class="controles">
+        <label class="campo" id="campo-pista">Pista
+          <select id="sel-pista" title="Cambiar de pista vuelve a cargar el visor con ese circuito"></select>
+        </label>
         <label class="campo">Piloto
           <select id="sel-piloto"></select>
         </label>

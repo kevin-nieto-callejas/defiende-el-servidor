@@ -62,3 +62,28 @@ def test_catalogo_marca_las_tablas_antiguas_como_evidencia():
 def test_tabla_antigua_es_conflicto_y_no_un_fallo_del_servidor():
     """Las tablas anteriores a la v6 se muestran como evidencia: la API lo dice con 409."""
     assert cliente.get("/api/episodio", params={"piloto": "qlearning-modelo-v1"}).status_code == 409
+
+
+def test_pista_por_defecto_es_monaco_y_ofrece_las_no_reservadas():
+    r = cliente.get("/api/pista").json()
+    assert r["pista"] == "monaco" and r["titulo"] == "Mónaco"
+    assert [p["nombre"] for p in r["pistas"]] == ["monaco", "bosque", "puerto"]
+
+
+def test_se_puede_pedir_otra_pista():
+    a, b = cliente.get("/api/pista").json(), cliente.get("/api/pista", params={"pista": "bosque"}).json()
+    assert b["pista"] == "bosque" and b["largo"] != a["largo"] and b["centro"] != a["centro"]
+
+
+def test_episodio_y_evaluacion_corren_en_la_pista_pedida():
+    ep = cliente.get("/api/episodio", params={"piloto": "maestro", "pista": "puerto"}).json()
+    assert ep["pista"] == "puerto" and ep["params"]["pista"] == "puerto" and ep["resultado"] == "exito"
+    ev = cliente.post("/api/evaluar", json={"modelo": "maestro", "episodios": 1, "pista": "bosque"}).json()
+    assert ev["params"]["pista"] == "bosque" and ev["vueltas_pct"] == 100.0
+
+
+def test_pista_reservada_y_desconocida_son_error():
+    for ruta in ("/api/pista", "/api/episodio"):
+        assert cliente.get(ruta, params={"piloto": "maestro", "pista": "sierra"}).status_code == 403
+        assert cliente.get(ruta, params={"piloto": "maestro", "pista": "spa"}).status_code == 404
+    assert cliente.post("/api/evaluar", json={"modelo": "maestro", "pista": "sierra"}).status_code == 403

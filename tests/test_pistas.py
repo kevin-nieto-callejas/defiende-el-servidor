@@ -113,3 +113,28 @@ def test_evaluador_rapido_recorre_las_pistas_de_entrenamiento(monkeypatch):
     assert set(vistas) == {"monaco", "bosque"} and m["seco_vueltas_pct"] == 0
     with pytest.raises(ValueError, match="reservadas"):
         pipeline._evaluador_rapido({}, pe, pistas=["sierra"])
+
+
+def test_visor_local_sirve_la_pagina_y_bloquea_la_reservada_solo_en_la_api():
+    import json
+    import threading
+    import urllib.error
+    import urllib.request
+    from functools import partial
+    from http.server import ThreadingHTTPServer
+
+    from rally.web import Handler
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(Handler))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        assert urllib.request.urlopen(f"{base}/?pista=sierra").status == 200   # la página carga y avisa
+        assert json.load(urllib.request.urlopen(f"{base}/api/pista?pista=puerto"))["pista"] == "puerto"
+        for pista, codigo in (("sierra", 403), ("spa", 404)):
+            with pytest.raises(urllib.error.HTTPError) as e:
+                urllib.request.urlopen(f"{base}/api/pista?pista={pista}")
+            assert e.value.code == codigo and "detail" in json.load(e.value)
+    finally:
+        srv.shutdown()
+        srv.server_close()

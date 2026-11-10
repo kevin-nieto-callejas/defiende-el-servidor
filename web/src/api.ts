@@ -59,9 +59,9 @@ export interface Monitoreo extends Salud {
 export const monitoreo = () => pedir<Monitoreo>("/api/monitoreo");
 export const catalogo = () => pedir<Catalogo>("/api/modelos");
 export const salud = () => pedir<Salud>("/api/salud");
-export const evaluar = (modelo: string, condiciones: Record<string, number>, episodios = 10) =>
+export const evaluar = (modelo: string, condiciones: Record<string, number>, pista = "monaco", episodios = 10) =>
   pedir<Evaluacion>("/api/evaluar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ modelo, episodios, ...condiciones }),
+    body: JSON.stringify({ modelo, episodios, pista, ...condiciones }),
   });
