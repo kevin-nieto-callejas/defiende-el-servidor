@@ -62,3 +62,14 @@ def test_catalogo_marca_las_tablas_antiguas_como_evidencia():
 def test_tabla_antigua_es_conflicto_y_no_un_fallo_del_servidor():
     """Las tablas anteriores a la v6 se muestran como evidencia: la API lo dice con 409."""
     assert cliente.get("/api/episodio", params={"piloto": "qlearning-modelo-v1"}).status_code == 409
+
+
+def test_replays_se_generan_con_la_api_actual(tmp_path, monkeypatch):
+    """`rally replays` usa la misma política que la API: si cambia lo que devuelve, se nota aquí."""
+    from rally import api, replays
+
+    monkeypatch.setattr(replays, "SALIDA", tmp_path)
+    monkeypatch.setattr(api, "MODOS", {"experto": "referencia"})
+    monkeypatch.setattr(historicos, "catalogo", lambda: [])
+    replays.generar()
+    assert (tmp_path / "replays" / "experto-lluvia.json").exists()

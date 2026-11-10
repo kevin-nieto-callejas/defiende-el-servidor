@@ -26,7 +26,7 @@ def generar():
                                      "latencia_paso_ms": None})
     versiones = [f["nombre"] for f in historicos.catalogo() if f["ejecutable"]]
     for nombre in list(api.MODOS) + versiones:
-        crear, _ = api._politica(nombre)
+        crear = api._politica(nombre)[0]
         for clima, mu in CONDICIONES.items():
             ep = correr_episodio(nombre, 0, politica=crear(0), mu=mu)
             ep.update(modo="replay", modelo=nombre, id=f"replay {clima}")
