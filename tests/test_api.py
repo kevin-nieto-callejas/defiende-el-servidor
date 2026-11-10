@@ -87,3 +87,14 @@ def test_pista_reservada_y_desconocida_son_error():
         assert cliente.get(ruta, params={"piloto": "maestro", "pista": "sierra"}).status_code == 403
         assert cliente.get(ruta, params={"piloto": "maestro", "pista": "spa"}).status_code == 404
     assert cliente.post("/api/evaluar", json={"modelo": "maestro", "pista": "sierra"}).status_code == 403
+
+
+def test_replays_se_generan_con_la_api_actual(tmp_path, monkeypatch):
+    """`rally replays` usa la misma política que la API: si cambia lo que devuelve, se nota aquí."""
+    from rally import api, replays
+
+    monkeypatch.setattr(replays, "SALIDA", tmp_path)
+    monkeypatch.setattr(api, "MODOS", {"experto": "referencia"})
+    monkeypatch.setattr(historicos, "catalogo", lambda: [])
+    replays.generar()
+    assert (tmp_path / "replays" / "experto-lluvia.json").exists()
