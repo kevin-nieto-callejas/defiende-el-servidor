@@ -501,7 +501,7 @@
     "decision": "aceptado",
     "hipotesis": "Moto v1: la receta del PPO del carro (DAgger con el maestro de moto + PPO con dominio aleatorio en Mónaco, Bosque y Puerto) aprende a anticipar la inclinación y completa al menos 98 % de las vueltas en seco y con lluvia, sin caerse",
     "environment_version": "moto-0.1",
-    "git_commit": "685fb1b714cc2a5e404f6da75a495c19b5086236",
+    "git_commit": "05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
     "model_sha256": "d66ae9adb10812259f05b5d2af19a7fbba4f9532f9f372b7e0483c6378f56ee1",
     "resultados": {
       "seco": {
@@ -531,7 +531,7 @@
     "decision": "rechazado",
     "hipotesis": "Moto v1: la receta tabular del carro (DAgger con el maestro de moto + Q-learning, misma discretización de 117 600 estados) completa al menos 70 % de las vueltas en seco y 50 % con lluvia sin ver la inclinación como parte del estado",
     "environment_version": "moto-0.1",
-    "git_commit": "685fb1b714cc2a5e404f6da75a495c19b5086236",
+    "git_commit": "05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
     "model_sha256": "f2690f330b7f162016a1faeed81dda96b23cff33a2b822d209c29b8a05c8d66d",
     "resultados": {
       "seco": {
