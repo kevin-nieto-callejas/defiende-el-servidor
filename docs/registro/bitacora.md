@@ -148,3 +148,20 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - GitHub Actions corre pruebas, compila la web, revisa el paquete y construye el contenedor en cada push. Aquí no
   se pudo construir la imagen porque el registro de Docker estaba bloqueado en el entorno de trabajo.
 - Las tablas Q anteriores a la v6 ahora responden 409 en la API (antes, 503 por pesos no encontrados).
+
+## 10 de noviembre
+
+- Se unió el PR #3 de Miguel: selector de pista en la web y la API (Mónaco, Bosque y Puerto; la Sierra responde
+  403). Revisado antes de unir: 85 pruebas, build de la web, paquete de Vercel al día y la demo del Puerto con los
+  pesos del paquete (v5-s1 se sale en seco y choca con lluvia; v6 completa en 78.8 s y 99.6 s).
+- Evaluación oficial de la v6 (`dvc repro -s evaluar` y `-s generalizacion`). Ficha: 100 % en seco (69.8 s, la
+  más rápida) y 100 % con lluvia. Generalización: promedio 79.2 % y diluvio 0 %, debajo de los mínimos de
+  `configs/seleccion.yaml` (85 % y 50 %). También cae en límite de lluvia (14 %), pista angosta en seco (5 %) y
+  sensores cortos con lluvia (0 %), donde la v5 daba 100 %. **`rally seleccionar` la rechaza** y el recomendado
+  sigue siendo `ppo-modelo-v5-s1`. La v6 generaliza a pistas nuevas pero pierde robustez en condiciones extremas
+  de Mónaco; los criterios se fijaron el 1 de noviembre, antes de ver estos resultados.
+- No se corrió `pipelines/flujo.py` completo: su `dvc repro` habría reentrenado Q-learning, que quedó desactualizado
+  porque el PR #2 cambió `demos.npz`, y habría promovido la v6 sola si pasaba. Q-learning sigue sin reentrenar.
+- La generalización tardó 4 h 40 min sin terminar: cada proceso abría ~8 hilos de PyTorch para cálculos diminutos.
+  Con `OMP_NUM_THREADS=1` y 10 procesos terminó en 25 min. Antes, el computador estuvo suspendido 8 horas porque
+  se desconectó el cargador; la evaluación siguió sin perder nada al reanudar.
