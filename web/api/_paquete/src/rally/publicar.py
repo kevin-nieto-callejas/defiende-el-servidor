@@ -21,7 +21,7 @@ def _token():
         return os.environ["HF_TOKEN"]
     env = Path(".env")
     if env.exists():
-        for linea in env.read_text(encoding="utf-8").splitlines():
+        for linea in env.read_text(encoding="utf-8-sig").splitlines():
             if linea.strip().startswith("HF_TOKEN="):
                 return linea.split("=", 1)[1].strip().strip('"').strip("'")
     raise SystemExit("Falta HF_TOKEN: agrégalo al archivo .env (HF_TOKEN=hf_...) o como variable de entorno.")

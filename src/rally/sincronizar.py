@@ -34,7 +34,7 @@ def leer_env(clave):
         return os.environ[clave]
     env = Path(".env")
     if env.exists():
-        for linea in env.read_text(encoding="utf-8").splitlines():
+        for linea in env.read_text(encoding="utf-8-sig").splitlines():
             if linea.strip().startswith(f"{clave}="):
                 return linea.split("=", 1)[1].strip().strip('"').strip("'")
     return None

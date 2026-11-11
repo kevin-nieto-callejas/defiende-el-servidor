@@ -23,7 +23,7 @@ def salida(vehiculo="carro"):
 def semilla_reservada():
     if os.environ.get("RALLY_SEMILLA_RESERVADA"):
         return int(os.environ["RALLY_SEMILLA_RESERVADA"])
-    for linea in Path(".env").read_text(encoding="utf-8").splitlines():
+    for linea in Path(".env").read_text(encoding="utf-8-sig").splitlines():
         if linea.startswith("RALLY_SEMILLA_RESERVADA="):
             return int(linea.split("=", 1)[1])
     raise SystemExit("Falta RALLY_SEMILLA_RESERVADA en .env")
