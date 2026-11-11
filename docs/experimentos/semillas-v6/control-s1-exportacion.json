@@ -1,0 +1,13 @@
+{
+  "fuente_sha256": "9c00b8b113657828f29973eda6cebc8d9facb13d6a1b5391ac61224f78a1cce4",
+  "npz_sha256": "a61266a34de5c062bfe6b48881a5fd0eff149da82a852a1a1836ff1c1c0e49e3",
+  "n_obs": 24,
+  "capas": [
+    256,
+    256,
+    2
+  ],
+  "activacion": "Tanh",
+  "observaciones_probadas": 6846,
+  "max_diferencia": 1.2069940567016602e-06
+}
