@@ -4,7 +4,8 @@
 funciona todo, qué hicimos día por día, qué resultados hay, dónde está cada cosa, qué falta y cómo responder las
 preguntas de la sustentación. Si después de leerlo te queda una duda, revisa la sección 16, de preguntas frecuentes.
 
-Última actualización: 5 de noviembre de 2026, sobre el commit `97c1dc4` de `main` más los cambios de la API en Vercel.
+Última actualización: 10 de noviembre de 2026, sobre el commit `dedbc1b` de `main`, que es el publicado en Vercel.
+Incluye el experimento v6 (tres pistas), el selector de pista de la web y el veredicto de selección de la v6.
 
 ## Contenido
 
@@ -41,11 +42,12 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | Modelo recomendado | `ppo-modelo-v5-s1`: red neuronal PPO, versión 5, semilla 1 |
 | Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
-| Avance estimado frente a la rúbrica | Cerca del 91 % (estimación del equipo, no una medición) |
-| Lo que más falta | Datos del equipo, respuestas del docente y ensayo |
-| Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api` desde el 6 de noviembre) |
-| Pruebas automáticas | 60 (59 pasan y 1 se activa cuando existe el paquete de Vercel) |
-| Versiones de modelos con manifiesto | 16 |
+| Experimento más reciente | `ppo-modelo-v6-pistas`: entrenada en tres pistas, maneja en una pista que nunca vio (100 %), pero **no pasa la selección**: cae en condiciones extremas de Mónaco (sección 7.7) |
+| Avance estimado frente a la rúbrica | Cerca del 95 % (estimación del equipo, no una medición) |
+| Lo que más falta | Ensayo, nombre del equipo y contribuciones, y respuestas del docente |
+| Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api`; selector de pista desde el 10 de noviembre) |
+| Pruebas automáticas | 85, todas pasan |
+| Versiones de modelos con manifiesto | 17 |
 
 **Nota sobre el nombre:** el repositorio se llama `defiende-el-servidor` porque empezó con otro proyecto. Ese plan
 quedó guardado en [antecedentes/](antecedentes/defiende-el-servidor.md) y ya no aplica. Todo lo actual es
@@ -59,11 +61,11 @@ Autonomous Rally.
 |---|---|
 | Curso | MLOps, Universidad Externado de Colombia, 2026-II |
 | Docente | Julián Zuluaga |
-| Integrantes | Kevin Nieto, Miguel Melo y un tercer integrante, por completar |
+| Integrantes | Kevin Nieto, Miguel Melo y Allison Loango |
 | Nombre del equipo | Por completar en la ficha, el informe y la portada de la presentación |
 | Repositorio oficial | https://github.com/melo11miguel/defiende-el-servidor (de Miguel) |
 | Fork para Vercel | `kevin-nieto-callejas/defiende-el-servidor`, rama `ambiente-v0.4` |
-| Cuentas externas | DagsHub y Hugging Face están a nombre de Kevin; Vercel también |
+| Cuentas externas | DagsHub y Hugging Face están a nombre de Kevin; Vercel también. Miguel y Allison son colaboradores de DagsHub con permiso Write |
 
 El curso entregó fichas de ambientes y al equipo le correspondió **Autonomous Rally**. La imagen original de la
 ficha está en [ficha-autonomous-rally.png](ficha-autonomous-rally.png).
@@ -81,8 +83,8 @@ con el ambiente compatible con ese modelo**.
 | Criterio | Peso | Estado | Qué falta |
 |---|---:|---|---|
 | Versionamiento y recuperación | 30 % | Casi completo | Que el docente pueda entrar a DagsHub: hoy pide iniciar sesión |
-| Diseño experimental y análisis | 25 % | Casi completo | Nada técnico; ensayar la explicación |
-| Pipeline, despliegue, monitoreo y rollback | 20 % | Casi completo | Desplegar el paquete de la API y evaluar desde la URL |
+| Diseño experimental y análisis | 25 % | Casi completo | Nada técnico; ensayar la explicación, incluida la v6 |
+| Pipeline, despliegue, monitoreo y rollback | 20 % | Casi completo | Decidir si se reentrena Q-learning, que DVC marca desactualizado (sección 8.2) |
 | Ambiente y agente | 10 % | Completo | Intercambiar la ficha con otro equipo |
 | Defensa, informe y presentación | 15 % | Material listo | Nombres, contribuciones y ensayo |
 
@@ -97,16 +99,17 @@ con el ambiente compatible con ese modelo**.
 | Incidente, degradación e intervención | Listo: lluvia μ 0.9 → 0.5 | Sección 7.5 y el [informe](entregas/informe.md) |
 | Versionar código, datos y modelos | Listo: Git, DVC y etiquetas | `dvc.yaml`, `dvc.lock`, `git tag` |
 | Registro de experimentos | Listo: MLflow local y DagsHub | Sección 8.3 |
-| Manifiesto por versión con SHA-256 | Listo: 16 manifiestos | [manifests/](../manifests/) |
+| Manifiesto por versión con SHA-256 | Listo: 17 manifiestos | [manifests/](../manifests/) |
 | Recuperar modelos viejos con su ambiente | Listo: adaptadores validados | Sección 8.5 |
 | Hipótesis antes de entrenar | Listo desde la familia 0.4; v1 a v4 marcadas como escritas después | `params.yaml`, MLflow |
 | Criterios de selección fijos | Listo | [configs/seleccion.yaml](../configs/seleccion.yaml) |
 | Tres semillas por finalista | Listo | `metrics/semillas*.json` |
 | Test reservado, usado una sola vez | Listo | `metrics/test-final.json` |
 | Orquestador | Listo: Prefect, probado completo con entrenamiento | [evidencia/flujo-completo/](evidencia/flujo-completo/) |
-| Promoción y rollback | Listo: probado v5 → v4 → v5 | [manifests/historial.json](../manifests/historial.json) |
+| Promoción y rollback | Listo: probado v5 → v4 → v5. La v6 fue rechazada por los criterios el 10 de noviembre | [manifests/historial.json](../manifests/historial.json), sección 7.7 |
+| Generalización a pistas nuevas | Listo: experimento v6 con una pista reservada (Sierra), corrida una sola vez | [experimentos/v6-pistas.md](experimentos/v6-pistas.md) |
 | Monitoreo | Listo en la API; en Vercel cuenta por instancia y dice desde cuándo | `/api/monitoreo` |
-| Web pública en Vercel | Lista; detecta la API y, si no responde, entra en replay diciendo por qué | https://autonomous-rally.vercel.app |
+| Web pública en Vercel | Lista; detecta la API y, si no responde, entra en replay diciendo por qué. Tiene selector de pista (Mónaco, Bosque y Puerto) | https://autonomous-rally.vercel.app |
 | API pública | **Publicada**: función de Vercel en la misma URL, gratis, con los modelos reales. Probada desde la URL: lluvia, deslizadores, semillas y evaluar | `web/api/`, `deploy/api/empaquetar.py` |
 | Contenedor | GitHub Actions lo construye y prueba sus rutas en cada push | `deploy/api/Dockerfile`, `.github/workflows/verificar.yml` |
 | Informe | Borrador completo | [entregas/informe.md](entregas/informe.md) |
@@ -211,6 +214,22 @@ Los gráficos no cuentan como dificultad: cambian las reglas y lo que el agente 
 Cada modelo guarda en su manifiesto con qué versión del ambiente se entrenó. Los modelos de 16, 19 y 20
 observaciones corren hoy con un adaptador (sección 8.5).
 
+### 4.9 Pistas nuevas (desde el 8 de noviembre)
+
+Para medir si el agente aprendió a manejar o solo memorizó Mónaco, Miguel agregó tres pistas en
+`src/rally/track.py`. Mónaco quedó idéntica: se comparó geometría, rayos y choques con la versión anterior en
+5 000 puntos al azar. El ambiente recibe la pista con `pista=` o en `reset(options={"pista": ...})`; por defecto es
+Mónaco.
+
+| Pista | Largo | Curvas | Radio mínimo | Sentido | Uso |
+|---|---:|---:|---:|---|---|
+| Mónaco | 1 049 m | 18 | 9.5 m | antihorario | entrenamiento |
+| Bosque | 1 142 m | 9 | 14 m | horario | entrenamiento (v6) |
+| Puerto | 1 130 m | 15 | 8.5 m | antihorario | entrenamiento (v6) |
+| Sierra | 1 099 m | 11 | 11 m | antihorario | **prueba reservada**: el código no deja entrenar con ella y la API responde 403 |
+
+El experto, el prudente y el maestro completan las cuatro en seco y con lluvia, así que todas se pueden manejar.
+
 ---
 
 ## 5. Los dos agentes y los pilotos de referencia
@@ -265,9 +284,13 @@ El detalle de cada decisión está en la [bitácora](registro/bitacora.md) y en 
 | 1 nov | Tres semillas, selección de finalistas y test reservado, corrido una sola vez a las 21:57 |
 | 1 nov | Revisión de la web: avisos, celular, cámara TV, pantalla de carga y reflejo del piso |
 | 2 nov | Flujo completo de Prefect con entrenamiento real: reprodujo los resultados sin diferencias |
-| 3 nov | Este resumen ampliado |
+| 3 nov | Este resumen ampliado. Hugging Face pasa a `ppo-modelo-v5-s1` |
+| 5 nov | La API se prepara como función de Vercel, con la red de PPO en numpy |
+| 6 nov | API publicada en Vercel con los modelos reales. Allison y Miguel, colaboradores de DagsHub |
+| 6–8 nov | Experimento v6 de Miguel: tres pistas nuevas. La v5-s1 da 0 % en el Puerto y en la Sierra; la v6, 100 % |
+| 10 nov | Selector de pista en la web (PR #3). Evaluación oficial de la v6: **no pasa la selección**. La web pública queda al día |
 
-### 6.1 Los tres aprendizajes que hay que contar
+### 6.1 Los aprendizajes que hay que contar
 
 1. **Un 100 % puede engañar.** La v4 daba 100 % en la evaluación oficial. El equipo vio choques al mover los
    deslizadores del visor, y al medir 35 combinaciones la v4 dio 0 % en 11 y 85 % en una. Causa: los rayos se
@@ -278,6 +301,9 @@ El detalle de cada decisión está en la [bitácora](registro/bitacora.md) y en 
    ahora aprenden los agentes del maestro.
 3. **Una sola semilla engaña.** La semilla 0 de PPO v5, promovida primero, resultó la más lenta y la menos robusta
    de las tres.
+4. **100 % en una pista puede ser memoria.** La v5-s1 da 100 % en Mónaco y 0 % en el Puerto y la Sierra, que el
+   maestro sí completa. Entrenar en tres pistas (v6) lo corrige, pero la v6 pierde aguante en condiciones extremas
+   de Mónaco. Los criterios, fijados antes, lo detectaron y no la dejaron reemplazar a la recomendada.
 
 ---
 
@@ -294,6 +320,7 @@ Todas las cifras son % de vueltas completas sobre 100 episodios, y tiempo median
 | `experimento-v3` | Practicar con lluvia e imitar vueltas | 0 % | 0 % | Rechazada |
 | `modelo-v4` | DAgger corrige los errores de la red | 100 %, 75.6 s | 100 %, 91.8 s | Aceptada y luego reemplazada |
 | **`ppo-modelo-v5-s1`** | Conocer el carro y practicar todo con ruido | **100 %, 68.6 s** | **100 %, 89.3 s** | **Recomendada** |
+| `ppo-modelo-v6-pistas` | Practicar en tres pistas permite manejar en una nueva | 100 %, 69.8 s | 100 %, 86.6 s | Hipótesis cumplida; rechazada por la selección (7.7) |
 
 ### 7.2 Evolución de Q-learning
 
@@ -382,6 +409,46 @@ perder más de 5 puntos ni subir más de 5 % su tiempo. PPO v5 semilla 1 cumple 
 
 El agente final le gana en tiempo al piloto que le enseñó: 12 s en seco y 14 s con lluvia.
 
+### 7.7 Experimento v6: ¿maneja o memorizó Mónaco?
+
+Detalle completo en [experimentos/v6-pistas.md](experimentos/v6-pistas.md). La hipótesis, la regla de elección y el
+uso único de la Sierra se escribieron antes de ver resultados (commit `941798f`). La v6 y un control entrenado solo
+en Mónaco se entrenaron en el Mac de Miguel con la misma configuración y la misma semilla.
+
+**Vueltas en pistas distintas de Mónaco** (100 semillas, seco / lluvia):
+
+| Piloto | Bosque | Puerto | Sierra (reservada, una sola corrida) |
+|---|---|---|---|
+| Maestro | 100 / 100 % | 100 / 100 % | 100 / 100 % |
+| v5 semilla 1 (la recomendada) | 100 / 100 % | **0 / 0 %** | **0 / 0 %** |
+| Control, solo Mónaco | 100 / 30 % | 100 / 100 % | 100 / 100 % · 77.3 / 99.4 s |
+| **v6, tres pistas** | 100 / 100 % | 100 / 100 % | **100 / 100 % · 68.8 / 88.0 s** |
+
+La hipótesis se cumple: la v6 completa la Sierra, que nunca vio, y es la más rápida. El control también la
+completa, así que lo que aportan las tres pistas es poder afinar con PPO sin memorizar.
+
+**Selección oficial (10 de noviembre).** `dvc repro -s evaluar` y `-s generalizacion` con la v6, y después
+`rally seleccionar ppo-modelo-v6-pistas --tipo ppo`, sin promover:
+
+| Criterio de `configs/seleccion.yaml` | Mínimo | v6 | ¿Cumple? |
+|---|---|---|---|
+| Vueltas en seco | 98 % | 100 % | sí |
+| Vueltas con lluvia | 98 % | 100 % | sí |
+| Tiempo en seco | ≤ 81.3 s | 69.8 s | sí |
+| Promedio en las pruebas extremas | 85 % | **79.2 %** | **no** |
+| Peor prueba | 50 % | **0 %** (diluvio) | **no** |
+
+Dónde cae, frente a la v5 semilla 0 (la que estaba en `models/ppo`): diluvio 82 → **0 %**, límite de lluvia
+100 → **14 %**, pista de 6 m en seco 100 → **5 %**, sensores de 10 m con lluvia 100 → **0 %**. En las otras 17
+pruebas da entre 85 y 100 %.
+
+**Conclusión:** la v6 generaliza a pistas nuevas pero pierde robustez en condiciones extremas de Mónaco. Es un
+compromiso, y los criterios fijados el 1 de noviembre lo detectaron. **La recomendada sigue siendo la v5-s1** y no
+se publicó la v6 en Hugging Face. La v6 queda en el catálogo y en la web para comparar.
+
+**Demo para la sustentación:** https://autonomous-rally.vercel.app/?pista=puerto con `ppo-modelo-v5-s1` (en seco se
+sale a los 28.4 s y con lluvia choca) y después con `ppo-modelo-v6-pistas` (completa en 78.8 s y 99.6 s).
+
 ---
 
 ## 8. El ciclo de MLOps, pieza por pieza
@@ -410,7 +477,7 @@ API (FastAPI) sirve el recomendado ──► web en Vercel (en vivo; replay si l
 
 - Código, parámetros, métricas, manifiestos y documentación.
 - Una etiqueta por versión: `ambiente-v0.1`, `modelo-v1`, `modelo-v2`, `experimento-v3`, `modelo-v4`,
-  `modelo-v5`, `modelo-qlearning-v6`, `modelo-qlearning-v7`, `modelo-qlearning-v8`.
+  `modelo-v5`, `modelo-qlearning-v6`, `modelo-qlearning-v7`, `modelo-qlearning-v8`, `modelo-v6-pistas`.
 - Se trabaja en ramas y se une a `main` cuando pasan las pruebas.
 
 ### 8.2 DVC
@@ -422,6 +489,10 @@ API (FastAPI) sirve el recomendado ──► web en Vercel (en vivo; replay si l
 - Dos remotos: `dagshub` (por defecto, en la nube) y `almacen` (copia local en el PC de Kevin).
 - **Bajar los modelos pide usuario y token de DagsHub**, aunque el repositorio no sea privado. Se guardan en
   `.dvc/config.local`, que no se sube a git.
+- **Estado al 10 de noviembre:** `models/ppo` es la v6 y `metrics/evaluacion.json` y `metrics/generalizacion.json`
+  son de la v6. La v5-s1 recomendada vive en `finalistas/`. La etapa `qlearning` sale **desactualizada** en
+  `dvc status` porque el PR #2 cambió las demostraciones (`demos.npz`); reentrenarla tarda horas y no se ha hecho.
+  Por eso no se corrió `dvc repro` completo para la v6, sino solo `-s evaluar` y `-s generalizacion`.
 
 ### 8.3 MLflow y DagsHub
 
@@ -451,7 +522,9 @@ recuperarla:
 Además: `catalogo.json` (lista para la web), `recomendado.json` (el que sirve la API) e `historial.json` (cada
 promoción y rollback con fecha y motivo).
 
-Los 16 manifiestos: PPO v1, v2, v3, v4, v5, v5-s1 y v5-s2; Q-learning v1, v2, v3, v4, v6, v7, v8, v8-s1 y v8-s2.
+Los 17 manifiestos: PPO v1, v2, v3, v4, v5, v5-s1, v5-s2 y v6-pistas; Q-learning v1, v2, v3, v4, v6, v7, v8,
+v8-s1 y v8-s2. El de la v6 dice en qué máquina se entrenó (el Mac de Miguel), porque la huella del ambiente cambia
+en el último bit entre macOS y Linux con el mismo código.
 
 ### 8.5 Recuperar modelos viejos: adaptadores
 
@@ -471,6 +544,8 @@ marca como no ejecutables. Código: `src/rally/historicos.py`; evidencia: `docs/
 - `rally seleccionar` aplica los criterios. Si el candidato pasa y se pide `--promover`, queda como recomendado y se
   anota en el historial. `--rollback` vuelve al anterior.
 - **Prueba de rollback:** v5 → v4 → v5, comprobando en cada paso qué modelo servía la API. Está en el historial.
+- **Caso real de rechazo:** el 10 de noviembre la v6 cumplió seco, lluvia y tiempo, pero falló el promedio de
+  extremos (79.2 % contra 85 %) y la peor prueba (diluvio 0 % contra 50 %). No se promovió (sección 7.7).
 
 ### 8.7 Prefect
 
@@ -510,7 +585,7 @@ función lleva su propia cuenta y se reinicia cuando Vercel la recicla; la respu
 
 | Pieza | Dónde | Estado |
 |---|---|---|
-| Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada. La versión con detección de la API está en `main`, falta subirla al fork |
+| Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada y al día: commit `dedbc1b`, 10 de noviembre, con el selector de pista |
 | API | Vercel, función de Python en `web/api/index.py`, en el mismo dominio | Publicada el 6 de noviembre con `web/api/_paquete` (modelos reales, 2.8 MB). La función pesa 191 MB, bajo el límite de 500. Hugging Face quedó descartado: los Spaces con Docker exigen PRO |
 | Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | GitHub Actions lo construye sin pesos y prueba sus rutas en cada push. Queda como alternativa para un host con Docker |
 | Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v5 semilla 1, etiqueta `v5-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo. Las versiones anteriores siguen en las etiquetas `v1`, `v2` y `v4` |
@@ -523,9 +598,10 @@ azar. Si alguna difiere en más de 1e-5, no se empaqueta. Cada archivo se llama 
 y lo guarda adentro, así la identidad sigue siendo la del manifiesto. La API dice en cada respuesta qué motor usó
 (`numpy`, `pytorch`, `tabla` o `reglas`).
 
-**Por qué el fork:** Vercel no tiene acceso al repositorio de Miguel. Para actualizar la web hay que subir la
-versión a la rama `ambiente-v0.4` del fork. El último cambio de la web es `3450fde`; lo que vino después fue solo
-documentación, así que la web publicada está al día.
+**Por qué el fork:** Vercel no tiene acceso al repositorio de Miguel. **Unir algo a `main` no publica la web.**
+Para publicar: subir `main` a la rama `ambiente-v0.4` del fork, esperar a que Vercel arme la vista previa
+("Ready") y, en el panel de Vercel, abrir esa versión y elegir **Promote to Production**. Después, comprobar la URL
+pública. La versión publicada es `dedbc1b` (10 de noviembre).
 
 ### 8.10 Seguridad
 
@@ -544,6 +620,9 @@ documentación, así que la web publicada está al día.
 
 - Circuito 3D con estilo de transmisión de televisión, hecho con three.js. El visor está en `src/rally/static/` y
   lo usan tanto la web de Vercel como `rally web`.
+- **Pista:** selector con Mónaco, Bosque y Puerto, o en la URL con `?pista=bosque`. Cambiar de pista recarga el
+  visor. `?pista=sierra` carga Mónaco y avisa que es la prueba reservada. Evaluar en el catálogo usa la pista que
+  se está viendo.
 - **Cámaras:** Persecución (1), TV (2), Aérea (3), Cabina (4), Libre (5) y Vitrina (6, gira alrededor del carro).
 - **Clima:** Seco o Lluvia, con piso mojado y reflejos.
 - **Deslizadores:** agarre, ancho, aceleración, alcance de sensores y semilla. "Aleatorio" sortea dentro de los
@@ -551,8 +630,10 @@ documentación, así que la web publicada está al día.
 - **Paneles:** Telemetría, Registro de experimentos y Aprendizaje.
 - **Controles:** espacio pausa, R reinicia, flechas avanzan o retroceden 2 s, H oculta paneles, Esc cierra el
   resultado. Velocidad ½×, 1×, 2× y 4×. Calidad Auto, Alta, Media o Baja.
-- **Catálogo de modelos:** lista las 16 versiones con su hipótesis, decisión, ambiente y SHA-256; permite cargar,
+- **Catálogo de modelos:** lista las 17 versiones con su hipótesis, decisión, ambiente y SHA-256; permite cargar,
   evaluar y comparar modelos, y muestra el monitoreo.
+- **Medidor de rendimiento** (arriba a la derecha, en pantallas anchas): por ejemplo "24 FPS · 90% · Media" son
+  cuadros por segundo, resolución de la imagen y calidad. En "Auto" la web los baja sola si el computador va lento.
 
 ### 9.2 Modo replay y modo en vivo
 
@@ -575,6 +656,10 @@ la función arranca.
 - Al recargar se veía unos segundos el carro básico: la pantalla de carga espera texturas, cielo, carro y shaders.
 - La línea gris clara sobre el asfalto seco era el reflejo de la goma: ahora solo brilla con lluvia.
 - Rendimiento medido: 31 FPS en calidad Media; con lluvia, 27. En Alta baja a unos 11.
+- El botón Catálogo tapaba la cámara Vitrina entre 1450 y 1500 px, entre 961 y 1000 px y en celular. Corregido el
+  10 de noviembre y medido en 18 anchos, de 400 a 1920 px, sin solapes.
+- Si la web local (`npm run dev`) muestra "Cannot set properties of null" justo después de cambiar de rama, es la
+  página vieja con el código nuevo: se arregla recargando.
 
 Falla conocida sin corregir: hacia el segundo 26, la cámara atraviesa el arco verde del CP2 y se ve un destello verde.
 
@@ -592,11 +677,14 @@ Q-learning responden 409: se conservan solo como evidencia.
 |---|---|
 | `GET /api/salud` | Estado, versión del ambiente, commit y modelo recomendado |
 | `GET /api/monitoreo` | Episodios, errores, fallos por causa y latencia |
-| `GET /api/pista` | Geometría del circuito y piloto recomendado |
-| `GET /api/modelos` | Catálogo con las 16 versiones |
+| `GET /api/pista?pista=...` | Geometría de la pista, lista de pistas disponibles y piloto recomendado |
+| `GET /api/modelos` | Catálogo con las 17 versiones |
 | `GET /api/modelos/{nombre}` | Manifiesto de una versión |
-| `GET /api/episodio?piloto=...` | Una vuelta completa, cuadro por cuadro, con los parámetros pedidos |
-| `POST /api/evaluar` | Evalúa un modelo en hasta 20 episodios y reporta vueltas, tiempos, fallos y si usó adaptador |
+| `GET /api/episodio?piloto=...&pista=...` | Una vuelta completa, cuadro por cuadro, con los parámetros pedidos |
+| `POST /api/evaluar` | Evalúa un modelo en hasta 20 episodios (campo `pista` opcional) y reporta vueltas, tiempos, fallos y si usó adaptador |
+
+`pista` es opcional y por defecto es `monaco`. La Sierra responde **403** (es la prueba reservada) y una pista que
+no existe, 404.
 
 Correrla en local: `.venv/bin/rally api` (puerto 8000).
 
@@ -607,7 +695,7 @@ Correrla en local: `.venv/bin/rally api` (puerto 8000).
 | Ruta | Contenido |
 |---|---|
 | `src/rally/env.py` | El ambiente Gymnasium `AutonomousRally-v0`, versión 0.4 |
-| `src/rally/track.py` | El circuito de Mónaco y sus checkpoints |
+| `src/rally/track.py` | Las pistas (Mónaco, Bosque, Puerto y la Sierra reservada) y sus checkpoints |
 | `src/rally/policies.py` | Pilotos de referencia: experto, prudente, maestro, aleatorio |
 | `src/rally/agentes/ppo.py` | Entrenamiento de PPO, DAgger, dominio aleatorio y ruido |
 | `src/rally/agentes/qlearning.py` y `discreto.py` | Q-learning y la discretización de la tabla |
@@ -634,7 +722,8 @@ Correrla en local: `.venv/bin/rally api` (puerto 8000).
 | `web/api/` | Función de Vercel con la API; `_paquete/` tiene código, manifiestos y modelos en numpy |
 | `.github/workflows/verificar.yml` | Pruebas, web, paquete y contenedor en cada push |
 | `scripts/` | Mediciones y automatización de la corrida final |
-| `tests/` | Pruebas del ambiente, la API y la selección |
+| `tests/` | Pruebas del ambiente, las pistas, la API, la red en numpy y la selección |
+| `docs/experimentos/` | Experimentos con su diseño escrito antes de los resultados, como la v6 |
 | `docs/` | Esta documentación; el índice está en [docs/README.md](README.md) |
 
 ---
@@ -649,7 +738,8 @@ La instalación completa está en la [guía para empezar](guias/empezar.md).
 | Correr las pruebas | `.venv/bin/pytest` |
 | Bajar modelos y datos | `.venv/bin/dvc pull -r dagshub` (antes, configurar usuario y token) |
 | Ver qué se reentrenaría | `.venv/bin/dvc status` |
-| Entrenar sin recalentar | `taskset -c 0-5 .venv/bin/dvc repro` |
+| Entrenar o evaluar sin recalentar | `OMP_NUM_THREADS=1 taskset -c 0-3 nice -n 15 .venv/bin/dvc repro` |
+| Reevaluar solo un modelo nuevo | `OMP_NUM_THREADS=1 .venv/bin/dvc repro -s evaluar` y luego `-s generalizacion` |
 | Evaluar pilotos | `.venv/bin/rally evaluar` |
 | Las 5 transiciones | `.venv/bin/rally transiciones` |
 | API | `.venv/bin/rally api` → http://127.0.0.1:8000 |
@@ -687,9 +777,17 @@ Todo se entrenó en el portátil de Kevin, con WSL Ubuntu en Windows.
   [registro/corrida-final/](registro/corrida-final/).
 - **DagsHub dio errores 502** durante las subidas: se reintentó en segundo plano hasta que funcionó.
 - PPO y Q-learning guardan puntos de control: si se cortan, siguen donde iban.
+- **Desde el 9 de noviembre**, los trabajos largos usan como máximo 4 núcleos y prioridad baja: Kevin prefiere que
+  tarden más a que el computador se apague.
+- **Hilos de PyTorch (10 de noviembre):** la etapa de generalización con la v6 llevaba 4 h 40 min sin terminar.
+  Cada proceso abría unos 8 hilos de PyTorch para cálculos diminutos y se pasaban el tiempo esperándose. Con
+  `OMP_NUM_THREADS=1` y 10 procesos terminó en 25 minutos. El límite real de procesos es la memoria: cada uno
+  ocupa unos 0.55 GB con el PPO cargado.
+- **Suspensión el 10 de noviembre:** se desconectó el cargador y el equipo se suspendió 8 horas por batería
+  crítica. La evaluación siguió sin perder nada al reanudar. Hay que dejarlo enchufado.
 
-**Si vas a entrenar en tu computador:** limita los núcleos con `taskset`, revisa `dvc status` antes y ten en cuenta
-que PPO v5 con 3 millones de pasos tarda varias horas.
+**Si vas a entrenar en tu computador:** usa `OMP_NUM_THREADS=1`, limita los núcleos con `taskset`, revisa
+`dvc status` antes y ten en cuenta que PPO con 3 millones de pasos tarda varias horas.
 
 ---
 
@@ -697,24 +795,34 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 
 | Tarea | Responsable | Prioridad | Depende de |
 |---|---|---|---|
-| Probar desde la URL: catálogo, cargar un modelo viejo y el recomendado, evaluar y comparar | Equipo | Alta | — |
-| Revisar el primer resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | Push a su repositorio |
+| Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento, despliegue y la v6 | Todos | Alta | — |
+| Nombre del equipo y contribuciones en ficha, informe y presentación | Equipo | Alta | — |
 | Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
-| Nombre del equipo, tercer integrante y contribuciones en ficha, informe y presentación | Equipo | Media | — |
+| Agregar el veredicto de selección a [experimentos/v6-pistas.md](experimentos/v6-pistas.md) y al informe | Miguel | Media | — |
+| Decidir si se reentrena Q-learning (horas) o se deja documentado como desactualizado | Kevin y Miguel | Baja | — |
+| Revisar el resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | — |
 | Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
 | Rotar los tokens de Hugging Face y DagsHub | Kevin | Media | — |
 | Reactivar el Turbo del procesador cuando no se entrene | Kevin | Baja | — |
-| Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento y despliegue | Todos | Alta | — |
 
-**Lo técnico está terminado y publicado.** Lo que falta son las respuestas del docente y los datos del equipo.
+Ya hecho y comprobado desde la URL pública el 10 de noviembre: las tres pistas, la Sierra bloqueada, la demo del
+Puerto y la barra sin solapes. El 6 de noviembre se comprobaron el catálogo, los deslizadores, las semillas y
+evaluar.
+
+**Lo técnico está terminado y publicado.** Lo que falta es el ensayo, los datos del equipo y las respuestas del
+docente.
 
 ---
 
 ## 15. Límites que hay que decir en la sustentación
 
-- **Hay un solo circuito.** Medimos robustez ante condiciones, no manejo en una pista desconocida. Es la limitación
-  más importante; la siguiente hipótesis sería entrenar en pistas generadas al azar y medir en una reservada.
+- **El modelo recomendado (v5-s1) memorizó Mónaco.** Da 0 % en el Puerto y en la Sierra, que el maestro sí
+  completa. Hay que decirlo antes de que el docente cambie de pista en la web. La v6, entrenada en tres pistas,
+  sí maneja en pistas nuevas, pero no pasa los criterios de selección porque cae en condiciones extremas de
+  Mónaco (diluvio 0 %). Hoy no tenemos un modelo que haga las dos cosas.
+- **Las cuatro pistas son de la misma familia:** rectas y arcos de radio constante. La v6 y su control tienen una
+  sola semilla cada uno.
 - **Las 19 pruebas extremas cambian una condición a la vez.** Combinadas, el modelo falla: con diluvio y
   aceleración 6 completó 1 de 3 vueltas, y con todos los deslizadores al extremo (pista de 6 m, μ 0.4, aceleración
   6 y sensores de 10 m), 0 de 3. Medido el 3 de noviembre en la API local. Si el docente prueba eso en la web, va a
@@ -735,6 +843,15 @@ que PPO v5 con 3 millones de pasos tarda varias horas.
 **¿Qué modelo presentamos?**
 `ppo-modelo-v5-s1`. Es el recomendado en `manifests/recomendado.json` y el `@champion` de `rally-ppo` en MLflow. El
 de Q-learning es `qlearning-modelo-qlearning-v8-s1`.
+
+**¿Por qué no promovimos la v6 si maneja en todas las pistas?**
+Porque los criterios de selección, fijados el 1 de noviembre, exigen 85 % de promedio en las pruebas extremas y
+ninguna bajo 50 %. La v6 dio 79.2 % y 0 % en diluvio. No se cambian los criterios para que un modelo pase: el
+sistema hizo lo que tenía que hacer. Detalle en la sección 7.7.
+
+**¿Por qué la Sierra no aparece en el selector de pista?**
+Es la prueba reservada del experimento v6: se usó una sola vez, el 8 de noviembre. Si se pudiera correr a voluntad,
+dejaría de ser una prueba. La API responde 403 y la web carga Mónaco con un aviso.
 
 **¿Por qué la semilla 1 y no la 0 o la 2?**
 Por los criterios fijados antes: primero vueltas, después tiempo. La 1 tuvo 100 % en extremos; la 2, 99.8 %; la 0,
@@ -802,7 +919,12 @@ qué resultados dio. Con él cualquiera puede recuperar y evaluar esa versión.
 Se corrió el flujo completo desde cero en una copia aparte y dio exactamente los mismos resultados.
 
 **¿Qué hago si el computador se recalienta?**
-Usa menos núcleos con `taskset -c 0-3` y `nice -n 10`. El entrenamiento se reanuda desde su punto de guardado.
+Usa menos núcleos con `taskset -c 0-3` y `nice -n 15`, y siempre `OMP_NUM_THREADS=1`. El entrenamiento se reanuda
+desde su punto de guardado.
+
+**¿Por qué unir algo a `main` no cambia la web pública?**
+Vercel publica desde el fork de Kevin. Hay que subir `main` al fork y promover la versión en el panel de Vercel
+(sección 8.9).
 
 **¿Quién usó asistentes de código?**
 Usamos asistentes de código y verificamos lo generado con pruebas y métricas. Lo dice el informe; cada integrante
@@ -821,9 +943,11 @@ debe poder explicar lo que se hizo.
 | ¿Cómo evitan sobreajustar a la evaluación? | Semillas de entrenamiento distintas, pruebas extremas, tres semillas y test reservado de una sola corrida | `metrics/test-final.json` |
 | ¿Qué fue lo más difícil? | La lluvia extrema; la causa era física, no de aprendizaje | Sección 6.1 |
 | ¿Qué pasa si falla en producción? | Monitoreo en la API, criterios y rollback | `/api/monitoreo`, `historial.json` |
-| ¿Cuál es la principal limitación? | Un solo circuito | Sección 15 |
+| ¿Cuál es la principal limitación? | La v5-s1 memorizó Mónaco; la v6 generaliza a pistas pero no aguanta extremos | Sección 15, web con `?pista=puerto` |
+| ¿Su modelo sabe manejar o memorizó? | Lo medimos con pistas nuevas y una reservada: la v5-s1 memorizó, la v6 no | Sección 7.7 |
+| ¿Qué pasa cuando un modelo nuevo no cumple? | No se promueve: la v6 fue rechazada por los criterios | `rally seleccionar`, sección 7.7 |
 | ¿Por qué Prefect? | Es Python, corre local sin servidor y deja evidencia por etapa | `pipelines/flujo.py` |
-| ¿Qué harían después? | Pistas aleatorias y una pista reservada | Informe, última sección |
+| ¿Qué harían después? | Entender por qué la v6 pierde en extremos, entrenar en varias pistas con más semillas y buscar un modelo que cumpla las dos cosas | Sección 7.7 |
 
 ---
 
@@ -841,6 +965,8 @@ debe poder explicar lo que se hizo.
 | Dominio aleatorio | Sortear condiciones en cada episodio para que el agente generalice |
 | Pruebas extremas | Las 19 condiciones fuera de lo base: diluvio, ruido, pistas angostas y anchas, etc. |
 | Test reservado | Evaluación final con semillas ocultas, corrida una vez |
+| Pista reservada | La Sierra: pista que ningún modelo vio al entrenar, usada una sola vez para medir si generaliza |
+| Sobreajuste | Rendir bien solo en lo que se practicó; aquí, manejar bien Mónaco y no saber manejar otra pista |
 | Manifiesto | Archivo con la identidad completa de una versión de modelo |
 | Adaptador | Conversión de observaciones para que un modelo viejo corra en el ambiente nuevo |
 | Rollback | Volver al modelo recomendado anterior |
@@ -860,6 +986,8 @@ debe poder explicar lo que se hizo.
 |---|---|
 | Repositorio | https://github.com/melo11miguel/defiende-el-servidor |
 | Web | https://autonomous-rally.vercel.app |
+| Demo del sobreajuste (Puerto) | https://autonomous-rally.vercel.app/?pista=puerto |
+| Experimento v6 | [experimentos/v6-pistas.md](experimentos/v6-pistas.md) |
 | Experimentos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
 | Datos y modelos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
 | Modelo publicado (PPO v5 semilla 1) | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
