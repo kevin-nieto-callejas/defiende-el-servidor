@@ -160,7 +160,118 @@ def manifiesto_finalista(tipo, s):
             "presupuesto": {}, "resultados": {"seco": res["seco"], "mojado": res["mojado"]}}
 
 
-def generar(revisiones=None):
+# ------------------------------------------------------------------ moto MotoGP
+# Versiones de la moto: la etiqueta de git `moto-v1` marca el commit que las contiene. Mientras esa
+# etiqueta no exista (los modelos se entrenaron con los cambios todavía sin confirmar), el manifiesto
+# se arma con los archivos del directorio de trabajo y lo dice en `git_estado`. Después del commit:
+# `git tag moto-v1 && rally manifiesto --vehiculo moto` lo vuelve a armar desde la etiqueta.
+VERSIONES_MOTO = {
+    "moto-v1": ("N2", "Primera moto: la receta del carro (DAgger con el maestro de moto y luego refuerzo) "
+                      "aplicada a la física de inclinación y caída"),
+}
+OBS_MOTO = [("v/32 m/s" if o == "v/25 m/s" else "velocidad segura/32 m/s" if o == "velocidad segura/25 m/s" else o)
+            for o in OBS_0_4] + ["inclinación/60°", "riesgo de caída (pasos patinando/3)"]
+ACCIONES_MOTO = ["u_acel [-1, 1]", "u_incl [-1, 1] (inclinación pedida/60°)"]
+
+
+def _leer_en(commit, ruta):
+    """Archivo del repo en ese commit, o del directorio de trabajo si commit es None."""
+    return Path(ruta).read_text(encoding="utf-8") if commit is None else _git("show", f"{commit}:{ruta}")
+
+
+def _decision_moto(nombre):
+    """Lo que dijeron los criterios de configs/seleccion.yaml (sección moto) sobre esa versión."""
+    from rally import seleccion
+
+    recomendado, _, decisiones = seleccion.archivos("moto")
+    if recomendado.exists() and json.loads(recomendado.read_text(encoding="utf-8")).get("modelo") == nombre:
+        return "aceptado"
+    if decisiones.exists():
+        previas = [d for d in json.loads(decisiones.read_text(encoding="utf-8")) if d["candidato"] == nombre]
+        if previas:
+            return "aceptado" if previas[-1]["aceptado"] else "rechazado"
+    return "candidato"
+
+
+def manifiesto_moto(tipo, rev="moto-v1"):
+    etiquetas = _git("tag", "-l").split()
+    commit = _git("rev-parse", f"{rev}^{{commit}}").strip() if rev in etiquetas else None
+    lock = yaml.safe_load(_leer_en(commit, "dvc.lock"))
+    texto_params = _leer_en(commit, "params.yaml")
+    params = yaml.safe_load(texto_params)
+    version_env = re.search(r'^VERSION = "(.+)"', _leer_en(commit, "src/rally/moto.py"), re.M).group(1)
+    md5 = _salidas(lock, f"moto-{tipo}", f"models/moto/{tipo}")
+    hijos = {e["relpath"]: e["md5"] for e in json.loads(_cache(md5).read_text())}
+    pesos = _cache(hijos[ARCHIVO[tipo]])
+    info = json.loads(_cache(hijos["info.json"]).read_text())
+    try:
+        ev = json.loads(_leer_en(commit, "metrics/moto/evaluacion.json"))["resultados"].get(tipo)
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        ev = None
+    nivel, hipotesis = VERSIONES_MOTO.get(rev, (None, None))
+    p = {**params.get(tipo, {}), **params.get("moto", {}).get(tipo, {})}
+    base = commit or _git("rev-parse", "HEAD").strip()
+    nombre = f"{tipo}-{rev}"
+    return {
+        "nombre": nombre, "tipo": tipo, "vehiculo": "moto", "etiqueta_git": rev,
+        "run_id": info.get("mlflow_run_id"), "level_id": nivel,
+        "decision": _decision_moto(nombre), "hipotesis": p.get("hipotesis") or hipotesis,
+        "environment_version": version_env, "ambiente_huella": info.get("ambiente_huella"),
+        "git_commit": base,
+        "git_estado": ("etiqueta " + rev) if commit else
+                      (f"entrenado sobre {base[:8]} con los cambios de la moto sin confirmar; tras el commit, "
+                       f"`git tag {rev}` y `rally manifiesto --vehiculo moto` fijan el commit"),
+        "config_sha256": hashlib.sha256(texto_params.encode()).hexdigest(),
+        "model_uri": f"dvc://models/moto/{tipo}/{ARCHIVO[tipo]}@{base}",
+        "model_md5_dvc": hijos[ARCHIVO[tipo]], "model_sha256": _sha256(pesos),
+        "mlflow_modelo": info.get("mlflow_modelo"), "mlflow_version": info.get("mlflow_version"),
+        "normalization_uri": f"git://src/rally/moto.py@{base}", "normalizacion": NORMALIZACION,
+        "runtime_ref": f"requirements.txt y pyproject.toml en {base}",
+        "evaluation_suite_id": SUITE, "seed": p.get("semilla"),
+        "parent_run_id": None, "parent_run_nota": _padre(info),
+        "origen": "desde cero con imitación" if p.get("dagger_iter") else "desde cero",
+        "presupuesto": {k: v for k, v in info.items() if k in ("pasos", "episodios", "segundos")},
+        "contrato": {"observaciones": len(OBS_MOTO), "orden": OBS_MOTO, "acciones": ACCIONES_MOTO,
+                     "clipping": "[-1, 1]", "paso_s": 0.1},
+        "resultados": ev,
+        "pistas_entrenamiento": info.get("pistas_entrenamiento", ["monaco"]),
+        "entrenamiento_plataforma": {"maquina": "entorno en la nube de Claude, 2 CPU, 7 GB", "sistema": "Linux",
+                                     "python": "3.13", "nota": "presupuesto reducido (params.yaml, sección moto)"},
+    }
+
+
+def _fila(m):
+    return {k: m.get(k) for k in ("nombre", "tipo", "vehiculo", "etiqueta_git", "level_id", "decision", "hipotesis",
+                                  "environment_version", "git_commit", "model_sha256", "resultados")
+            if k != "vehiculo" or m.get("vehiculo")}
+
+
+def generar_moto(catalogo=None, revisiones=None):
+    """Manifiestos de la moto; reemplaza sus filas del catálogo y deja intactas las del carro."""
+    revisiones = revisiones or list(VERSIONES_MOTO)
+    ruta_cat = SALIDA / "catalogo.json"
+    if catalogo is None:
+        catalogo = json.loads(ruta_cat.read_text(encoding="utf-8")) if ruta_cat.exists() else []
+    catalogo = [f for f in catalogo if f.get("vehiculo") != "moto"]
+    for rev in revisiones:
+        for tipo in ARCHIVO:
+            try:
+                m = manifiesto_moto(tipo, rev)
+            except (KeyError, FileNotFoundError, subprocess.CalledProcessError) as e:
+                print(f"  moto {tipo} {rev}: sin manifiesto ({e})")
+                continue
+            ruta = SALIDA / f"{m['nombre']}.json"
+            ruta.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
+            catalogo.append(_fila(m))
+            print(f"  {ruta}  {m['model_sha256'][:12]}")
+    ruta_cat.write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
+    return catalogo
+
+
+def generar(revisiones=None, vehiculo=None):
+    """Todos los manifiestos (por defecto); `vehiculo="moto"` arma solo los de la moto."""
+    if vehiculo == "moto":
+        return generar_moto()
     revisiones = revisiones or [t for t in _git("tag", "-l").split() if t in VERSIONES]
     SALIDA.mkdir(exist_ok=True)
     catalogo = []
@@ -183,5 +294,7 @@ def generar(revisiones=None):
     for carpeta in sorted(FINALISTAS.glob("*-s*")):
         tipo, s = carpeta.name.rsplit("-s", 1)
         agregar(manifiesto_finalista(tipo, int(s)))
-    (SALIDA / "catalogo.json").write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
-    return catalogo
+    if vehiculo == "carro":
+        (SALIDA / "catalogo.json").write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
+        return catalogo
+    return generar_moto(catalogo)

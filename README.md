@@ -17,6 +17,41 @@ vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/
 | Manifiestos de cada versión | [manifests/](manifests/) |
 | Criterios de selección | [configs/seleccion.yaml](configs/seleccion.yaml) |
 
+## Moto MotoGP
+
+El mismo proyecto corre también con una **moto MotoGP** (`src/rally/moto.py`, Gymnasium
+`AutonomousRallyMoto-v0`). La moto gira inclinándose: la inclinación tarda en llegar (80 °/s) y, si
+pide más agarre del que hay, patina y **se cae**; el carro, en cambio, subvira y sigue. La ficha está en
+[docs/ambiente-moto.md](docs/ambiente-moto.md).
+
+La moto aprende todo lo que aprende el carro, con sus propias versiones:
+
+| | Carro | Moto |
+|---|---|---|
+| Pilotos de referencia | experto, prudente, maestro, aleatoria | los mismos, con pure pursuit de inclinación |
+| Agentes | Q-learning y PPO | Q-learning y PPO (`ppo-moto-v1`, `qlearning-moto-v1`) |
+| Etapas DVC | `datos` … `generalizacion` | `moto-datos` … `moto-generalizacion` |
+| Parámetros | `params.yaml` | sección `moto:` de `params.yaml` (hereda lo demás) |
+| Modelos y métricas | `models/`, `metrics/` | `models/moto/`, `metrics/moto/` |
+| MLflow | `autonomous-rally-monaco` | `autonomous-rally-motogp` |
+| Selección | `configs/seleccion.yaml`, `manifests/` | sección `moto:` de `configs/seleccion.yaml`, `manifests/moto/` |
+
+Todos los comandos aceptan `--vehiculo moto`:
+
+```bash
+rally ver --vehiculo moto --piloto maestro --lluvia
+rally evaluar --vehiculo moto --pilotos experto ppo
+rally transiciones --vehiculo moto
+dvc repro moto-registrar moto-generalizacion          # o: rally pipeline <etapa> --vehiculo moto
+rally seleccionar ppo-moto-v1 --tipo ppo --vehiculo moto --anotar
+rally semillas ppo 1 2 --vehiculo moto
+rally publicar --repo usuario/autonomous-rally-moto-ppo --vehiculo moto
+```
+
+En la web, el selector **Vehículo** (o `?vehiculo=moto`) cambia entre el carro y la moto. La API recibe
+`vehiculo=moto` en `/api/pista`, `/api/episodio`, `/api/evaluar` y `/api/modelos`; un modelo de un vehículo
+pedido en el otro responde 409, porque su contrato de observaciones es otro (24 contra 26).
+
 ## Arquitectura
 
 ```
@@ -39,7 +74,7 @@ contra PyTorch: la diferencia máxima permitida es 1e-5 en las acciones. El ambi
 El contenedor de `deploy/api/` sigue disponible para un host con Docker y usa PyTorch.
 
 ```
-src/rally/      ambiente, pista, pilotos, agentes, pipeline, API y selección
+src/rally/      ambiente, pista, pilotos, agentes, pipeline, API y selección (moto.py: la moto; vehiculos.py: registro)
 src/rally/static/  visor 3D (lo comparten `rally web` y la web de Vercel)
 web/            aplicación Vite + TypeScript: catálogo, evaluación y comparación
 web/api/        función de Vercel con la API; `_paquete/` lo arma deploy/api/empaquetar.py

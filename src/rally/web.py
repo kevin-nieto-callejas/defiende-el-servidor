@@ -19,8 +19,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from rally import policies, track
-from rally.env import RAY_ANGLES, RAYO_REF, AutonomousRallyEnv, RallyConfig
+from rally import policies, track, vehiculos
+from rally.env import RAY_ANGLES, RAYO_REF
 
 STATIC = Path(__file__).parent / "static"
 VIVO = Path("runs/vivo")  # lo escribe el entrenamiento (rally pipeline ... --vivo)
@@ -41,6 +41,13 @@ RANGOS = {
     "r_max": (10.0, 40.0, 1.0, 20.0),  # alcance de sensores (m)
 }
 CAMPO_CFG = {"ancho": "track_width", "mu": "mu", "a_max": "a_max", "r_max": "r_max"}
+
+
+def rangos(vehiculo="carro"):
+    """Los mismos rangos para los dos vehículos; el valor base es el de la configuración de cada uno
+    (la moto acelera 5 m/s² por defecto, el carro 4)."""
+    cfg = vehiculos.config(vehiculo)
+    return {k: (lo, hi, st, float(getattr(cfg, CAMPO_CFG[k]))) for k, (lo, hi, st, _) in RANGOS.items()}
 # Pistas que se pueden elegir en el visor. Las reservadas (la Sierra) no: correr modelos en
 # ellas a voluntad las dejaría de ser una prueba (docs/experimentos/v6-pistas.md).
 PISTAS_WEB = [n for n in track.PISTAS if n not in track.RESERVADAS]
@@ -61,10 +68,15 @@ def leer_pista(nombre):
 EXPERIMENTOS = []  # registro de la sesión (en memoria)
 
 
-def leer_parametros(q):
+def leer_vehiculo(nombre):
+    """Vehículo pedido (por defecto el carro); ValueError si no existe."""
+    return vehiculos.validar(nombre)
+
+
+def leer_parametros(q, vehiculo="carro"):
     """Valida los parámetros del experimento y los recorta a los rangos de la ficha."""
     p = {}
-    for k, (lo, hi, _, base) in RANGOS.items():
+    for k, (lo, hi, _, base) in rangos(vehiculo).items():
         try:
             p[k] = min(max(float(q.get(k, base)), lo), hi)
         except ValueError:
@@ -72,8 +84,9 @@ def leer_parametros(q):
     return p
 
 
-def datos_pista(pista="monaco"):
-    cfg = RallyConfig()
+def datos_pista(pista="monaco", vehiculo="carro"):
+    vehiculo = leer_vehiculo(vehiculo)
+    cfg = vehiculos.config(vehiculo)
     t = track.obtener(leer_pista(pista))
     centro = []
     s = 0.0
@@ -110,22 +123,28 @@ def datos_pista(pista="monaco"):
         "centro": centro,
         "puertas": puertas,
         "bloques": [list(o) for o in t.OBSTACLES],
+        "vehiculo": vehiculo,
+        "vehiculos": [{"nombre": v, "titulo": vehiculos.TITULOS[v]} for v in vehiculos.VEHICULOS],
+        # Medidas del vehículo (la clave se llama "carro" por compatibilidad con el visor)
         "carro": {"largo": cfg.car_length, "ancho": cfg.car_width, "ejes": cfg.wheelbase},
+        "inclinacion_max": math.radians(getattr(cfg, "phi_max_deg", 0.0)),
+        "v_max": cfg.v_max,
         "rayos": {"angulos": [_r(a, 4) for a in RAY_ANGLES], "alcance": cfg.r_max},
-        "pilotos": {k: v[0] for k, v in policies.POLITICAS.items() if policies.disponible(k)},
+        "pilotos": {k: v[0] for k, v in policies.politicas(vehiculo).items() if policies.disponible(k, vehiculo)},
         "dt": cfg.dt,
         "max_t": cfg.max_steps * cfg.dt,
         "delta_max": math.radians(cfg.delta_max_deg),
         "rangos": {k: {"min": lo, "max": hi, "paso": st, "base": b}
-                   for k, (lo, hi, st, b) in RANGOS.items()},
+                   for k, (lo, hi, st, b) in rangos(vehiculo).items()},
     }
 
 
-def correr_episodio(piloto="experto", semilla=0, politica=None, pista="monaco", **params):
-    params = leer_parametros(params)
+def correr_episodio(piloto="experto", semilla=0, politica=None, pista="monaco", vehiculo="carro", **params):
+    vehiculo = leer_vehiculo(vehiculo)
+    params = leer_parametros(params, vehiculo)
     pista = leer_pista(pista)
-    env = AutonomousRallyEnv(**{CAMPO_CFG[k]: v for k, v in params.items()}, pista=pista)
-    pol = politica or policies.crear(piloto, semilla)
+    env = vehiculos.crear_env(vehiculo, **{CAMPO_CFG[k]: v for k, v in params.items()}, pista=pista)
+    pol = politica or policies.crear(piloto, semilla, vehiculo)
     obs, info = env.reset(seed=semilla)
     total = 0.0
     frames = []
@@ -140,6 +159,7 @@ def correr_episodio(piloto="experto", semilla=0, politica=None, pista="monaco", 
             "rayos": [_r(v) for v in np.asarray(obs[6:13]) * RAYO_REF],
             "a": [_r(accion[0]), _r(accion[1])], "r": _r(r), "R": _r(total, 2),
             "fin": info["outcome"],
+            **({"incl": _r(info["inclinacion"], 4)} if "inclinacion" in info else {}),
         }
 
     frames.append(frame(obs, info, (0.0, 0.0), 0.0))
@@ -151,7 +171,7 @@ def correr_episodio(piloto="experto", semilla=0, politica=None, pista="monaco", 
         frames.append(frame(obs, info, accion, r))
         done = term or trunc
     return {
-        "piloto": piloto, "semilla": semilla, "params": params, "pista": pista,
+        "piloto": piloto, "semilla": semilla, "params": params, "pista": pista, "vehiculo": vehiculo,
         "modo": "evaluacion" if piloto in policies.MODELOS else "aleatorio" if piloto == "aleatoria" else "referencia",
         "resultado": info["outcome"], "tiempo": _r(info["t"], 2), "recompensa": _r(total, 2),
         "salidas": info["off_track_events"],
@@ -187,11 +207,15 @@ class Handler(SimpleHTTPRequestHandler):
                 pista = leer_pista(q.get("pista"))
             except PistaNoDisponible as e:
                 return self._json({"detail": str(e)}, 403 if q.get("pista", "").lower() in track.RESERVADAS else 404)
+            try:
+                vehiculo = leer_vehiculo(q.get("vehiculo"))
+            except ValueError as e:
+                return self._json({"detail": str(e)}, 404)
         if url.path == "/api/pista":
-            return self._json(datos_pista(pista))
+            return self._json(datos_pista(pista, vehiculo))
         if url.path == "/api/episodio":
             piloto = q.get("piloto", "experto")
-            if piloto not in policies.POLITICAS:
+            if piloto not in policies.politicas(vehiculo):
                 self.send_error(400, "piloto desconocido")
                 return
             try:
@@ -199,14 +223,14 @@ class Handler(SimpleHTTPRequestHandler):
             except ValueError:
                 semilla = 0
             t0 = time.perf_counter()
-            ep = correr_episodio(piloto, semilla, pista=pista, **{k: q[k] for k in RANGOS if k in q})
+            ep = correr_episodio(piloto, semilla, pista=pista, vehiculo=vehiculo, **{k: q[k] for k in RANGOS if k in q})
             ms = (time.perf_counter() - t0) * 1000
             p = ep["params"]
             ep["id"] = len(EXPERIMENTOS) + 1
             EXPERIMENTOS.append({k: v for k, v in ep.items() if k != "frames"})
             color = "green" if ep["resultado"] == "exito" else "red"
             console.print(
-                f"[grey50]#{ep['id']:<3d}{time.strftime('%H:%M:%S')}[/]  [bold]{piloto:9s}[/] {pista:7s} "
+                f"[grey50]#{ep['id']:<3d}{time.strftime('%H:%M:%S')}[/]  [bold]{piloto:9s}[/] {vehiculo:5s} {pista:7s} "
                 f"μ={p['mu']:.2f} ancho={p['ancho']:4.1f} m a={p['a_max']:.1f} sensor={p['r_max']:2.0f} m "
                 f"semilla {semilla:<4d}→ [bold {color}]{ep['resultado']:9s}[/] {ep['tiempo']:5.1f} s  "
                 f"recompensa {ep['recompensa']:+7.1f}  [grey50]({ms:.0f} ms)[/]"

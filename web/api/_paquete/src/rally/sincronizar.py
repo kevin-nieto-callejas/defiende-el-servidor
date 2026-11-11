@@ -7,6 +7,8 @@ y artefactos, y después los modelos registrados (versiones, etiquetas y alias).
 Es idempotente: cada corrida copiada lleva la etiqueta `origen_run_id`, así que
 volver a correrlo solo sube lo nuevo.
 
+Copia los dos experimentos (carro y moto MotoGP) y los modelos registrados de ambos.
+
 Credenciales: DAGSHUB_TOKEN en el archivo .env (no se sube a git). Si el token es de otro
 integrante con acceso de escritura, DAGSHUB_USUARIO en .env dice de quién es; el destino sigue
 siendo el repositorio de DagsHub del proyecto.
@@ -20,7 +22,7 @@ import mlflow.artifacts
 from mlflow import MlflowClient
 from mlflow.entities import Metric, Param, RunTag
 
-from rally.agentes.seguimiento import EXPERIMENTO, MODELOS, TRACKING_URI
+from rally.agentes.seguimiento import EXPERIMENTO, EXPERIMENTO_MOTO, MODELOS, MODELOS_MOTO, TRACKING_URI
 
 DAGSHUB_USUARIO = "kevin-nieto-callejas"
 DAGSHUB_REPO = "autonomous-rally"
@@ -55,13 +57,23 @@ def sincronizar(log=print):
     _credenciales()
     origen = MlflowClient(tracking_uri=TRACKING_URI)
     destino = MlflowClient(tracking_uri=DAGSHUB_URI)
+    total = {"corridas_nuevas": 0, "modelos_nuevos": 0,
+             "url": f"https://dagshub.com/{DAGSHUB_USUARIO}/{DAGSHUB_REPO}/experiments"}
+    for experimento, modelos in ((EXPERIMENTO, MODELOS), (EXPERIMENTO_MOTO, MODELOS_MOTO)):
+        if origen.get_experiment_by_name(experimento) is None:
+            log(f"No hay corridas locales de {experimento} todavía.")
+            continue
+        log(f"[{experimento}]")
+        r = _sincronizar_experimento(origen, destino, experimento, modelos, log)
+        total["corridas_nuevas"] += r["corridas_nuevas"]
+        total["modelos_nuevos"] += r["modelos_nuevos"]
+    return total
 
-    exp_o = origen.get_experiment_by_name(EXPERIMENTO)
-    if exp_o is None:
-        log("No hay experimentos locales todavía.")
-        return {}
-    exp_d = destino.get_experiment_by_name(EXPERIMENTO)
-    exp_d_id = exp_d.experiment_id if exp_d else destino.create_experiment(EXPERIMENTO)
+
+def _sincronizar_experimento(origen, destino, experimento, modelos_registrados, log):
+    exp_o = origen.get_experiment_by_name(experimento)
+    exp_d = destino.get_experiment_by_name(experimento)
+    exp_d_id = exp_d.experiment_id if exp_d else destino.create_experiment(experimento)
 
     # Corridas ya copiadas: origen_run_id -> run_id en DagsHub
     copiadas = {r.data.tags["origen_run_id"]: r.info.run_id
@@ -103,7 +115,7 @@ def sincronizar(log=print):
 
     # Modelos registrados: misma versión, etiquetas y alias
     modelos = 0
-    for nombre in MODELOS.values():
+    for nombre in modelos_registrados.values():
         try:
             versiones = origen.search_model_versions(f"name='{nombre}'")
         except Exception:
@@ -145,5 +157,4 @@ def sincronizar(log=print):
                     destino.set_registered_model_alias(nombre, a, dest_por_origen[v.run_id])
                 except Exception as e:  # el servidor puede no soportar alias
                     log(f"  · alias @{a} no se pudo copiar: {e}")
-    return {"corridas_nuevas": nuevas, "modelos_nuevos": modelos,
-            "url": f"https://dagshub.com/{DAGSHUB_USUARIO}/{DAGSHUB_REPO}/experiments"}
+    return {"corridas_nuevas": nuevas, "modelos_nuevos": modelos}

@@ -74,3 +74,54 @@ def ejecutar(env, tr):
     obs, _ = env.reset(options={"state": tr["estado"]})
     _, r, _, _, info = env.step(tr["accion"])
     return obs, r, info
+
+
+# ------------------------------------------------------------------ moto
+# Transiciones de la moto (docs/ambiente-moto.md). M1 y M4 se verifican a mano; M2 y M3 fijan
+# lo nuevo de la moto (tasa de inclinación y caída) y quedan como prueba de regresión.
+#
+# M1: v = 0 + (5 − 0) · 0.1 = 0.5 m/s; avanza 0.05 m. Recompensa = −0.05 (tiempo)
+#     − 0.05 · |1 − 0| (cambio de pedal) + 0.1 · 0.05 (progreso) = −0.095.
+# M2: pide 60° pero la inclinación sube a lo sumo 80 °/s · 0.1 s = 8°.
+# M3: con lluvia (μ 0.5, agarre 4.9 m/s²) a 40° se piden g · tan 40° = 8.2 m/s²: tercer paso
+#     seguido patinando → caída, −50.
+# M4: parada no se puede inclinar: la inclinación queda en 0 y solo se cobra el tiempo (−0.05)
+#     y el cambio de dirección (−0.2 · 1).
+_PHI40 = math.radians(40.0)
+
+TRANSICIONES_MOTO = [
+    {
+        "id": "M1",
+        "nombre": "Arranque de la moto en la línea de salida",
+        "estado": _en_pista(0.0),
+        "accion": (1.0, 0.0),
+        "esperado": dict(recompensa=-0.095, next_cp=1, fin=None, inclinacion_deg=0.0),
+    },
+    {
+        "id": "M2",
+        "nombre": "Pide inclinarse a fondo: la moto tarda en tumbarse",
+        "estado": {**_en_pista(100.0), "v": 15.0, "t": 6.0, "s_cum": 100.0},
+        "accion": (0.0, 1.0),
+        "esperado": dict(recompensa=-0.101, next_cp=1, fin=None, inclinacion_deg=8.0),
+    },
+    {
+        "id": "M3",
+        "nombre": "Inclinada 40° con lluvia: se pasa del agarre y se cae",
+        "ambiente": {"mu": 0.5},
+        "estado": {**_en_pista(100.0), "v": 15.0, "t": 6.0, "s_cum": 100.0, "phi": _PHI40,
+                   "slide_steps": 2, "prev_action": (0.0, 40.0 / 60.0)},
+        "accion": (0.0, 40.0 / 60.0),
+        "esperado": dict(recompensa=-49.901, next_cp=1, fin="caida", inclinacion_deg=40.0),
+    },
+    {
+        "id": "M4",
+        "nombre": "Parada no se puede inclinar",
+        "estado": {**_en_pista(100.0), "v": 0.0, "t": 6.0, "s_cum": 100.0},
+        "accion": (0.0, 1.0),
+        "esperado": dict(recompensa=-0.25, next_cp=1, fin=None, inclinacion_deg=0.0),
+    },
+]
+
+
+def transiciones(vehiculo="carro"):
+    return TRANSICIONES_MOTO if vehiculo == "moto" else TRANSICIONES

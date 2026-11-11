@@ -5,10 +5,11 @@
 const SIN_API = "Esta función necesita la API de simulación, que no está respondiendo.";
 
 function destino(url: URL): string | null {
+  const moto = (url.searchParams.get("vehiculo") ?? "carro").toLowerCase() === "moto";
   if (url.pathname === "/api/pista") {
     // Solo Mónaco está grabada: otra pista sin API es un error, nunca la geometría de Mónaco
     const pedida = (url.searchParams.get("pista") ?? "monaco").toLowerCase();
-    return pedida === "monaco" ? "/datos/pista.json" : null;
+    return pedida === "monaco" ? (moto ? "/datos/pista-moto.json" : "/datos/pista.json") : null;
   }
   if (url.pathname === "/api/modelos") return "/datos/modelos.json";
   if (url.pathname === "/api/salud") return "/datos/salud.json";
@@ -16,8 +17,9 @@ function destino(url: URL): string | null {
     const p = url.searchParams, num = (k: string) => parseFloat(p.get(k) ?? "");
     const clima = num("mu") === 0.9 ? "seco" : num("mu") === 0.5 ? "lluvia" : null;
     // Solo hay grabada la condición base: otra combinación no se aproxima con una vuelta que no le corresponde
-    if (!clima || num("ancho") !== 8 || num("a_max") !== 4 || num("r_max") !== 20 || num("semilla") !== 0) return null;
-    return `/datos/replays/${encodeURIComponent(p.get("piloto") ?? "")}-${clima}.json`;
+    // (la moto acelera 5 m/s² por defecto, el carro 4)
+    if (!clima || num("ancho") !== 8 || num("a_max") !== (moto ? 5 : 4) || num("r_max") !== 20 || num("semilla") !== 0) return null;
+    return `/datos/replays/${moto ? "moto/" : ""}${encodeURIComponent(p.get("piloto") ?? "")}-${clima}.json`;
   }
   return null;
 }

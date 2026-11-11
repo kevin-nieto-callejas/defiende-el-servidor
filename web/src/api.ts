@@ -2,9 +2,12 @@ import { API_BASE } from "./config";
 
 export interface Resultado { vueltas_pct: number; tiempo_mediano_s: number | null }
 
+export type Vehiculo = "carro" | "moto";
+
 export interface Version {
   nombre: string;
   tipo: "ppo" | "qlearning";
+  vehiculo?: Vehiculo;
   etiqueta_git: string;
   level_id: string | null;
   decision: string | null;
@@ -16,7 +19,11 @@ export interface Version {
   resultados: { seco?: Resultado; mojado?: Resultado } | null;
 }
 
-export interface Catalogo { recomendado: { modelo: string | null; motivo?: string }; modelos: Version[] }
+export interface Catalogo {
+  recomendado: { modelo: string | null; motivo?: string };
+  recomendados?: Partial<Record<Vehiculo, { modelo: string | null }>>;
+  modelos: Version[];
+}
 
 export interface Salud {
   estado: string;
@@ -26,6 +33,7 @@ export interface Salud {
   errores: number;
   latencia_paso_ms: number | null;
   recomendado: { modelo: string | null };
+  vehiculos?: Partial<Record<Vehiculo, { ambiente: string; recomendado: string | null }>>;
   commit_paquete?: string | null;
   instancia_desde?: string;
 }
@@ -38,6 +46,7 @@ export interface Evaluacion {
   ambiente_servido: string;
   adaptador: boolean;
   motor: string;
+  vehiculo?: Vehiculo;
   commit_servido: string;
   segundos: number;
 }
@@ -57,11 +66,13 @@ export interface Monitoreo extends Salud {
 }
 
 export const monitoreo = () => pedir<Monitoreo>("/api/monitoreo");
-export const catalogo = () => pedir<Catalogo>("/api/modelos");
+export const catalogo = (vehiculo?: Vehiculo) =>
+  pedir<Catalogo>(vehiculo ? `/api/modelos?vehiculo=${vehiculo}` : "/api/modelos");
 export const salud = () => pedir<Salud>("/api/salud");
-export const evaluar = (modelo: string, condiciones: Record<string, number>, pista = "monaco", episodios = 10) =>
+export const evaluar = (modelo: string, condiciones: Record<string, number>, pista = "monaco", episodios = 10,
+  vehiculo: Vehiculo = "carro") =>
   pedir<Evaluacion>("/api/evaluar", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ modelo, episodios, pista, ...condiciones }),
+    body: JSON.stringify({ modelo, episodios, pista, vehiculo, ...condiciones }),
   });
