@@ -85,7 +85,7 @@ con el ambiente compatible con ese modelo**.
 |---|---:|---|---|
 | Versionamiento y recuperación | 30 % | Casi completo | Que el docente pueda entrar a DagsHub: hoy pide iniciar sesión |
 | Diseño experimental y análisis | 25 % | Casi completo | Nada técnico; ensayar la explicación, incluida la v6 |
-| Pipeline, despliegue, monitoreo y rollback | 20 % | Casi completo | Decidir si se reentrena Q-learning, que DVC marca desactualizado (sección 8.2) |
+| Pipeline, despliegue, monitoreo y rollback | 20 % | Completo | Nada técnico: `dvc status` limpio y el flujo de Prefect probado también con un rechazo |
 | Ambiente y agente | 10 % | Completo | Intercambiar la ficha con otro equipo |
 | Defensa, informe y presentación | 15 % | Material listo | Nombres, contribuciones y ensayo |
 
@@ -492,10 +492,22 @@ API (FastAPI) sirve el recomendado ──► web en Vercel (en vivo; replay si l
 - Dos remotos: `dagshub` (por defecto, en la nube) y `almacen` (copia local en el PC de Kevin).
 - **Bajar los modelos pide usuario y token de DagsHub**, aunque el repositorio no sea privado. Se guardan en
   `.dvc/config.local`, que no se sube a git.
-- **Estado al 10 de noviembre:** `models/ppo` es la v6 y `metrics/evaluacion.json` y `metrics/generalizacion.json`
-  son de la v6. La v5-s1 recomendada vive en `finalistas/`. La etapa `qlearning` sale **desactualizada** en
-  `dvc status` porque el PR #2 cambió las demostraciones (`demos.npz`); reentrenarla tarda horas y no se ha hecho.
-  Por eso no se corrió `dvc repro` completo para la v6, sino solo `-s evaluar` y `-s generalizacion`.
+- **Estado al 10 de noviembre: `dvc status` dice "Data and pipelines are up to date".** `models/ppo` es la v6 y
+  `metrics/evaluacion.json` y `metrics/generalizacion.json` son de la v6; la v5-s1 recomendada vive en
+  `finalistas/`.
+- Cómo se dejó al día sin reentrenar, con evidencia para cada etapa:
+
+| Etapa | Qué había cambiado | Cómo se comprobó | Qué se hizo |
+|---|---|---|---|
+| `datos` | `track.py`: solo el nombre para mostrar de cada pista (`titulo`) | — | Se volvió a correr: `demos.npz` salió con el mismo hash con que se entrenó Q-learning |
+| `evaluar` y `generalizacion` | `track.py` | Se volvieron a correr: 11 500 vueltas, **métricas idénticas** a las publicadas | Quedan registradas |
+| `qlearning` | Código del experimento v6 | Miguel (PR #4): con el código viejo y el nuevo la tabla Q sale idéntica byte a byte. La etapa no lee `demos.npz` | `dvc commit qlearning` |
+| `ppo` | `track.py` y `demos.npz` | `titulo` solo lo usa la web, y con DAgger el PPO no lee `demos.npz` | `dvc commit ppo` |
+| `registrar` | Métricas y modelo | — | Se volvió a correr |
+
+- **Ojo con `registrar`:** marca como `@champion` de Q-learning la tabla de `models/qlearning`, que es la semilla 0,
+  y no sabe que la selección eligió la semilla 1. Después de correrla hay que devolver el alias a la versión 9
+  (`MlflowClient().set_registered_model_alias("rally-qlearning", "champion", "9")`). Se hizo el 10 de noviembre.
 
 ### 8.3 MLflow y DagsHub
 
@@ -813,7 +825,6 @@ Todo se entrenó en el portátil de Kevin, con WSL Ubuntu en Windows.
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
 | Agregar el veredicto de selección a [experimentos/v6-pistas.md](experimentos/v6-pistas.md) | Miguel | Media | — |
 | Medir si la caída de la v6 en extremos viene de las tres pistas o del entrenamiento: semilla 1 de la v6 y del control con las 21 pruebas, en GitHub Actions (rama `semillas-v6`) | Miguel | Media | Que termine el flujo "Semillas v6" |
-| Decidir si se reentrena Q-learning (horas) o se deja documentado como desactualizado | Kevin y Miguel | Baja | — |
 | Revisar el resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | — |
 | Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
 | Rotar los tokens de Hugging Face y DagsHub | Kevin | Media | — |

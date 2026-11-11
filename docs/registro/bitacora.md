@@ -187,3 +187,10 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Flujo de Prefect sin entrenar con la v6 de candidata: la rechazó sin intervención y la API siguió sirviendo la
   v5-s1 (evidencia en `docs/evidencia/flujo-rechazo-v6/`). El primer intento lo detuvo el propio flujo en las
   pruebas: el código había cambiado y el paquete de la API de Vercel no. Se rearmó y pasó.
+- `dvc status` limpio sin reentrenar. Se volvieron a correr `datos`, `evaluar` y `generalizacion`: `demos.npz`
+  salió con el mismo hash con que se entrenó Q-learning (la copia del Mac tenía los mismos datos con otros bytes) y
+  las métricas, 11 500 vueltas, salieron idénticas a las publicadas. `qlearning` quedó registrada con la
+  evidencia del PR #4 y `ppo` con `dvc commit`: el único cambio en `track.py` es el nombre para mostrar, que solo
+  usa la web, y con DAgger el PPO no lee `demos.npz`.
+- Al volver a correr `registrar`, el alias `@champion` de `rally-qlearning` pasó de la versión 9 (semilla 1, la
+  elegida) a la 8 (semilla 0, la de `models/qlearning`). Se devolvió a la 9 y quedó anotado en el resumen.

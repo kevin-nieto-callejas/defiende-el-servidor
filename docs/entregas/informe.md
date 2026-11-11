@@ -141,7 +141,7 @@ haciendo su trabajo. La v6 queda en el catálogo y la web permite compararlas en
 | Versionamiento | Git, DVC con dos remotos y etiquetas por modelo |
 | Recuperación | Manifiestos con SHA-256 y adaptadores; v1, v2 y v4 reproducen sus resultados |
 | Experimentos | MLflow local y copia en DagsHub, con runs interrumpidos conservados |
-| Pipeline | DVC por etapas y Prefect para validar, probar, seleccionar y publicar |
+| Pipeline | DVC por etapas y Prefect para validar, probar, seleccionar y publicar. `dvc status` limpio: las etapas afectadas por el experimento v6 se comprobaron sin reentrenar (métricas idénticas al volver a correrlas) |
 | Monitoreo | La API reporta versión servida, episodios, errores, fallos por causa y latencia |
 | Rollback y rechazo | Probado v5 → v4 → v5, comprobando la versión que sirve la API. La v6 fue rechazada por los criterios |
 | Despliegue | Web y API en Vercel, en la misma URL, con selector de pista (la Sierra responde 403). La API es una función de Python: mismo ambiente, PPO en numpy verificado contra PyTorch. El contenedor se construye y se prueba en GitHub Actions en cada push |
@@ -165,8 +165,6 @@ haciendo su trabajo. La v6 queda en el catálogo y la web permite compararlas en
 
 - Intercambio de la ficha con otro equipo.
 - Nombre del equipo y contribuciones.
-- Q-learning quedó desactualizado en DVC porque cambiaron las demostraciones del experto; falta decidir si se
-  reentrena o se deja documentado.
 
 ## Contribuciones
 
