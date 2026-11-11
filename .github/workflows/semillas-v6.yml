@@ -1,0 +1,94 @@
+# Segunda semilla del experimento v6 (docs/experimentos/v6-pistas.md), entrenada en GitHub Actions.
+# Un trabajo por modelo, en paralelo, y después la evaluación en las pistas de la fase A (nunca en la
+# Sierra: la prueba reservada ya se corrió una vez). Modelos, métricas y MLflow quedan como artefactos.
+#
+# Cada push a la rama semillas-v6 corre un ensayo corto. Si el mensaje del último commit dice
+# [entrenar-completo], corre el entrenamiento real (3 millones de pasos, varias horas).
+name: Semillas v6
+
+on:
+  push:
+    branches: [semillas-v6]
+
+env:
+  MLFLOW_DISABLE_AGENT_HINT: "1"
+  COMPLETO: ${{ contains(github.event.head_commit.message, '[entrenar-completo]') }}
+
+jobs:
+  entrenar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - nombre: v6-s1
+            pistas: monaco,bosque,puerto
+          - nombre: control-s1
+            pistas: monaco
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Instalar el entorno del entrenamiento
+        run: pip install -r requirements.txt && pip install -e .
+      - name: Ensayo corto (sin [entrenar-completo])
+        if: env.COMPLETO != 'true'
+        run: |
+          python - <<'EOF'
+          import yaml
+          p = yaml.safe_load(open("params.yaml"))
+          p["ppo"].update(pasos=4096, n_envs=2, n_steps=512, batch_size=256, dagger_iter=1,
+                          dagger_episodios=1, dagger_epocas=1, eval_cada=2048)
+          yaml.safe_dump(p, open("params-ensayo.yaml", "w"), allow_unicode=True)
+          EOF
+          echo "RALLY_PARAMS=params-ensayo.yaml" >> "$GITHUB_ENV"
+      - name: Demostraciones (etapa datos, determinista)
+        run: rally pipeline datos
+      - name: Entrenar ${{ matrix.nombre }}
+        run: python scripts/analisis/entrenar_semilla.py --pistas ${{ matrix.pistas }} --semilla 1
+      - name: Exportar a numpy (comparado con PyTorch)
+        run: |
+          python - <<'EOF'
+          from rally.agentes.red_numpy import exportar
+          r = exportar("models/semillas-v6/${{ matrix.nombre }}/modelo.zip", "models/semillas-v6/${{ matrix.nombre }}/modelo.npz")
+          print({k: r[k] for k in ("fuente_sha256", "observaciones_probadas", "max_diferencia")})
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.nombre }}
+          path: |
+            models/semillas-v6/${{ matrix.nombre }}
+            mlflow.db
+            mlruns
+          retention-days: 90
+
+  evaluar:
+    needs: entrenar
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Instalar el entorno
+        run: pip install -r requirements.txt && pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefactos
+      - name: Fase A con la semilla 1 (sin la Sierra)
+        run: |
+          EP=$([ "$COMPLETO" = "true" ] && echo 100 || echo 4)
+          python scripts/analisis/sobreajuste_pistas.py \
+            --modelo v6-pistas-s1=artefactos/v6-s1/models/semillas-v6/v6-s1/modelo.npz:monaco,bosque,puerto \
+            --modelo control-monaco-s1=artefactos/control-s1/models/semillas-v6/control-s1/modelo.npz:monaco \
+            --episodios "$EP" --salida metrics/semillas-v6.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metricas
+          path: metrics/semillas-v6.json
+          retention-days: 90
