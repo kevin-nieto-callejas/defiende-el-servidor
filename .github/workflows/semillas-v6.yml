@@ -1,18 +1,25 @@
-# Segunda semilla del experimento v6 (docs/experimentos/v6-pistas.md), entrenada en GitHub Actions.
-# Un trabajo por modelo, en paralelo, y después la evaluación en las pistas de la fase A (nunca en la
-# Sierra: la prueba reservada ya se corrió una vez). Modelos, métricas y MLflow quedan como artefactos.
+# Segunda semilla del experimento v6 y pruebas extremas, en GitHub Actions (no depende del Mac).
+# Ver docs/experimentos/v6-pistas.md.
 #
-# Cada push a la rama semillas-v6 corre un ensayo corto. Si el mensaje del último commit dice
-# [entrenar-completo], corre el entrenamiento real (3 millones de pasos, varias horas).
+#   entrenar     v6 (Mónaco, Bosque y Puerto) y control (Mónaco) con la semilla 1, en paralelo
+#   fase-a       las dos semillas 1 en Mónaco, Bosque, Puerto y Puerto r9.5 (nunca en la Sierra)
+#   extremos     las 21 pruebas de generalización de params.yaml con la v6 y el control, semillas 0 y 1
+#   guardar      sube las métricas a esta rama con un commit
+#
+# Corre con cada push a la rama semillas-v6 que cambie este archivo o los scripts que usa.
 name: Semillas v6
 
 on:
   push:
     branches: [semillas-v6]
+    paths:
+      - .github/workflows/semillas-v6.yml
+      - scripts/analisis/entrenar_semilla.py
+      - scripts/analisis/sobreajuste_pistas.py
+      - scripts/analisis/generalizacion_modelos.py
 
 env:
   MLFLOW_DISABLE_AGENT_HINT: "1"
-  COMPLETO: ${{ contains(github.event.head_commit.message, '[entrenar-completo]') }}
 
 jobs:
   entrenar:
@@ -34,27 +41,19 @@ jobs:
           cache: pip
       - name: Instalar el entorno del entrenamiento
         run: pip install -r requirements.txt && pip install -e .
-      - name: Ensayo corto (sin [entrenar-completo])
-        if: env.COMPLETO != 'true'
-        run: |
-          python - <<'EOF'
-          import yaml
-          p = yaml.safe_load(open("params.yaml"))
-          p["ppo"].update(pasos=4096, n_envs=2, n_steps=512, batch_size=256, dagger_iter=1,
-                          dagger_episodios=1, dagger_epocas=1, eval_cada=2048)
-          yaml.safe_dump(p, open("params-ensayo.yaml", "w"), allow_unicode=True)
-          EOF
-          echo "RALLY_PARAMS=params-ensayo.yaml" >> "$GITHUB_ENV"
       - name: Demostraciones (etapa datos, determinista)
         run: rally pipeline datos
-      - name: Entrenar ${{ matrix.nombre }}
+      - name: Entrenar ${{ matrix.nombre }} (semilla 1)
         run: python scripts/analisis/entrenar_semilla.py --pistas ${{ matrix.pistas }} --semilla 1
       - name: Exportar a numpy (comparado con PyTorch)
         run: |
           python - <<'EOF'
+          import json
           from rally.agentes.red_numpy import exportar
-          r = exportar("models/semillas-v6/${{ matrix.nombre }}/modelo.zip", "models/semillas-v6/${{ matrix.nombre }}/modelo.npz")
-          print({k: r[k] for k in ("fuente_sha256", "observaciones_probadas", "max_diferencia")})
+          d = "models/semillas-v6/${{ matrix.nombre }}"
+          r = exportar(f"{d}/modelo.zip", f"{d}/modelo.npz")
+          json.dump(r, open(f"{d}/exportacion.json", "w"), indent=2)
+          print(r)
           EOF
       - uses: actions/upload-artifact@v4
         with:
@@ -65,7 +64,7 @@ jobs:
             mlruns
           retention-days: 90
 
-  evaluar:
+  fase-a:
     needs: entrenar
     runs-on: ubuntu-latest
     timeout-minutes: 300
@@ -82,13 +81,66 @@ jobs:
           path: artefactos
       - name: Fase A con la semilla 1 (sin la Sierra)
         run: |
-          EP=$([ "$COMPLETO" = "true" ] && echo 100 || echo 4)
           python scripts/analisis/sobreajuste_pistas.py \
             --modelo v6-pistas-s1=artefactos/v6-s1/models/semillas-v6/v6-s1/modelo.npz:monaco,bosque,puerto \
             --modelo control-monaco-s1=artefactos/control-s1/models/semillas-v6/control-s1/modelo.npz:monaco \
-            --episodios "$EP" --salida metrics/semillas-v6.json
+            --episodios 100 --salida metrics/semillas-v6.json
       - uses: actions/upload-artifact@v4
         with:
-          name: metricas
+          name: metricas-fase-a
           path: metrics/semillas-v6.json
-          retention-days: 90
+
+  extremos:
+    needs: entrenar
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Instalar el entorno
+        run: pip install -r requirements.txt && pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefactos
+      - name: 21 pruebas de generalización (las de rally seleccionar)
+        run: |
+          python scripts/analisis/generalizacion_modelos.py \
+            --modelo v6-s0=web/api/_paquete/pesos/528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d.npz \
+            --modelo control-s0=docs/experimentos/pesos/control-ppo-monaco-s0.npz \
+            --modelo v6-s1=artefactos/v6-s1/models/semillas-v6/v6-s1/modelo.npz \
+            --modelo control-s1=artefactos/control-s1/models/semillas-v6/control-s1/modelo.npz \
+            --salida metrics/generalizacion-v6-control.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metricas-extremos
+          path: metrics/generalizacion-v6-control.json
+
+  guardar:
+    needs: [entrenar, fase-a, extremos]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefactos
+      - name: Subir métricas a la rama
+        run: |
+          mkdir -p metrics docs/experimentos/semillas-v6
+          cp artefactos/metricas-fase-a/semillas-v6.json metrics/ 2>/dev/null || true
+          cp artefactos/metricas-extremos/generalizacion-v6-control.json metrics/ 2>/dev/null || true
+          for m in v6-s1 control-s1; do
+            cp artefactos/$m/models/semillas-v6/$m/info.json docs/experimentos/semillas-v6/$m-info.json 2>/dev/null || true
+            cp artefactos/$m/models/semillas-v6/$m/exportacion.json docs/experimentos/semillas-v6/$m-exportacion.json 2>/dev/null || true
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add metrics docs/experimentos/semillas-v6
+          git diff --cached --quiet && { echo "Sin resultados nuevos"; exit 0; }
+          git commit -m "Resultados de las semillas 1 y pruebas extremas (run ${{ github.run_id }})"
+          git push
