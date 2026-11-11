@@ -88,7 +88,7 @@ input[type=range]::-moz-range-thumb { width: 9px; height: 18px; border: 0; borde
 /* ---------- Barra superior ---------- */
 #barra-sup {
   position: fixed; top: 0; left: 0; right: 0; height: var(--sup); z-index: 3; padding: 0 var(--m);
-  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr); align-items: center; gap: 14px;
   background: linear-gradient(180deg, rgba(8, 9, 12, .97), rgba(8, 9, 12, .86)); border-bottom: 2px solid var(--rojo);
 }
 .marca { display: flex; gap: 10px; align-items: center; min-width: 0; }
