@@ -377,4 +377,15 @@ body.limpio #panel-control, body.limpio #col-der, body.limpio #instrumentos, bod
   .velocidades, #reloj { display: none; }
   button.vivo { padding: 7px 8px; }
   .calidad { display: none; }
+  /* La insignia va a la derecha: centrada tapaba el encabezado del panel */
+  #insignia-modo { left: auto; right: var(--m); transform: none; max-width: calc(100vw - 230px); }
+}
+/* ---------- Celulares: caben las cámaras útiles en pantalla táctil ---------- */
+@media (max-width: 480px) {
+  #barra-sup { padding: 0 6px; gap: 4px; }
+  .bandera { display: none; }
+  #camaras button { padding: 6px 6px; font-size: 10.5px; }
+  #camaras button[data-cam="libre"], #camaras button[data-cam="vitrina"] { display: none; }  /* se manejan con mouse */
+  #acciones { gap: 4px; }
+  #acciones button { padding: 6px 7px; font-size: 11px; }
 }
