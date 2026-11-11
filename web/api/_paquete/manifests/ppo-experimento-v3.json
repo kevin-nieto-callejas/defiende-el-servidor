@@ -15,11 +15,13 @@
   "model_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
   "mlflow_modelo": "rally-ppo",
   "mlflow_version": 3,
-  "normalization_uri": null,
+  "normalization_uri": "git://src/rally/env.py@aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
+  "normalizacion": "Sin VecNormalize ni estadísticas aprendidas: el ambiente entrega las observaciones ya escaladas con divisores fijos (orden y divisores en contrato.orden)",
   "runtime_ref": "requirements.txt y pyproject.toml en aaa10d90a92eb7fbd17187f4bd9a74288087c7a6",
   "evaluation_suite_id": "ficha-100-semillas-0-99",
   "seed": 0,
   "parent_run_id": null,
+  "parent_run_nota": "Sin run padre terminado: se reanudó desde el punto de guardado del paso 1000008 de un run interrumpido (KILLED en MLflow); el id de ese run no quedó en info.json",
   "origen": "desde cero",
   "presupuesto": {
     "pasos": 3000000,
@@ -53,5 +55,9 @@
       "recompensa_media": -35.03,
       "progreso_pct": 32.7
     }
-  }
+  },
+  "pistas_entrenamiento": [
+    "monaco"
+  ],
+  "entrenamiento_plataforma": null
 }

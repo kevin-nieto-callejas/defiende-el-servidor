@@ -165,3 +165,14 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - La generalización tardó 4 h 40 min sin terminar: cada proceso abría ~8 hilos de PyTorch para cálculos diminutos.
   Con `OMP_NUM_THREADS=1` y 10 procesos terminó en 25 min. Antes, el computador estuvo suspendido 8 horas porque
   se desconectó el cargador; la evaluación siguió sin perder nada al reanudar.
+- Manifiestos: `normalization_uri` y `parent_run_id`, que pide el enunciado, estaban vacíos. Ahora
+  `normalization_uri` apunta al código del ambiente, que es donde está la escala (no hay VecNormalize), y
+  `parent_run_id` va vacío con una nota: ningún modelo hereda pesos; la v6 se reanudó desde el paso 400 008 de un
+  run interrumpido cuyo id no quedó guardado. Una prueba revisa los 12 campos en todos los manifiestos.
+- El generador creaba `qlearning-modelo-v6-pistas.json`, que era la tabla de Q-learning v8 con otro nombre (mismo
+  SHA-256 y mismo run). Se excluyó.
+- Cada veredicto de selección queda en `manifests/decisiones.json` (`rally seleccionar --anotar`). No va en
+  `historial.json` porque el rollback vuelve a la entrada anterior del historial, que debe ser una promoción.
+- Flujo de Prefect sin entrenar con la v6 de candidata: la rechazó sin intervención y la API siguió sirviendo la
+  v5-s1 (evidencia en `docs/evidencia/flujo-rechazo-v6/`). El primer intento lo detuvo el propio flujo en las
+  pruebas: el código había cambiado y el paquete de la API de Vercel no. Se rearmó y pasó.

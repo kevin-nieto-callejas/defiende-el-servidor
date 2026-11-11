@@ -42,6 +42,7 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | Modelo recomendado | `ppo-modelo-v5-s1`: red neuronal PPO, versión 5, semilla 1 |
 | Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
+| ¿Memorizó Mónaco? | La v5-s1 sí: 0 % en el Puerto y en la Sierra (pista reservada) |
 | Experimento más reciente | `ppo-modelo-v6-pistas`: entrenada en tres pistas, maneja en una pista que nunca vio (100 %), pero **no pasa la selección**: cae en condiciones extremas de Mónaco (sección 7.7) |
 | Avance estimado frente a la rúbrica | Cerca del 95 % (estimación del equipo, no una medición) |
 | Lo que más falta | Ensayo, nombre del equipo y contribuciones, y respuestas del docente |
@@ -424,8 +425,10 @@ en Mónaco se entrenaron en el Mac de Miguel con la misma configuración y la mi
 | Control, solo Mónaco | 100 / 30 % | 100 / 100 % | 100 / 100 % · 77.3 / 99.4 s |
 | **v6, tres pistas** | 100 / 100 % | 100 / 100 % | **100 / 100 % · 68.8 / 88.0 s** |
 
-La hipótesis se cumple: la v6 completa la Sierra, que nunca vio, y es la más rápida. El control también la
-completa, así que lo que aportan las tres pistas es poder afinar con PPO sin memorizar.
+En Mónaco los dos completan todo: el control en 79.6 s y la v6 en 69.8 s (en seco).
+
+La hipótesis se cumple: la v6 completa la Sierra, que nunca vio, y es la más rápida (11 % más que el control). El
+control también la completa, así que lo que aportan las tres pistas es poder afinar con PPO sin memorizar.
 
 **Selección oficial (10 de noviembre).** `dvc repro -s evaluar` y `-s generalizacion` con la v6, y después
 `rally seleccionar ppo-modelo-v6-pistas --tipo ppo`, sin promover:
@@ -515,12 +518,15 @@ recuperarla:
 | `environment_version`, `ambiente_huella` | Con qué ambiente se entrenó |
 | `model_uri`, `model_md5_dvc`, `model_sha256` | Dónde están los pesos y cómo comprobar que son esos |
 | `config_sha256`, `runtime_ref` | Parámetros y dependencias exactas |
+| `normalization_uri`, `normalizacion` | Dónde está la escala de las observaciones: en el código del ambiente, porque no hay VecNormalize |
+| `parent_run_id`, `parent_run_nota` | Run del que hereda pesos. Ninguno hereda, así que va vacío y la nota dice por qué (o desde qué paso se reanudó) |
 | `seed`, `evaluation_suite_id` | Semilla y suite de evaluación |
 | `contrato` | Orden de las 24 observaciones, acciones, recorte y paso de tiempo |
 | `resultados` | Vueltas, tiempos, incidentes y recompensa en seco y lluvia |
 
-Además: `catalogo.json` (lista para la web), `recomendado.json` (el que sirve la API) e `historial.json` (cada
-promoción y rollback con fecha y motivo).
+Además: `catalogo.json` (lista para la web), `recomendado.json` (el que sirve la API), `historial.json` (cada
+promoción y rollback con fecha y motivo) y `decisiones.json` (cada veredicto de selección, aceptado o rechazado,
+criterio por criterio). Una prueba automática revisa que todos los manifiestos tengan los 12 campos del enunciado.
 
 Los 17 manifiestos: PPO v1, v2, v3, v4, v5, v5-s1, v5-s2 y v6-pistas; Q-learning v1, v2, v3, v4, v6, v7, v8,
 v8-s1 y v8-s2. El de la v6 dice en qué máquina se entrenó (el Mac de Miguel), porque la huella del ambiente cambia
@@ -545,7 +551,11 @@ marca como no ejecutables. Código: `src/rally/historicos.py`; evidencia: `docs/
   anota en el historial. `--rollback` vuelve al anterior.
 - **Prueba de rollback:** v5 → v4 → v5, comprobando en cada paso qué modelo servía la API. Está en el historial.
 - **Caso real de rechazo:** el 10 de noviembre la v6 cumplió seco, lluvia y tiempo, pero falló el promedio de
-  extremos (79.2 % contra 85 %) y la peor prueba (diluvio 0 % contra 50 %). No se promovió (sección 7.7).
+  extremos (79.2 % contra 85 %) y la peor prueba (diluvio 0 % contra 50 %). La rechazó el flujo de Prefect, sin
+  intervención: [evidencia/flujo-rechazo-v6/](evidencia/flujo-rechazo-v6/). El veredicto quedó en
+  `manifests/decisiones.json` y su manifiesto dice `"decision": "rechazado"`.
+- `rally seleccionar ... --anotar` guarda el veredicto en `decisiones.json`. No va en `historial.json` porque el
+  rollback vuelve a la entrada anterior del historial, que debe ser una promoción.
 
 ### 8.7 Prefect
 
@@ -562,8 +572,10 @@ marca como no ejecutables. Código: `src/rally/historicos.py`; evidencia: `docs/
 | 7. Publicar | Actualiza el catálogo y rearma el paquete de la API de Vercel |
 | 8. Comprobar | Pregunta a la API qué modelo sirve |
 
-Se probó dos veces: sin entrenar ([evidencia/flujo/](evidencia/flujo/)) y completo con entrenamiento real, en una
-copia aparte, el 1 y 2 de noviembre ([evidencia/flujo-completo/](evidencia/flujo-completo/)). El reentrenamiento dio
+Se probó tres veces: sin entrenar ([evidencia/flujo/](evidencia/flujo/)); completo con entrenamiento real, en una
+copia aparte, el 1 y 2 de noviembre ([evidencia/flujo-completo/](evidencia/flujo-completo/)); y el 10 de noviembre
+con un candidato que **no pasa** los criterios, la v6, que el flujo rechazó sin promoverla
+([evidencia/flujo-rechazo-v6/](evidencia/flujo-rechazo-v6/)). Las tareas corren PyTorch con un hilo por proceso. El reentrenamiento dio
 **exactamente** los mismos resultados oficiales: 0 diferencias en 5 pilotos, 2 condiciones y 21 pruebas. El
 computador se suspendió 7 horas a mitad de PPO por batería baja y el flujo siguió desde su punto de guardado.
 
@@ -799,7 +811,8 @@ Todo se entrenó en el portátil de Kevin, con WSL Ubuntu en Windows.
 | Nombre del equipo y contribuciones en ficha, informe y presentación | Equipo | Alta | — |
 | Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
-| Agregar el veredicto de selección a [experimentos/v6-pistas.md](experimentos/v6-pistas.md) y al informe | Miguel | Media | — |
+| Agregar el veredicto de selección a [experimentos/v6-pistas.md](experimentos/v6-pistas.md) | Miguel | Media | — |
+| Medir si la caída de la v6 en extremos viene de las tres pistas o del entrenamiento: semilla 1 de la v6 y del control con las 21 pruebas, en GitHub Actions (rama `semillas-v6`) | Miguel | Media | Que termine el flujo "Semillas v6" |
 | Decidir si se reentrena Q-learning (horas) o se deja documentado como desactualizado | Kevin y Miguel | Baja | — |
 | Revisar el resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | — |
 | Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
@@ -944,8 +957,9 @@ debe poder explicar lo que se hizo.
 | ¿Qué fue lo más difícil? | La lluvia extrema; la causa era física, no de aprendizaje | Sección 6.1 |
 | ¿Qué pasa si falla en producción? | Monitoreo en la API, criterios y rollback | `/api/monitoreo`, `historial.json` |
 | ¿Cuál es la principal limitación? | La v5-s1 memorizó Mónaco; la v6 generaliza a pistas pero no aguanta extremos | Sección 15, web con `?pista=puerto` |
-| ¿Su modelo sabe manejar o memorizó? | Lo medimos con pistas nuevas y una reservada: la v5-s1 memorizó, la v6 no | Sección 7.7 |
-| ¿Qué pasa cuando un modelo nuevo no cumple? | No se promueve: la v6 fue rechazada por los criterios | `rally seleccionar`, sección 7.7 |
+| ¿Su modelo sabe manejar o memorizó? | Lo medimos con pistas nuevas y una reservada: la v5-s1 memorizó, la v6 no. La Sierra se corrió una sola vez | Sección 7.7, `metrics/sierra-v6.json` |
+| ¿Por qué no promovieron la v6? | Generaliza a pistas nuevas pero cae en las pruebas extremas: 79.2 % frente al mínimo de 85 %, y diluvio 0 % | `metrics/generalizacion.json`, `manifests/decisiones.json` |
+| ¿Qué pasa cuando un modelo nuevo no cumple? | No se promueve: el flujo de Prefect rechazó la v6 solo | `docs/evidencia/flujo-rechazo-v6/` |
 | ¿Por qué Prefect? | Es Python, corre local sin servidor y deja evidencia por etapa | `pipelines/flujo.py` |
 | ¿Qué harían después? | Entender por qué la v6 pierde en extremos, entrenar en varias pistas con más semillas y buscar un modelo que cumpla las dos cosas | Sección 7.7 |
 

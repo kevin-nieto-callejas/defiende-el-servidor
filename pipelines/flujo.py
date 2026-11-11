@@ -9,6 +9,7 @@ proyecto. Cada tarea deja evidencia en runs/flujo/ aunque el flujo falle despué
 """
 import argparse
 import json
+import os
 import subprocess
 import time
 import urllib.request
@@ -22,7 +23,9 @@ EVIDENCIA = RAIZ / "runs/flujo"
 
 
 def _correr(*cmd, timeout=None):
-    p = subprocess.run(cmd, cwd=RAIZ, capture_output=True, text=True, timeout=timeout)
+    # Un hilo de PyTorch por proceso: con varios procesos y muchos hilos, la generalización tardó 10 veces más
+    entorno = {**os.environ, "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1"}
+    p = subprocess.run(cmd, cwd=RAIZ, capture_output=True, text=True, timeout=timeout, env=entorno)
     if p.returncode:
         raise RuntimeError(f"{' '.join(cmd)} falló:\n{p.stdout[-1500:]}\n{p.stderr[-1500:]}")
     return p.stdout
@@ -67,7 +70,7 @@ def registrar():
 
 @task(name="5-seleccionar")
 def seleccionar(candidato, tipo):
-    salida = _correr(RALLY, "seleccionar", candidato, "--tipo", tipo)
+    salida = _correr(RALLY, "seleccionar", candidato, "--tipo", tipo, "--anotar")   # aceptado o no, queda anotado
     return _evidencia("seleccionar", json.loads(salida[salida.index("{"):]))
 
 

@@ -348,6 +348,35 @@
     }
   },
   {
+    "nombre": "ppo-modelo-v6-pistas",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v6-pistas",
+    "level_id": "N3",
+    "decision": "rechazado",
+    "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "f9d5e25381c79f28aafc1d77f65612210c01c3c7",
+    "model_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 69.8,
+        "tiempo_p90_s": 69.8,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 170.64,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 86.6,
+        "tiempo_p90_s": 86.7,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 161.03,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
     "nombre": "ppo-modelo-v5-s1",
     "tipo": "ppo",
     "etiqueta_git": "modelo-v5-s1",
@@ -460,35 +489,6 @@
         "incidentes_ep": 0.04,
         "recompensa_media": 141.24,
         "progreso_pct": 98.6
-      }
-    }
-  },
-  {
-    "nombre": "ppo-modelo-v6-pistas",
-    "tipo": "ppo",
-    "etiqueta_git": "modelo-v6-pistas",
-    "level_id": "N3",
-    "decision": "candidato",
-    "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
-    "environment_version": "0.4-monaco-configurable",
-    "git_commit": "f9d5e25381c79f28aafc1d77f65612210c01c3c7",
-    "model_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
-    "resultados": {
-      "seco": {
-        "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 69.8,
-        "tiempo_p90_s": 69.8,
-        "incidentes_ep": 0.0,
-        "recompensa_media": 170.64,
-        "progreso_pct": 100.0
-      },
-      "mojado": {
-        "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 86.6,
-        "tiempo_p90_s": 86.7,
-        "incidentes_ep": 0.0,
-        "recompensa_media": 161.03,
-        "progreso_pct": 100.0
       }
     }
   }

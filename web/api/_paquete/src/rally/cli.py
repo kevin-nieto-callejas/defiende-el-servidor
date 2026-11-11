@@ -345,6 +345,8 @@ def cmd_seleccionar(args):
         print(json.dumps(seleccion.volver(args.rollback), ensure_ascii=False))
         return 0
     v = seleccion.evaluar_candidato(args.candidato, args.tipo, args.semilla)
+    if args.anotar:
+        seleccion.anotar(v)
     if args.promover and v["aceptado"]:
         seleccion.promover(args.candidato, "cumple configs/seleccion.yaml",
                            {"seco": {"vueltas_pct": v["valores"]["seco"]}, "mojado": {"vueltas_pct": v["valores"]["mojado"]}})
@@ -412,6 +414,7 @@ def main(argv=None):
     se.add_argument("--tipo", default="ppo", choices=["ppo", "qlearning"])
     se.add_argument("--semilla", type=int, help="usar los resultados de esa semilla de metrics/semillas*.json")
     se.add_argument("--promover", action="store_true", help="si cumple, pasa a ser el recomendado")
+    se.add_argument("--anotar", action="store_true", help="guardar el veredicto en manifests/decisiones.json")
     se.add_argument("--rollback", metavar="MOTIVO", help="volver a la recomendación anterior")
     se.set_defaults(fn=cmd_seleccionar)
 

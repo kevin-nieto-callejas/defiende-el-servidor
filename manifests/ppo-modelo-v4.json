@@ -15,11 +15,13 @@
   "model_sha256": "4c4c8dd6e5319c49fc4fd86b664ba5ac57b0e9ce59ffdb3f1ec0421a6546550c",
   "mlflow_modelo": "rally-ppo",
   "mlflow_version": 4,
-  "normalization_uri": null,
+  "normalization_uri": "git://src/rally/env.py@c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
+  "normalizacion": "Sin VecNormalize ni estadísticas aprendidas: el ambiente entrega las observaciones ya escaladas con divisores fijos (orden y divisores en contrato.orden)",
   "runtime_ref": "requirements.txt y pyproject.toml en c216c5f02ab45d90d53d4db76253a6d332ccb0bc",
   "evaluation_suite_id": "ficha-100-semillas-0-99",
   "seed": 0,
   "parent_run_id": null,
+  "parent_run_nota": "Sin run padre: se entrenó desde cero (imitación y refuerzo en el mismo run), sin heredar pesos",
   "origen": "desde cero con imitación",
   "presupuesto": {
     "pasos": 2000000,
@@ -53,5 +55,9 @@
       "recompensa_media": 157.54,
       "progreso_pct": 100.0
     }
-  }
+  },
+  "pistas_entrenamiento": [
+    "monaco"
+  ],
+  "entrenamiento_plataforma": null
 }

@@ -1,0 +1,27 @@
+[
+  {
+    "candidato": "ppo-modelo-v6-pistas",
+    "tipo": "ppo",
+    "aceptado": false,
+    "criterios": {
+      "seco": true,
+      "mojado": true,
+      "tiempo_seco": true,
+      "extremos": false,
+      "peor_prueba": false,
+      "no_pierde_seco": true,
+      "no_pierde_mojado": true
+    },
+    "valores": {
+      "seco": 100.0,
+      "mojado": 100.0,
+      "tiempo_seco_s": 69.8,
+      "extremos_pct": 79.2,
+      "peor_prueba": {
+        "diluvio": 0.0
+      }
+    },
+    "criterios_de": "configs/seleccion.yaml",
+    "fecha": "2026-11-10T21:42:15-0500"
+  }
+]

@@ -33,8 +33,13 @@ VERSIONES = {
     "modelo-v5": ("N3", "candidato", None),
     "modelo-qlearning-v7": ("N3", "reemplazado", None),
     "modelo-qlearning-v8": ("N3", "candidato", None),
-    "modelo-v6-pistas": ("N3", "candidato", None),
+    # Rechazada el 10-nov-2026 por configs/seleccion.yaml: veredicto completo en manifests/decisiones.json
+    "modelo-v6-pistas": ("N3", "rechazado", None),
 }
+# El enunciado pide estos dos campos; aquí no hay archivo de normalización ni pesos heredados,
+# así que cada manifiesto dice dónde está la escala y por qué no hay run padre.
+NORMALIZACION = ("Sin VecNormalize ni estadísticas aprendidas: el ambiente entrega las observaciones ya "
+                 "escaladas con divisores fijos (orden y divisores en contrato.orden)")
 # Dónde se entrenó cada versión cuando no fue en el PC de siempre: la huella del ambiente
 # (ambiente_huella) cambia entre Linux y macOS por el redondeo del último bit en la geometría.
 PLATAFORMAS = {
@@ -71,6 +76,15 @@ def _salidas(lock, etapa, ruta):
     raise KeyError(ruta)
 
 
+def _padre(info):
+    """Explica parent_run_id: ningún modelo hereda pesos de otro run terminado."""
+    paso = info.get("reanudado_desde_paso")
+    if paso:
+        return (f"Sin run padre terminado: se reanudó desde el punto de guardado del paso {paso} de un run "
+                "interrumpido (KILLED en MLflow); el id de ese run no quedó en info.json")
+    return "Sin run padre: se entrenó desde cero (imitación y refuerzo en el mismo run), sin heredar pesos"
+
+
 def manifiesto(rev, tipo):
     commit = _git("rev-parse", f"{rev}^{{commit}}").strip()
     lock = yaml.safe_load(_git("show", f"{commit}:dvc.lock"))
@@ -92,7 +106,7 @@ def manifiesto(rev, tipo):
         ev = None
     nivel, decision, hipotesis = VERSIONES.get(rev, (None, None, None))
     if tipo == "qlearning" and "qlearning" not in rev:   # esas etiquetas hablan del PPO
-        if rev == "modelo-v5":
+        if rev in ("modelo-v5", "modelo-v6-pistas"):   # en la v6 la tabla es la misma de Q-learning v8
             raise KeyError("la tabla de esta versión tiene su propia etiqueta")
         decision, hipotesis = "rechazado", "Tabla entrenada junto a esta versión"
     p = params.get(tipo, {})
@@ -105,9 +119,10 @@ def manifiesto(rev, tipo):
         "model_uri": f"dvc://models/{tipo}/{ARCHIVO[tipo]}@{commit}",
         "model_md5_dvc": hijos[ARCHIVO[tipo]], "model_sha256": _sha256(pesos),
         "mlflow_modelo": info.get("mlflow_modelo"), "mlflow_version": info.get("mlflow_version"),
-        "normalization_uri": None,   # sin VecNormalize: el ambiente ya entrega valores escalados
+        "normalization_uri": f"git://src/rally/env.py@{commit}", "normalizacion": NORMALIZACION,
         "runtime_ref": f"requirements.txt y pyproject.toml en {commit}",
-        "evaluation_suite_id": SUITE, "seed": p.get("semilla"), "parent_run_id": None,
+        "evaluation_suite_id": SUITE, "seed": p.get("semilla"),
+        "parent_run_id": None, "parent_run_nota": _padre(info),
         "origen": "desde cero con imitación" if p.get("dagger_iter") else "desde cero",
         "presupuesto": {k: v for k, v in info.items() if k in ("pasos", "episodios", "segundos")},
         "contrato": {"observaciones": n_obs, "orden": OBS_0_4 if n_obs == 24 else f"ver src/rally/env.py en {commit}",
@@ -138,6 +153,8 @@ def manifiesto_finalista(tipo, s):
     datos = pesos.read_bytes()
     return {**manifiesto(familia, tipo), "nombre": f"{tipo}-{familia}-s{s}", "etiqueta_git": f"{familia}-s{s}",
             "run_id": run.info.run_id, "git_commit": run.data.tags["git_commit"], "seed": s,
+            "normalization_uri": f"git://src/rally/env.py@{run.data.tags['git_commit']}",
+            "parent_run_nota": _padre({"reanudado_desde_paso": run.data.tags.get("reanudado_desde_paso")}),
             "decision": "aceptado" if ELEGIDA[tipo] == s else "candidato", "model_uri": f"dvc://{pesos}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
             "model_sha256": hashlib.sha256(datos).hexdigest(), "mlflow_modelo": None, "mlflow_version": None,
             "presupuesto": {}, "resultados": {"seco": res["seco"], "mojado": res["mojado"]}}
