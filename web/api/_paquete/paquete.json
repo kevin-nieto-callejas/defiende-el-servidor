@@ -1,9 +1,9 @@
 {
   "commit": "685fb1b714cc2a5e404f6da75a495c19b5086236",
-  "fecha": "2026-11-11T11:35:33-0500",
+  "fecha": "2026-11-11T12:44:32-0500",
   "destino": "vercel",
-  "huella_src": "84f98f077da5891a092d5f13d9ae434e3ff0b6cc1a8285a5c6a3d59123077e37",
-  "huella_manifests": "7c0f040e503a30076b34fe15cddaac5bd6a61e612236e97dd68bcaeb8cbd9007",
+  "huella_src": "c8f089187b3d4a39500e499d56d2ce883aa24ff77967a45671843400d6822683",
+  "huella_manifests": "b0f8e0c7119a8941b3714d57b851c51999f6a84906aeaa06b05511a3e0bc716b",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
@@ -140,6 +140,25 @@
     "qlearning-modelo-qlearning-v8-s2": {
       "fuente_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
       "npz_sha256": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2",
+      "motor": "tabla"
+    },
+    "ppo-moto-v1": {
+      "fuente_sha256": "d66ae9adb10812259f05b5d2af19a7fbba4f9532f9f372b7e0483c6378f56ee1",
+      "npz_sha256": "14c1e40d955a75ff6f1fd72dfd80e4ecb321fbd2c50975cfab9e0784e2c18b37",
+      "n_obs": 26,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6868,
+      "max_diferencia": 4.76837158203125e-07,
+      "motor": "numpy"
+    },
+    "qlearning-moto-v1": {
+      "fuente_sha256": "f2690f330b7f162016a1faeed81dda96b23cff33a2b822d209c29b8a05c8d66d",
+      "npz_sha256": "297a3a80fbd26a03ccfde98c7db13e4b14831029c9b8c97f9626ba51d561d80b",
       "motor": "tabla"
     }
   }

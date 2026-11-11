@@ -114,3 +114,42 @@ incluso μ = 0.4: en la moto pasarse no subvira, tira la moto.
   controlado; el contragiro está implícito en la tasa de inclinación.
 - La caída es instantánea tras 0.3 s patinando: no se modela recuperar la moto patinando.
 - El piloto del visor se cuelga hacia el interior de la curva solo como dibujo: no cambia la física.
+
+## Resultados de los agentes (versión `moto-v1`)
+
+Entrenados con `dvc repro` (etapas `moto-*`) en un equipo de 2 CPU, con presupuesto reducido frente al
+carro: PPO 20 iteraciones de DAgger + 1 millón de pasos (57 min); Q-learning 30 iteraciones de DAgger
++ 400 episodios (15 min). Experimentos en MLflow: `autonomous-rally-motogp`. Suite de la ficha: 100
+semillas por condición (`metrics/moto/evaluacion.json`).
+
+| Versión | Seco | Tiempo seco | Lluvia | Tiempo lluvia | Extremos (19 pruebas) | Decisión |
+|---|---|---|---|---|---|---|
+| `ppo-moto-v1` | 100 % | 78.2 s | 100 % | 110.0 s | 98.1 % (peor: `limite_lluvia` 63.3 %) | **aceptado y recomendado** |
+| `qlearning-moto-v1` | 0 % | — | 96 % | 112.4 s | 40.4 % | rechazado |
+
+Los criterios se fijaron antes de entrenar (`configs/seleccion.yaml`, sección `moto`); los veredictos
+completos están en `manifests/moto/decisiones.json`.
+
+**PPO: el refuerzo ganó velocidad y perdió confiabilidad.** El mejor punto fue el de la red recién
+imitada (paso 0): 100 % en seco, lluvia y extremos en la evaluación rápida. Durante el refuerzo el
+tiempo en seco bajó de 77.6 s a 72.6 s, pero los extremos cayeron a 61–89 % y la lluvia llegó a 47 %
+en el paso 800 000. La regla de `MejorModelo` (vueltas primero, luego tiempo) se quedó con la red
+imitada. Siguiente hipótesis: refuerzo con una tasa de aprendizaje menor o con el coeficiente de
+recorte reducido, para conservar la robustez mientras baja el tiempo.
+
+**PPO en `limite_lluvia` (μ = 0.75): 63 %.** Con ese agarre el sensor de lluvia marca seco (llueve por
+debajo de 0.75), así que la moto entra a las curvas como en seco y se cae en 37 de cada 100 vueltas.
+Es la misma frontera que el carro ya mostraba; en la moto pesa más porque pasarse tira la moto. La
+regla de generalización la marca como sobreajuste (caída de 36.7 puntos > 20); los criterios de
+selección la aceptan (peor prueba ≥ 50 %).
+
+**Q-learning: la tabla no aprendió la moto en seco.** Con lluvia imita bien al maestro (96 %), pero en
+seco se cae siempre. Ni el refuerzo mejoró la mejor tabla de la imitación. La tabla usa la
+discretización del carro y no ve la inclinación: en seco va más rápido, necesita más inclinación y
+llegar a ella a tiempo, y sin verla no sabe cuándo empezar a tumbarse. Siguiente hipótesis
+(`qlearning-moto-v2`): agregar la inclinación (observación 24) a `discreto.py` con 3 rangos, que
+triplica la tabla a 352 800 estados.
+
+**Experto con lluvia.** Se cae en los primeros pasos: su control de tracción supone piso seco y deja
+pasar 5 m/s² sobre un piso que aguanta 4.9; con la rueda patinando, cualquier inclinación lo tira.
+Es el incidente esperado (quien supone seco no maneja con lluvia), igual que en el carro.

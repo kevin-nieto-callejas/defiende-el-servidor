@@ -1,0 +1,16 @@
+{
+  "qlearning": {
+    "modelo": "rally-moto-qlearning",
+    "version": "1",
+    "alias": "champion",
+    "puntaje": 96.0,
+    "protocolo_aceptado": false
+  },
+  "ppo": {
+    "modelo": "rally-moto-ppo",
+    "version": "1",
+    "alias": "champion",
+    "puntaje": 200.0,
+    "protocolo_aceptado": true
+  }
+}

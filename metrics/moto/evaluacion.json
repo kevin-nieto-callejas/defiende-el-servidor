@@ -1,0 +1,136 @@
+{
+  "episodios_por_condicion": 100,
+  "base": "experto",
+  "vehiculo": "moto",
+  "ambiente_version": "moto-0.1",
+  "resultados": {
+    "experto": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 74.7,
+        "tiempo_p90_s": 74.7,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 169.7,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 1.0,
+        "recompensa_media": -50.17,
+        "progreso_pct": 0.0
+      }
+    },
+    "prudente": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 97.7,
+        "tiempo_p90_s": 97.8,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 159.64,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 97.7,
+        "tiempo_p90_s": 97.8,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 159.64,
+        "progreso_pct": 100.0
+      }
+    },
+    "maestro": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 78.4,
+        "tiempo_p90_s": 78.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 168.17,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 108.4,
+        "tiempo_p90_s": 108.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 155.87,
+        "progreso_pct": 100.0
+      }
+    },
+    "qlearning": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 2.01,
+        "recompensa_media": 16.22,
+        "progreso_pct": 64.4
+      },
+      "mojado": {
+        "vueltas_pct": 96.0,
+        "tiempo_mediano_s": 112.4,
+        "tiempo_p90_s": 113.0,
+        "incidentes_ep": 0.11,
+        "recompensa_media": 138.9,
+        "progreso_pct": 98.2
+      }
+    },
+    "ppo": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 78.2,
+        "tiempo_p90_s": 78.2,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 168.79,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 110.0,
+        "tiempo_p90_s": 110.1,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.89,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  "veredictos": {
+    "prudente": {
+      "criterios": {
+        "mejora_en_mojado": true,
+        "no_pierde_vueltas_en_seco": true,
+        "tiempo_seco_maximo_5pct": false
+      },
+      "tiempo_seco_cambio_pct": 30.8,
+      "aceptado": false
+    },
+    "maestro": {
+      "criterios": {
+        "mejora_en_mojado": true,
+        "no_pierde_vueltas_en_seco": true,
+        "tiempo_seco_maximo_5pct": true
+      },
+      "tiempo_seco_cambio_pct": 5.0,
+      "aceptado": true
+    },
+    "qlearning": {
+      "criterios": {
+        "mejora_en_mojado": true,
+        "no_pierde_vueltas_en_seco": false,
+        "tiempo_seco_maximo_5pct": false
+      },
+      "tiempo_seco_cambio_pct": null,
+      "aceptado": false
+    },
+    "ppo": {
+      "criterios": {
+        "mejora_en_mojado": true,
+        "no_pierde_vueltas_en_seco": true,
+        "tiempo_seco_maximo_5pct": true
+      },
+      "tiempo_seco_cambio_pct": 4.7,
+      "aceptado": true
+    }
+  }
+}
