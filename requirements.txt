@@ -70,7 +70,9 @@ gunicorn==26.2.0
 gymnasium==1.4.0
 h11==0.16.0
 hf-xet==1.7.1
+httpcore==1.0.9
 httpcore2==2.16.0
+httpx==0.28.1
 httpx2==2.16.0
 huey==3.5.3
 huggingface_hub==2.3.0

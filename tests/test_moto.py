@@ -163,7 +163,7 @@ def test_params_de_la_moto_heredan_y_reemplazan():
     assert p["ambiente"]["a_max"] == 5.0 and c["ambiente"]["a_max"] == 4.0
     assert p["ppo"]["vehiculo"] == "moto" and "vehiculo" not in c["ppo"]
     assert p["ppo"]["capas"] == c["ppo"]["capas"]   # heredado del carro
-    assert str(rutas("moto")["modelos"]) == "models/moto" and str(rutas()["modelos"]) == "models"
+    assert rutas("moto")["modelos"].as_posix() == "models/moto" and rutas()["modelos"].as_posix() == "models"
 
 
 def _cliente():

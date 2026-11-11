@@ -1,0 +1,19 @@
+# Finales de línea: el repositorio guarda todo con LF y cada clon lo recibe con LF, también en
+# Windows. Importa para la trazabilidad: DVC calcula el md5 del código tal como está en el disco,
+# así que con CRLF los hashes de `dvc.lock` no coinciden y `dvc status` marca como modificada
+# cada etapa (incluidas las del carro) aunque nada haya cambiado. Con esto, `dvc repro` solo
+# rehace lo que de verdad cambió, en cualquier sistema operativo.
+* text=auto eol=lf
+
+# Binarios: no se convierten nunca (pesos de los modelos, datasets y mapas)
+*.npz binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.svg text eol=lf
+*.mp4 binary
+*.glb binary
+*.gltf binary
+*.woff binary
+*.woff2 binary
+*.ico binary
