@@ -77,18 +77,18 @@
     "ppo": {
       "seco": {
         "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 75.9,
-        "tiempo_p90_s": 76.0,
+        "tiempo_mediano_s": 69.8,
+        "tiempo_p90_s": 69.8,
         "incidentes_ep": 0.0,
-        "recompensa_media": 165.33,
+        "recompensa_media": 170.65,
         "progreso_pct": 100.0
       },
       "mojado": {
         "vueltas_pct": 100.0,
-        "tiempo_mediano_s": 92.0,
-        "tiempo_p90_s": 92.4,
+        "tiempo_mediano_s": 86.6,
+        "tiempo_p90_s": 86.7,
         "incidentes_ep": 0.0,
-        "recompensa_media": 157.46,
+        "recompensa_media": 161.06,
         "progreso_pct": 100.0
       }
     }
@@ -127,7 +127,7 @@
         "no_pierde_vueltas_en_seco": true,
         "tiempo_seco_maximo_5pct": true
       },
-      "tiempo_seco_cambio_pct": -1.9,
+      "tiempo_seco_cambio_pct": -9.8,
       "aceptado": true
     }
   }
