@@ -247,12 +247,19 @@ def _fila(m):
 
 
 def generar_moto(catalogo=None, revisiones=None):
-    """Manifiestos de la moto; reemplaza sus filas del catálogo y deja intactas las del carro."""
+    """Manifiestos de la moto; reemplaza sus filas del catálogo y deja intactas las del carro.
+
+    Si ningún manifiesto se puede regenerar (lo normal en un clon sin `dvc pull`: los pesos no
+    están en la caché de DVC), se conservan las filas que ya tenía el catálogo. Antes se
+    reescribía sin ellas y la moto desaparecía de la web y de la API sin aviso.
+    """
     revisiones = revisiones or list(VERSIONES_MOTO)
     ruta_cat = SALIDA / "catalogo.json"
     if catalogo is None:
         catalogo = json.loads(ruta_cat.read_text(encoding="utf-8")) if ruta_cat.exists() else []
+    previas = [f for f in catalogo if f.get("vehiculo") == "moto"]
     catalogo = [f for f in catalogo if f.get("vehiculo") != "moto"]
+    nuevas = []
     for rev in revisiones:
         for tipo in ARCHIVO:
             try:
@@ -262,10 +269,14 @@ def generar_moto(catalogo=None, revisiones=None):
                 continue
             ruta = SALIDA / f"{m['nombre']}.json"
             ruta.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
-            catalogo.append(_fila(m))
+            nuevas.append(_fila(m))
             print(f"  {ruta}  {m['model_sha256'][:12]}")
-    ruta_cat.write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
-    return catalogo
+    if not nuevas and previas:
+        print(f"  moto: no se regeneró ningún manifiesto; se conservan sus {len(previas)} filas del "
+              "catálogo (¿falta `dvc pull -r dagshub`?)")
+        nuevas = previas
+    ruta_cat.write_text(json.dumps(catalogo + nuevas, indent=2, ensure_ascii=False), encoding="utf-8")
+    return catalogo + nuevas
 
 
 def generar(revisiones=None, vehiculo=None):

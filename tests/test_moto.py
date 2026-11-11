@@ -1,5 +1,6 @@
 """Pruebas de la moto MotoGP: contrato, física de inclinación y caída, pilotos, pipeline y API."""
 
+import json
 import math
 
 import numpy as np
@@ -200,3 +201,32 @@ def test_un_modelo_del_carro_no_corre_en_la_moto():
     assert c.get("/api/episodio", params={"piloto": "ppo-modelo-v5-s1", "vehiculo": "moto"}).status_code == 409
     filas = c.get("/api/modelos", params={"vehiculo": "carro"}).json()["modelos"]
     assert filas and all(f["vehiculo"] == "carro" for f in filas)
+
+
+# ------------------------------------------------------------------ manifiestos
+
+def test_el_catalogo_conserva_la_moto_si_no_se_pueden_regenerar_sus_manifiestos(tmp_path, monkeypatch):
+    """En un clon sin `dvc pull` los pesos no están en la caché y no hay manifiesto que regenerar.
+
+    Regenerar entonces no debe dejar el catálogo sin la moto: la web y la API la leen de ahí, así
+    que perderla la borraría de la entrega sin ningún aviso.
+    """
+    from rally import manifiesto
+
+    salida = tmp_path / "manifests"
+    salida.mkdir()
+    catalogo = [{"nombre": "ppo-modelo-v5-s1", "tipo": "ppo"},
+                {"nombre": "ppo-moto-v1", "tipo": "ppo", "vehiculo": "moto"},
+                {"nombre": "qlearning-moto-v1", "tipo": "qlearning", "vehiculo": "moto"}]
+    (salida / "catalogo.json").write_text(json.dumps(catalogo), encoding="utf-8")
+
+    def sin_pesos(tipo, rev="moto-v1"):
+        raise FileNotFoundError("los pesos no están en la caché de DVC")
+
+    monkeypatch.setattr(manifiesto, "SALIDA", salida)
+    monkeypatch.setattr(manifiesto, "manifiesto_moto", sin_pesos)
+
+    resultado = manifiesto.generar_moto()
+
+    assert resultado == catalogo
+    assert json.loads((salida / "catalogo.json").read_text(encoding="utf-8")) == catalogo
