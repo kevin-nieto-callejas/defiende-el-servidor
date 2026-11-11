@@ -48,6 +48,9 @@ rally semillas ppo 1 2 --vehiculo moto
 rally publicar --repo usuario/autonomous-rally-moto-ppo --vehiculo moto
 ```
 
+Los experimentos de la moto se entrenaron en otro equipo: `scripts/operacion/mlflow_moto.py exportar | subir` los
+lleva a DagsHub sin copiar `mlflow.db` (sus rutas y su esquema dependen del equipo y de la versión de MLflow).
+
 En la web, el selector **Vehículo** (o `?vehiculo=moto`) cambia entre el carro y la moto. La API recibe
 `vehiculo=moto` en `/api/pista`, `/api/episodio`, `/api/evaluar` y `/api/modelos`; un modelo de un vehículo
 pedido en el otro responde 409, porque su contrato de observaciones es otro (24 contra 26).
