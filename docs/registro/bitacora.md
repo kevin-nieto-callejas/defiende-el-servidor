@@ -134,7 +134,18 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   código: la geometría difiere en el último bit. Las demostraciones del experto dan las mismas 20 904 acciones
   en las dos plataformas. El manifiesto de la v6 dice en qué máquina se entrenó.
 
-## 5 de noviembre
+## 10 de noviembre: Q-learning sin reentrenar
+
+- Al unir el experimento v6, DVC marcó la etapa `qlearning` como desactualizada: cambiaron `demos.npz` (se
+  regeneró en el Mac) y cuatro archivos de código (`env.py`, `track.py`, `pipeline.py`, `qlearning.py`). El
+  flujo de selección habría corrido `dvc repro` y reentrenado Q-learning por horas.
+- Comprobamos que ninguno de los dos cambios altera el modelo. `agentes/qlearning.py` no lee `demos.npz` (la
+  etapa solo lo registra en MLflow), y las demostraciones del Mac tienen las mismas 20 904 acciones que las de
+  Linux. Para el código, entrenamos Q-learning recortado (2 iteraciones de DAgger y 30 episodios) con el código
+  anterior al experimento (`b4e00f2`) y con el actual, en la misma máquina: la tabla Q y las visitas salieron
+  idénticas byte a byte (`scripts/analisis/comparar_qlearning.py`).
+- Con esa evidencia registramos la etapa con `dvc commit qlearning`, sin reentrenar: en `dvc.lock` cambian solo
+  los hashes de las dependencias, y la salida `models/qlearning` sigue siendo `993f3455…`.
 
 - La API se publica como función de Vercel, en el mismo dominio de la web: es gratis y cumple lo que pide el
   enunciado sin contratar un servicio. PyTorch no cabe en una función, así que la red de PPO se exporta a numpy
