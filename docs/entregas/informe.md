@@ -1,7 +1,7 @@
 # Informe: Autonomous Rally
 
 Proyecto final de MLOps · Universidad Externado de Colombia · Docente: Julián Zuluaga
-Equipo: _______ · Integrantes: Kevin Nieto, Miguel Melo y _______ · Versión de borrador: 1 nov 2026
+Equipo: _______ · Integrantes: Kevin Nieto, Miguel Melo y Allison Loango · Versión de borrador: 10 nov 2026
 
 ## Resumen
 
@@ -13,6 +13,11 @@ Conservamos también los intentos fallidos.
 
 El resultado más útil no fue un número sino una corrección: la v4 ya daba 100 % en la evaluación oficial y aun
 así chocaba en los experimentos del visor. La evaluación solo cubría los parámetros base.
+
+Después probamos si el agente sabe manejar o memorizó Mónaco, con tres pistas nuevas y una reservada. El modelo
+recomendado da 0 % en dos pistas que el piloto maestro sí completa: memorizó el circuito. Una versión entrenada en
+tres pistas (v6) completa el 100 % en la pista reservada, pero no pasó nuestros criterios de selección porque
+pierde aguante en condiciones extremas de Mónaco. La recomendada sigue siendo la v5 semilla 1.
 
 ## Decisiones técnicas
 
@@ -34,6 +39,7 @@ así chocaba en los experimentos del visor. La evaluación solo cubría los par�
 | `experimento-v3` | Practicar con lluvia e imitar vueltas | 0 % | 0 % | Rechazado |
 | `modelo-v4` | DAgger corrige los errores | 100 % | 100 % | Aceptado; luego reemplazado |
 | **`ppo-modelo-v5-s1`** | Conocer el carro y practicar todos los deslizadores con ruido | **100 %** | **100 %** | **Recomendado** |
+| `ppo-modelo-v6-pistas` | Practicar en tres pistas permite manejar en una que nunca vio | 100 % | 100 % | Hipótesis cumplida; rechazado por la selección |
 
 Q-learning con tabla: de 0 % en las primeras versiones a 60 % / 15 % (v6), 87 % / 81 % (v7) y 100 % / 100 % (v8,
 semilla 1). En la v8 los episodios de Q-learning sí mejoraron la tabla de imitación; antes no aportaban.
@@ -88,6 +94,46 @@ La columna de la v4 usa las semillas 1000–1099 en las dos últimas filas; las 
 **Resultado de la intervención:** la semilla ganadora mejoró a la v4 sin costo. La semilla 0 sí cedía 0.3 s en seco
 y 0.2 s con lluvia frente a la v4, así que no se debe atribuir toda la ganancia de tiempo al método.
 
+## Experimento v6: ¿maneja o memorizó Mónaco?
+
+Hasta la v5 todo se entrenó y evaluó en una sola pista, así que un 100 % no distinguía entre saber manejar y
+haber memorizado las curvas. Agregamos tres pistas, distintas a propósito: Bosque (rápida, sentido horario),
+Puerto (técnica, curvas de 8.5 m) y Sierra, reservada para la prueba (el código no deja entrenar con ella). El
+experto, el prudente y el maestro completan las cuatro en seco y con lluvia.
+
+**Diseño.** Un solo cambio frente a un control: la v6 practica en Mónaco, Bosque y Puerto; el control, solo en
+Mónaco. Misma configuración, misma semilla y mismo computador. La hipótesis, la regla de elección y el uso único
+de la Sierra se escribieron antes de ver resultados.
+
+**Hipótesis:** si la red practica en tres pistas, completa al menos 80 % de las vueltas en la Sierra sin perder
+más de 5 puntos ni 5 % de tiempo en Mónaco frente al control.
+
+| Piloto (100 semillas, seco / lluvia) | Bosque | Puerto | Sierra (una sola corrida) |
+|---|---|---|---|
+| Maestro | 100 / 100 % | 100 / 100 % | 100 / 100 % |
+| PPO v5 semilla 1 (recomendado) | 100 / 100 % | **0 / 0 %** | **0 / 0 %** |
+| Control, solo Mónaco | 100 / 30 % | 100 / 100 % | 100 / 100 %, 77.3 / 99.4 s |
+| **v6, tres pistas** | 100 / 100 % | 100 / 100 % | **100 / 100 %, 68.8 / 88.0 s** |
+
+La hipótesis se cumple. La lectura es más fina que "más pistas generaliza": el control también completa la
+Sierra, aunque más lento. Lo que aportan las tres pistas es poder afinar con PPO sin memorizar; la v5 semilla 1,
+afinada solo en Mónaco, sí memorizó.
+
+**Selección.** Registrar un candidato no lo promueve. Corrimos la evaluación oficial y las pruebas extremas con la
+v6 y aplicamos los criterios fijados el 1 de noviembre:
+
+| Criterio | Mínimo | v6 | ¿Cumple? |
+|---|---|---|---|
+| Vueltas en seco / lluvia | 98 % | 100 % / 100 % | sí |
+| Tiempo en seco | ≤ 81.3 s | 69.8 s | sí |
+| Promedio en pruebas extremas | 85 % | **79.2 %** | **no** |
+| Peor prueba | 50 % | **0 %**, diluvio | **no** |
+
+Donde la v5 semilla 0 daba 82 a 100 %, la v6 da 0 % en diluvio, 14 % en el límite de lluvia, 5 % en la pista de
+6 m en seco y 0 % con sensores de 10 m y lluvia. **La v6 generaliza a pistas nuevas pero pierde robustez en
+condiciones extremas, y no se promueve.** No cambiamos los criterios para que pasara: es el sistema de selección
+haciendo su trabajo. La v6 queda en el catálogo y la web permite compararlas en el Puerto.
+
 ## MLOps
 
 | Requisito | Cómo se cumple |
@@ -97,12 +143,15 @@ y 0.2 s con lluvia frente a la v4, así que no se debe atribuir toda la ganancia
 | Experimentos | MLflow local y copia en DagsHub, con runs interrumpidos conservados |
 | Pipeline | DVC por etapas y Prefect para validar, probar, seleccionar y publicar |
 | Monitoreo | La API reporta versión servida, episodios, errores, fallos por causa y latencia |
-| Rollback | Probado v5 → v4 → v5, comprobando la versión que sirve la API |
-| Despliegue | Web y API en Vercel, en la misma URL. La API es una función de Python: mismo ambiente, PPO en numpy verificado contra PyTorch. El contenedor se construye y se prueba en GitHub Actions en cada push |
+| Rollback y rechazo | Probado v5 → v4 → v5, comprobando la versión que sirve la API. La v6 fue rechazada por los criterios |
+| Despliegue | Web y API en Vercel, en la misma URL, con selector de pista (la Sierra responde 403). La API es una función de Python: mismo ambiente, PPO en numpy verificado contra PyTorch. El contenedor se construye y se prueba en GitHub Actions en cada push |
 
 ## Límites
 
-- **Un solo circuito.** Medimos robustez ante condiciones, no manejo en un trazado desconocido.
+- **El modelo recomendado memorizó Mónaco:** da 0 % en el Puerto y la Sierra. La v6 maneja en pistas nuevas pero
+  no aguanta los extremos. Hoy no tenemos un modelo que haga las dos cosas.
+- **Una semilla por modelo en el experimento v6,** y cuatro pistas de la misma familia (rectas y arcos de radio
+  constante).
 - **En la URL pública, PPO corre en numpy.** Se verificó contra PyTorch (diferencia máxima 1e-5 en las acciones),
   pero no es la misma biblioteca del entrenamiento. El contenedor sí usa PyTorch.
 - **El monitoreo de la API publicada es por instancia:** Vercel puede tener varias instancias y reiniciarlas; cada
@@ -115,7 +164,9 @@ y 0.2 s con lluvia frente a la v4, así que no se debe atribuir toda la ganancia
 ## Pendiente antes de la entrega
 
 - Intercambio de la ficha con otro equipo.
-- Armar el paquete de la API con los modelos reales, desplegarlo y probar una evaluación desde la URL.
+- Nombre del equipo y contribuciones.
+- Q-learning quedó desactualizado en DVC porque cambiaron las demostraciones del experto; falta decidir si se
+  reentrena o se deja documentado.
 
 ## Contribuciones
 
@@ -124,5 +175,7 @@ cómo desplegar y reproducir la solución. Usamos asistentes de código y verifi
 
 ## Siguiente hipótesis razonable
 
-Si se entrena en varias pistas generadas al azar, el agente debería completar un circuito que nunca vio. Se
-mediría con una pista reservada. Es la limitación más importante de este trabajo.
+La hipótesis anterior (entrenar en varias pistas para manejar una que nunca vio) ya se probó con la v6 y se
+cumplió. La siguiente: la v6 eligió su mejor punto del entrenamiento mirando solo sus pistas. Si se elige mirando
+también las pruebas extremas, y con varias semillas, un modelo debería completar la Sierra y volver a pasar el
+diluvio. Se mediría con los mismos criterios de selección, sin cambiarlos.

@@ -5,6 +5,7 @@
 <li>Abrir el catálogo y leer versión, ambiente, commit y SHA-256</li>
 <li>Cargar un modelo histórico y ver que se marca como tal</li>
 <li>Comparar la v1 con la versión recomendada, seco y lluvia</li>
+<li>Pista Puerto: la v5-s1 se sale y la v6 completa</li>
 </ul>
-<aside>La API corre en la misma URL, como función de Vercel: el catálogo evalúa en vivo y los deslizadores corren experimentos nuevos. Cada resultado dice motor (numpy para PPO), ambiente y commit. Si la API no responde, la web entra en replay y lo dice en la nota del panel. Antes de mover todos los deslizadores al extremo a la vez, avisar que combinados el modelo falla.</aside>
+<aside>La API corre en la misma URL, como función de Vercel: el catálogo evalúa en vivo y los deslizadores corren experimentos nuevos. Cada resultado dice motor (numpy para PPO), ambiente y commit. Si la API no responde, la web entra en replay y lo dice en la nota del panel. Antes de mover todos los deslizadores al extremo a la vez, avisar que combinados el modelo falla. Para el Puerto: abrir autonomous-rally.vercel.app/?pista=puerto, correr ppo-modelo-v5-s1 (en seco se sale a los 28.4 s) y después ppo-modelo-v6-pistas (78.8 s). La Sierra no está en el selector: es la prueba reservada.</aside>
 </section>
