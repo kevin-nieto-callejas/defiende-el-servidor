@@ -1,9 +1,9 @@
 {
-  "commit": "4ac65c14e786c915d83cf33e7dcb552557934a8f",
-  "fecha": "2026-11-09T21:27:58-0500",
+  "commit": "829481f7dfefe53acc44ea411239a391d052a369",
+  "fecha": "2026-11-10T21:42:16-0500",
   "destino": "vercel",
-  "huella_src": "36d60f4d2534ff8ee3064a1aa5e294c43baea3093e944120c32a3aa66d679fe1",
-  "huella_manifests": "054779fd81883bf91b52a0e50849b617d500cc4d3daaea76842c1d0d9d5665a0",
+  "huella_src": "d1c2447dfc5c203c0e39db172fe80d10944b8dc3b5577a224fe23b51177e59fe",
+  "huella_manifests": "7c0f040e503a30076b34fe15cddaac5bd6a61e612236e97dd68bcaeb8cbd9007",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
@@ -90,6 +90,20 @@
       "max_diferencia": 1.3113021850585938e-06,
       "motor": "numpy"
     },
+    "ppo-modelo-v6-pistas": {
+      "fuente_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
+      "npz_sha256": "971abab9a166794b7236b4234991936f90ec5cc90202d4f5e0e809a39a8a9ee6",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 7.152557373046875e-07,
+      "motor": "numpy"
+    },
     "ppo-modelo-v5-s1": {
       "fuente_sha256": "ea24b02d858695996fdc4b9bcff4cba7174ddd41e3acdf790c8a3b972a3edade",
       "npz_sha256": "ca35fe72cbcb86521008d9d93fc5c13efb577eac13fa3839853e8f58b7629690",
@@ -127,20 +141,6 @@
       "fuente_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
       "npz_sha256": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2",
       "motor": "tabla"
-    },
-    "ppo-modelo-v6-pistas": {
-      "fuente_sha256": "528ea053635d903d2a7319ae64ff263044dc7de61eccd2b20e89a6b703b69e8d",
-      "npz_sha256": "971abab9a166794b7236b4234991936f90ec5cc90202d4f5e0e809a39a8a9ee6",
-      "n_obs": 24,
-      "capas": [
-        256,
-        256,
-        2
-      ],
-      "activacion": "Tanh",
-      "observaciones_probadas": 6846,
-      "max_diferencia": 7.152557373046875e-07,
-      "motor": "numpy"
     }
   }
 }

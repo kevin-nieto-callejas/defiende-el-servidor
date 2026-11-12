@@ -4,7 +4,7 @@
   "lists": "css",
   "title": "Autonomous Rally: presentación final",
   "cover": "portada",
-  "order": ["portada", "mision", "contrato", "niveles", "evolucion", "enganoso", "fisica", "mejora", "semillas", "reservado", "tabla", "ciclo", "demo", "limites"],
+  "order": ["portada", "mision", "contrato", "niveles", "evolucion", "enganoso", "fisica", "mejora", "semillas", "reservado", "tabla", "pistas", "veredicto", "ciclo", "demo", "limites"],
   "sections": {
     "s1": {"description": "Qué problema resuelve el agente y con qué reglas", "start": "portada"},
     "s2": {"description": "Cómo evolucionaron los experimentos y qué falló", "start": "evolucion"},

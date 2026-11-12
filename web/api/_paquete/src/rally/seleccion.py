@@ -3,6 +3,8 @@
 `decidir` compara un candidato contra configs/seleccion.yaml y contra el recomendado actual.
 `promover` cambia manifests/recomendado.json y anota en historial.json; registrar un candidato
 no lo promueve. `volver` restaura la versión anterior del historial (rollback).
+`anotar` guarda cada veredicto, aceptado o rechazado, en decisiones.json. Va aparte del historial
+porque el rollback vuelve a la entrada anterior de historial.json, que solo tiene promociones.
 """
 import json
 import time
@@ -13,6 +15,7 @@ import yaml
 CRITERIOS = Path("configs/seleccion.yaml")
 RECOMENDADO = Path("manifests/recomendado.json")
 HISTORIAL = Path("manifests/historial.json")
+DECISIONES = Path("manifests/decisiones.json")
 
 
 def _leer(ruta, defecto=None):
@@ -58,6 +61,19 @@ def evaluar_candidato(nombre, tipo, semilla=None):
         evaluacion = {"resultados": {tipo: res}}
         generalizacion = {"pruebas": generalizacion["pruebas"], "resultados": {tipo: res}}
     return {**decidir(nombre, tipo, evaluacion, generalizacion, actual), "tipo": tipo}
+
+
+def anotar(veredicto):
+    """Guarda el veredicto en decisiones.json; repetir la misma evaluación no agrega otra entrada."""
+    decisiones = _leer(DECISIONES, [])
+    entrada = {k: veredicto[k] for k in ("candidato", "tipo", "aceptado", "criterios", "valores")}
+    previas = [d for d in decisiones if d["candidato"] == entrada["candidato"]]
+    if previas and all(previas[-1][k] == entrada[k] for k in entrada):
+        return previas[-1]
+    entrada |= {"criterios_de": str(CRITERIOS), "fecha": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+    decisiones.append(entrada)
+    _escribir(DECISIONES, decisiones)
+    return entrada
 
 
 def promover(nombre, motivo, resultados=None):

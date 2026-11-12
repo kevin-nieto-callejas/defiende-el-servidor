@@ -1,0 +1,9 @@
+{
+  "etapa": "registrar",
+  "fecha": "2026-11-10T21:42:15-0500",
+  "salida": [
+    "  manifests/ppo-modelo-v5-s2.json  72a62f8297e9",
+    "  manifests/qlearning-modelo-qlearning-v8-s1.json  fd6972e955a3",
+    "  manifests/qlearning-modelo-qlearning-v8-s2.json  3934927eb4c7"
+  ]
+}

@@ -24,5 +24,9 @@
 @media (max-width: 680px) {
   #catalogo { padding: 10px; font-size: 12px; }
   #catalogo th:nth-child(4), #catalogo td:nth-child(4), #catalogo th:nth-child(5), #catalogo td:nth-child(5) { display: none; }
+  /* En celular los botones Cargar y Evaluar quedaban fuera de la tabla: se apilan y sale la columna Nivel */
+  #catalogo th:nth-child(2), #catalogo td:nth-child(2) { display: none; }
+  .acciones-cat { white-space: normal; }
+  .acciones-cat button { display: block; width: 100%; margin: 0 0 4px; padding: 5px 6px; }
   #col-der { display: none; }
 }

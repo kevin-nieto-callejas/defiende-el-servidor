@@ -1,0 +1,25 @@
+{
+  "etapa": "publicar",
+  "fecha": "2026-11-10T21:42:16-0500",
+  "catalogo": "qlearning-modelo-qlearning-v8-s2",
+  "paquete_vercel": {
+    "commit": "829481f7dfefe53acc44ea411239a391d052a369",
+    "huella_src": "d1c2447dfc5c203c0e39db172fe80d10944b8dc3b5577a224fe23b51177e59fe",
+    "modelos": {
+      "ppo-experimento-v3": "8c67f7c943ed393ab298467773063c29d6f290e5cb63f25204ad37485b3a0e29",
+      "qlearning-modelo-qlearning-v6": "79b7dd80a6aadf42b0ec916c8112bcd839a4e86aa3958357a8cacd13d0d30da5",
+      "qlearning-modelo-qlearning-v7": "caf9718d2236d95ea91b71d7473e131a40e1c44ec886e1d1ecae4f8d36e8dc60",
+      "qlearning-modelo-qlearning-v8": "aff6a57f45ccf1093e127ec69c101d056cfb5ca81e230153c008bdc434720010",
+      "ppo-modelo-v1": "5f7f95e11e9537be60e12ecb2a2c06dc4d94e0fa26e9bd99576b3aa1b7cf4426",
+      "ppo-modelo-v2": "0b99f9d672efc1dabcf1ae71bf52b0c4f7a85eb8697309a9ea6f5c67b02241d2",
+      "ppo-modelo-v4": "59c955e004fb096876bd522b186fa5979aa12122c9c4ad7661a43273ebbe3398",
+      "ppo-modelo-v5": "14acf2652fbe14e13306fef76d474523676021ecc3665e01f1f6599a106b6b5c",
+      "ppo-modelo-v6-pistas": "971abab9a166794b7236b4234991936f90ec5cc90202d4f5e0e809a39a8a9ee6",
+      "ppo-modelo-v5-s1": "ca35fe72cbcb86521008d9d93fc5c13efb577eac13fa3839853e8f58b7629690",
+      "ppo-modelo-v5-s2": "5e2d568aa59517f274f382eaa1f404381aad0ae0d2b1a1ea849f9d631ffd44cf",
+      "qlearning-modelo-qlearning-v8-s1": "4020e3df63e23cc3a65e25a0951d06c2e1a65895f8343a5b8efb84ae060602b4",
+      "qlearning-modelo-qlearning-v8-s2": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2"
+    }
+  },
+  "siguiente_paso": "revisar el diff, hacer commit y push a la rama de Vercel; luego --comprobar <url>"
+}

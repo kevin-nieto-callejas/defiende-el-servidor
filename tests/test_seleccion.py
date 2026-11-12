@@ -75,3 +75,26 @@ def test_rollback_sin_anterior_falla(tmp_path, monkeypatch):
     seleccion.promover("v4", "gana")
     with pytest.raises(ValueError):
         seleccion.volver("incidente")
+
+
+def test_rechazo_queda_anotado_sin_tocar_historial_ni_rollback(tmp_path, monkeypatch):
+    for nombre in ("RECOMENDADO", "HISTORIAL", "DECISIONES"):
+        monkeypatch.setattr(seleccion, nombre, tmp_path / f"{nombre}.json")
+    seleccion.promover("a", "inicial")
+    seleccion.promover("b", "mejor")
+    malo = seleccion.decidir("c", "ppo", _eval(100, 100), _gen({"a": 100, "b": 0})) | {"tipo": "ppo"}
+    seleccion.anotar(malo)
+    seleccion.anotar(malo)   # repetir la misma evaluación no duplica
+    d = json.loads((tmp_path / "DECISIONES.json").read_text(encoding="utf-8"))
+    assert len(d) == 1 and d[0]["candidato"] == "c" and d[0]["aceptado"] is False
+    assert seleccion.volver("prueba")["modelo"] == "a"   # el rollback sigue usando solo promociones
+
+
+def test_manifiestos_tienen_todos_los_campos_del_enunciado():
+    from pathlib import Path
+    pide = ("run_id level_id environment_version git_commit config_sha256 model_uri model_sha256 "
+            "normalization_uri runtime_ref evaluation_suite_id seed parent_run_id").split()
+    for ruta in Path("manifests").glob("*-*.json"):
+        m = json.loads(ruta.read_text(encoding="utf-8"))
+        assert set(pide) <= set(m), ruta
+        assert m["normalization_uri"] and m["parent_run_nota"], ruta   # parent_run_id nulo, pero explicado

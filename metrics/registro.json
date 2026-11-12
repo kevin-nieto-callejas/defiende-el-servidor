@@ -5,12 +5,5 @@
     "alias": "champion",
     "puntaje": 199.0,
     "protocolo_aceptado": true
-  },
-  "ppo": {
-    "modelo": "rally-ppo",
-    "version": "5",
-    "alias": "challenger",
-    "puntaje": 200.0,
-    "protocolo_aceptado": true
   }
 }

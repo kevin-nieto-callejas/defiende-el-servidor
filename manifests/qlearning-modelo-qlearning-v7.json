@@ -15,11 +15,13 @@
   "model_sha256": "044117e0b142baebd3064af0b9d0e3ba937744dcfde98048c0d4c5cc3ea9bb25",
   "mlflow_modelo": "rally-qlearning",
   "mlflow_version": 7,
-  "normalization_uri": null,
+  "normalization_uri": "git://src/rally/env.py@9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
+  "normalizacion": "Sin VecNormalize ni estadísticas aprendidas: el ambiente entrega las observaciones ya escaladas con divisores fijos (orden y divisores en contrato.orden)",
   "runtime_ref": "requirements.txt y pyproject.toml en 9b1fbb4fd8c65d05befa746a2ba91fbf88fddde3",
   "evaluation_suite_id": "ficha-100-semillas-0-99",
   "seed": 0,
   "parent_run_id": null,
+  "parent_run_nota": "Sin run padre: se entrenó desde cero (imitación y refuerzo en el mismo run), sin heredar pesos",
   "origen": "desde cero con imitación",
   "presupuesto": {
     "episodios": 1240,
@@ -77,5 +79,9 @@
       "recompensa_media": 117.12,
       "progreso_pct": 91.8
     }
-  }
+  },
+  "pistas_entrenamiento": [
+    "monaco"
+  ],
+  "entrenamiento_plataforma": null
 }

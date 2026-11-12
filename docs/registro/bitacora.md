@@ -134,7 +134,18 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   código: la geometría difiere en el último bit. Las demostraciones del experto dan las mismas 20 904 acciones
   en las dos plataformas. El manifiesto de la v6 dice en qué máquina se entrenó.
 
-## 5 de noviembre
+## 10 de noviembre: Q-learning sin reentrenar
+
+- Al unir el experimento v6, DVC marcó la etapa `qlearning` como desactualizada: cambiaron `demos.npz` (se
+  regeneró en el Mac) y cuatro archivos de código (`env.py`, `track.py`, `pipeline.py`, `qlearning.py`). El
+  flujo de selección habría corrido `dvc repro` y reentrenado Q-learning por horas.
+- Comprobamos que ninguno de los dos cambios altera el modelo. `agentes/qlearning.py` no lee `demos.npz` (la
+  etapa solo lo registra en MLflow), y las demostraciones del Mac tienen las mismas 20 904 acciones que las de
+  Linux. Para el código, entrenamos Q-learning recortado (2 iteraciones de DAgger y 30 episodios) con el código
+  anterior al experimento (`b4e00f2`) y con el actual, en la misma máquina: la tabla Q y las visitas salieron
+  idénticas byte a byte (`scripts/analisis/comparar_qlearning.py`).
+- Con esa evidencia registramos la etapa con `dvc commit qlearning`, sin reentrenar: en `dvc.lock` cambian solo
+  los hashes de las dependencias, y la salida `models/qlearning` sigue siendo `993f3455…`.
 
 - La API se publica como función de Vercel, en el mismo dominio de la web: es gratis y cumple lo que pide el
   enunciado sin contratar un servicio. PyTorch no cabe en una función, así que la red de PPO se exporta a numpy
@@ -165,3 +176,21 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - La generalización tardó 4 h 40 min sin terminar: cada proceso abría ~8 hilos de PyTorch para cálculos diminutos.
   Con `OMP_NUM_THREADS=1` y 10 procesos terminó en 25 min. Antes, el computador estuvo suspendido 8 horas porque
   se desconectó el cargador; la evaluación siguió sin perder nada al reanudar.
+- Manifiestos: `normalization_uri` y `parent_run_id`, que pide el enunciado, estaban vacíos. Ahora
+  `normalization_uri` apunta al código del ambiente, que es donde está la escala (no hay VecNormalize), y
+  `parent_run_id` va vacío con una nota: ningún modelo hereda pesos; la v6 se reanudó desde el paso 400 008 de un
+  run interrumpido cuyo id no quedó guardado. Una prueba revisa los 12 campos en todos los manifiestos.
+- El generador creaba `qlearning-modelo-v6-pistas.json`, que era la tabla de Q-learning v8 con otro nombre (mismo
+  SHA-256 y mismo run). Se excluyó.
+- Cada veredicto de selección queda en `manifests/decisiones.json` (`rally seleccionar --anotar`). No va en
+  `historial.json` porque el rollback vuelve a la entrada anterior del historial, que debe ser una promoción.
+- Flujo de Prefect sin entrenar con la v6 de candidata: la rechazó sin intervención y la API siguió sirviendo la
+  v5-s1 (evidencia en `docs/evidencia/flujo-rechazo-v6/`). El primer intento lo detuvo el propio flujo en las
+  pruebas: el código había cambiado y el paquete de la API de Vercel no. Se rearmó y pasó.
+- `dvc status` limpio sin reentrenar. Se volvieron a correr `datos`, `evaluar` y `generalizacion`: `demos.npz`
+  salió con el mismo hash con que se entrenó Q-learning (la copia del Mac tenía los mismos datos con otros bytes) y
+  las métricas, 11 500 vueltas, salieron idénticas a las publicadas. `qlearning` quedó registrada con la
+  evidencia del PR #4 y `ppo` con `dvc commit`: el único cambio en `track.py` es el nombre para mostrar, que solo
+  usa la web, y con DAgger el PPO no lee `demos.npz`.
+- Al volver a correr `registrar`, el alias `@champion` de `rally-qlearning` pasó de la versión 9 (semilla 1, la
+  elegida) a la 8 (semilla 0, la de `models/qlearning`). Se devolvió a la 9 y quedó anotado en el resumen.
