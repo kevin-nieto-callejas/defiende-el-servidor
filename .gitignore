@@ -15,6 +15,8 @@ __pycache__/
 !/models/.gitkeep
 # Control del experimento v6: lo versiona DVC con este archivo
 !/models/control-ppo-monaco.dvc
+# Semilla 1 de la v6 y del control (entrenadas en GitHub Actions)
+!/models/semillas-v6.dvc
 
 # MLflow local
 mlruns/
