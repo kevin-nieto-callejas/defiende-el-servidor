@@ -54,6 +54,18 @@ FINALISTAS = Path("finalistas")   # semillas 1 y 2: DVC las versiona con finalis
 FAMILIA = {"ppo": "modelo-v5", "qlearning": "modelo-qlearning-v8"}
 METRICAS = {"ppo": Path("metrics/semillas.json"), "qlearning": Path("metrics/semillas-qlearning.json")}
 ELEGIDA = {"ppo": 1, "qlearning": 1}   # por configs/seleccion.yaml: más vueltas y luego menor tiempo
+# Otras semillas de la v6, entrenadas en GitHub Actions (.github/workflows/semillas-v6.yml) y versionadas
+# con models/semillas-v6.dvc. Sus resultados son los de la fase A en Linux con la red en numpy.
+SEMILLAS_V6 = {
+    "ppo-modelo-v6-pistas-s1": {
+        "carpeta": Path("models/semillas-v6/v6-s1"), "seed": 1, "decision": "candidato",
+        "run_id": "65771e5dc18146f9ac59caaf44214212",   # en DagsHub, con la etiqueta origen_run_id
+        "git_commit": "a193a45805a863c199eddcca7b1cbcb54b86042a",
+        "resultados": ("metrics/semillas-v6.json", "v6-pistas-s1"),
+        "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 42948616971",
+                       "python": "3.14", "torch": "2.15.0+cpu", "stable_baselines3": "2.9.2"},
+    },
+}
 
 
 def _git(*a):
@@ -160,6 +172,30 @@ def manifiesto_finalista(tipo, s):
             "presupuesto": {}, "resultados": {"seco": res["seco"], "mojado": res["mojado"]}}
 
 
+def manifiesto_semilla_v6(nombre):
+    """Otra semilla de la v6: contrato, ambiente e hipótesis de su familia; pesos, run y resultados propios."""
+    c = SEMILLAS_V6[nombre]
+    pesos = c["carpeta"] / ARCHIVO["ppo"]
+    info = json.loads((c["carpeta"] / "info.json").read_text(encoding="utf-8"))
+    archivo, clave = c["resultados"]
+    res = json.loads(Path(archivo).read_text(encoding="utf-8"))["resultados"][clave]["monaco"]
+    datos = pesos.read_bytes()
+    etiqueta = nombre.removeprefix("ppo-")
+    return {**manifiesto("modelo-v6-pistas", "ppo"), "nombre": nombre, "etiqueta_git": etiqueta,
+            "run_id": c["run_id"], "git_commit": c["git_commit"], "seed": c["seed"], "decision": c["decision"],
+            "ambiente_huella": info.get("ambiente_huella"),
+            "normalization_uri": f"git://src/rally/env.py@{c['git_commit']}",
+            "parent_run_nota": _padre(info),
+            "model_uri": f"dvc://{pesos}@{etiqueta}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
+            "model_sha256": hashlib.sha256(datos).hexdigest(), "mlflow_modelo": None, "mlflow_version": None,
+            "presupuesto": {k: v for k, v in info.items() if k in ("pasos", "episodios", "segundos")},
+            "pistas_entrenamiento": info.get("pistas_entrenamiento"),
+            "entrenamiento_plataforma": c["plataforma"],
+            "resultados": {k: {"vueltas_pct": res[k]["vueltas_pct"], "tiempo_mediano_s": res[k]["tiempo_mediano_s"],
+                               "progreso_pct": res[k]["progreso_medio_pct"]} for k in ("seco", "mojado")},
+            "resultados_fuente": f"{archivo} (fase A en Linux, red en numpy)"}
+
+
 def generar(revisiones=None):
     revisiones = revisiones or [t for t in _git("tag", "-l").split() if t in VERSIONES]
     SALIDA.mkdir(exist_ok=True)
@@ -183,5 +219,10 @@ def generar(revisiones=None):
     for carpeta in sorted(FINALISTAS.glob("*-s*")):
         tipo, s = carpeta.name.rsplit("-s", 1)
         agregar(manifiesto_finalista(tipo, int(s)))
+    for nombre, c in SEMILLAS_V6.items():
+        if (c["carpeta"] / ARCHIVO["ppo"]).exists():
+            agregar(manifiesto_semilla_v6(nombre))
+        else:
+            print(f"  {nombre}: sin pesos (dvc pull models/semillas-v6.dvc)")
     (SALIDA / "catalogo.json").write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
     return catalogo

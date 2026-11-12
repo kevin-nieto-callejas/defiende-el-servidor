@@ -1,9 +1,9 @@
 {
-  "commit": "d965f00ceddea97a3b7447215f946eab4596b12b",
-  "fecha": "2026-11-12T11:35:24-0500",
+  "commit": "37768c77af6417dc49696a9ede0683037c62ca10",
+  "fecha": "2026-11-12T11:43:05-0500",
   "destino": "vercel",
-  "huella_src": "d1c2447dfc5c203c0e39db172fe80d10944b8dc3b5577a224fe23b51177e59fe",
-  "huella_manifests": "288c25a43451d500ebfabfba902c0010c99a741d9ca18bef98d769e48f320298",
+  "huella_src": "1d97a91ecdd43634806545ad79c18781bc658cc83705b5401580edf532d8196a",
+  "huella_manifests": "357b767d4e4640d0613512fc8274962304db442a6e61671f0f0fff6456842b8a",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
@@ -141,6 +141,20 @@
       "fuente_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
       "npz_sha256": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2",
       "motor": "tabla"
+    },
+    "ppo-modelo-v6-pistas-s1": {
+      "fuente_sha256": "1f68d191777373d5811c205ce23650558dd0cf2ac55d6fd50156be20c1c94edf",
+      "npz_sha256": "eeed0ea3397127360c29be8718d151ae97aa09db37e8ae16d0282f56e839204e",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 5.960464477539062e-07,
+      "motor": "numpy"
     }
   }
 }
