@@ -166,16 +166,75 @@ La lectura completa es más fina que "entrenar en más pistas generaliza":
    final (su mejor punto es el paso 3 000 000) y es 11 % más rápida que el control en la Sierra (68.8 contra
    77.3 s en seco, 88.0 contra 99.4 s con lluvia), sin perder vueltas en ninguna pista.
 
+## Selección oficial: la v6 no se promueve (10 de noviembre)
+
+Kevin corrió el protocolo oficial con la v6 en `models/ppo` (`dvc repro -s evaluar` y `-s generalizacion`, en
+Linux) y después `rally seleccionar`. En la ficha dio 100 % en seco (69.8 s) y 100 % con lluvia, igual que en el
+Mac. Pero en las 19 pruebas extremas promedió **79.2 %** (mínimo 85 %), y su peor prueba, diluvio, dio **0 %**
+(mínimo 50 %); también cayó en límite de lluvia (14 %), pista angosta en seco (5 %) y sensores cortos con lluvia
+(0 %). No pasa la selección, y el recomendado sigue siendo `ppo-modelo-v5-s1`.
+
+Eso abrió una pregunta: ¿la v6 cae en los extremos por practicar en tres pistas, por haberse entrenado en el Mac
+o por su semilla?
+
+## Segunda semilla y pruebas extremas (`metrics/semillas-v6.json`, `metrics/generalizacion-v6-control.json`)
+
+Entrenamos la v6 y el control con la **semilla 1** en GitHub Actions (`.github/workflows/semillas-v6.yml`, run
+`42948616971`, Ubuntu con el `requirements.txt` del proyecto), con la misma configuración. Los modelos están en
+DVC (`models/semillas-v6.dvc`; v6-s1 `1f68d191…`, control-s1 `9c00b8b1…`) y las corridas, en MLflow de
+DagsHub (`ppo-v6-s1` y `ppo-control-s1`). Los evaluamos en las pistas de la fase A, **sin la Sierra**, que ya
+se usó una vez, y corrimos las 21 pruebas de `rally seleccionar` con los cuatro modelos
+(`scripts/analisis/generalizacion_modelos.py`, mismas semillas y mismo ruido que la etapa `generalizacion`; con
+la v6 semilla 0 da 78.9 %, cerca del 79.2 % de Kevin en Linux).
+
+**Fase A, semilla 1** (vueltas en 100 semillas, seco / lluvia):
+
+| Modelo | Mónaco | Bosque | Puerto | Puerto r9.5 |
+|---|---|---|---|---|
+| v6, semilla 1 | 100 / 100 · 80.4 / 104.8 s | 100 / 100 | 100 / 100 | 100 / 100 |
+| Control, semilla 1 | 100 / 100 · 81.5 / 104.7 s | **0 / 0** | 100 / **0** | 100 / **0** |
+
+**Pruebas extremas** (promedio de las 19 calificadas y peor prueba):
+
+| Modelo | Dónde se entrenó | Mejor punto del entrenamiento | Promedio | Peor prueba |
+|---|---|---|---|---|
+| v6, semilla 0 | Mac | paso 3 000 000 | **78.9 %** | diluvio, 0 % |
+| v6, semilla 1 | GitHub Actions | paso 200 004 | **100 %** | ninguna por debajo de 100 % |
+| Control, semilla 0 | Mac | paso 400 008 | 98.0 % | sensores largos con lluvia, 62 % |
+| Control, semilla 1 | GitHub Actions | paso 0 | 94.7 % | sensores cortos con lluvia, 0 % |
+
+Lo que enseña:
+
+1. **Practicar en tres pistas da un resultado estable; practicar solo en Mónaco, no.** Las dos semillas de la v6
+   completan las cuatro pistas de la fase A en seco y con lluvia. El control cambia mucho de una semilla a otra:
+   la semilla 0 completa el Puerto y choca con lluvia en el Bosque (30 %); la semilla 1 no termina nunca el
+   Bosque y no completa el Puerto con lluvia. Que el control semilla 0 completara la Sierra fue, en parte,
+   suerte de la semilla.
+2. **La caída de la v6 en los extremos no se debe a las tres pistas ni al Mac.** La v6 semilla 1 aguanta las 19
+   pruebas al 100 %, y el control semilla 0, entrenado en el mismo Mac que la v6 semilla 0, promedia 98 %.
+3. **Lo que distingue a la v6 semilla 0 es cuánto afinó con PPO.** Es la única cuyo mejor punto fue el final
+   (paso 3 000 000); en los otros tres, el mejor punto quedó cerca de la red recién imitada del maestro (paso
+   400 008 o antes). También es la más rápida (69.8 s en Mónaco, contra 79.6 a 81.5 s de los otros tres). Nuestra hipótesis es que
+   afinar mucho con PPO cambia robustez en condiciones extremas por velocidad. Con dos semillas no lo podemos
+   separar del azar de la semilla, y no lo comprobamos.
+4. **La v6 semilla 1 cumpliría los criterios de `configs/seleccion.yaml`** según estas mediciones: 100 % en seco
+   y con lluvia, 80.4 s en seco (máximo 81.3 s), 100 % en extremos (mínimo 85 %) y peor prueba 100 % (mínimo
+   50 %). La decisión sigue siendo del flujo oficial de selección, que debe correrla con su propio protocolo.
+   Ojo: la v6 semilla 1 **no tiene prueba en una pista que nunca vio**. Para ella, el Bosque y el Puerto son de
+   entrenamiento, y la Sierra ya se usó; su capacidad de manejar pistas nuevas se apoya en el resultado de la
+   semilla 0 en la Sierra y en que la misma configuración se comporta igual en las dos semillas.
+
 ## Errores que aceptamos y límites
 
-- **Una semilla por modelo.** La v5 y la v5-s1 muestran que la semilla puede cambiar el resultado en una
-  pista nueva. Para afirmar que la v6 generaliza mejor en general hacen falta más semillas del control y de la
-  v6 (`rally semillas`), y no lo hicimos por tiempo de cómputo (unas 3 horas por modelo en el Mac).
+- **Dos semillas por modelo.** La segunda semilla confirmó que la v6 es estable en las pistas de la fase A y que
+  el control no lo es, pero con dos semillas no podemos separar el efecto de afinar con PPO del azar de la
+  semilla. La semilla 1 se entrenó en Linux (GitHub Actions) y la semilla 0 en el Mac.
 - **Cuatro pistas, todas del mismo generador.** Rectas y arcos de radio constante, con escape y muro igual de
   anchos; la Sierra es nueva pero de la misma familia. No probamos curvas de radio variable, pendientes ni
   pistas mucho más largas.
-- **La regla de elección no miró las pruebas extremas** (ruido, ancho, alcance de sensores) de la ficha. La
-  v6 entra al catálogo como **candidata**; promoverla es del flujo de selección (`configs/seleccion.yaml`).
+- **La regla de elección no miró las pruebas extremas** (ruido, ancho, alcance de sensores) de la ficha, y por
+  eso la v6 semilla 0 ganó la fase A y después no pasó la selección oficial. Una próxima regla de elección debería
+  incluir las pruebas extremas desde el principio.
 - **Plataforma.** El control y la v6 se entrenaron en macOS (Intel) con PyTorch 2.2.2 y numpy 1.26; las v5,
   en WSL con PyTorch 2.15. La huella del ambiente cambia entre plataformas (`d56c0fcd9d9d` en macOS,
   `61fa0dd41b7c` en Linux) porque la geometría difiere en el último bit; las demostraciones del experto dan

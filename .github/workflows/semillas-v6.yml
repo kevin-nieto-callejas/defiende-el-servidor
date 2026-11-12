@@ -6,17 +6,13 @@
 #   extremos     las 21 pruebas de generalización de params.yaml con la v6 y el control, semillas 0 y 1
 #   guardar      sube las métricas a esta rama con un commit
 #
-# Corre con cada push a la rama semillas-v6 que cambie este archivo o los scripts que usa.
+# Ya corrió una vez (run 42948616971, 11 de noviembre de 2026) y sus resultados están en metrics/. Ahora solo
+# se lanza a mano (Actions → Semillas v6 → Run workflow), para que un push no vuelva a entrenar y sobrescriba
+# las métricas publicadas.
 name: Semillas v6
 
 on:
-  push:
-    branches: [semillas-v6]
-    paths:
-      - .github/workflows/semillas-v6.yml
-      - scripts/analisis/entrenar_semilla.py
-      - scripts/analisis/sobreajuste_pistas.py
-      - scripts/analisis/generalizacion_modelos.py
+  workflow_dispatch:
 
 env:
   MLFLOW_DISABLE_AGENT_HINT: "1"

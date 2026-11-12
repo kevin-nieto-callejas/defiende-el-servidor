@@ -160,6 +160,23 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   se pudo construir la imagen porque el registro de Docker estaba bloqueado en el entorno de trabajo.
 - Las tablas Q anteriores a la v6 ahora responden 409 en la API (antes, 503 por pesos no encontrados).
 
+## 11 y 12 de noviembre: segunda semilla en GitHub Actions (Miguel)
+
+- Entrenamos la v6 y el control con la semilla 1 en GitHub Actions (`.github/workflows/semillas-v6.yml`), para
+  no depender de la batería ni del calor del Mac. Allá DAgger tardó de 9 a 20 minutos (en el Mac, unas 3.5 horas)
+  y cada modelo terminó en poco más de una hora. Un primer intento con "ensayo corto" corrió completo porque la
+  condición no se aplicó; lo cancelamos y quitamos ese modo.
+- Fase A con la semilla 1: la v6 completa Mónaco, Bosque, Puerto y Puerto r9.5 en seco y con lluvia, igual que la
+  semilla 0. El control no: 0 % en el Bosque y 0 % con lluvia en el Puerto. Practicar en tres pistas da un
+  resultado estable entre semillas; practicar solo en Mónaco, no.
+- Las 21 pruebas extremas con los cuatro modelos: v6-s0 78.9 % (diluvio 0 %), v6-s1 **100 %**, control-s0 98.0 %,
+  control-s1 94.7 % (sensores cortos con lluvia 0 %). La caída de la v6-s0 no viene de las tres pistas ni del Mac;
+  lo que la distingue es que es la única que afinó con PPO hasta el final (y la más rápida).
+- La v6-s1 cumpliría `configs/seleccion.yaml` según estas mediciones (80.4 s en seco, máximo 81.3 s). Queda para
+  el flujo oficial. No tiene prueba en una pista nueva: la Sierra ya se usó.
+- Modelos en DVC (`models/semillas-v6.dvc`, subidos a DagsHub) y corridas copiadas a MLflow de DagsHub. Detalle en
+  [experimentos/v6-pistas.md](../experimentos/v6-pistas.md).
+
 ## 10 de noviembre
 
 - Se unió el PR #3 de Miguel: selector de pista en la web y la API (Mónaco, Bosque y Puerto; la Sierra responde
