@@ -160,6 +160,16 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   se pudo construir la imagen porque el registro de Docker estaba bloqueado en el entorno de trabajo.
 - Las tablas Q anteriores a la v6 ahora responden 409 en la API (antes, 503 por pesos no encontrados).
 
+## 12 de noviembre: la v6 semilla 1 pasa la selección y el test reservado, y se promueve (Miguel)
+
+- Con `seleccion.decidir` y `configs/seleccion.yaml`, la v6 semilla 1 cumple los 7 criterios; anotado en
+  `decisiones.json`. Se registró en el catálogo como candidata, con etiqueta `modelo-v6-pistas-s1` y su red numpy en
+  el paquete de la API.
+- Test reservado con una semilla nueva (en el `.env` de Miguel; no se pudo crear como secreto de GitHub desde la
+  sesión): 100 % en seco, 100 % con lluvia y 100 % en las 19 pruebas extremas. Regla fijada antes (`5ed48de`).
+- Promovida con `seleccion.promover`. Es el primer modelo que maneja pistas nuevas y aguanta las condiciones
+  extremas. Falta publicarla en Vercel desde el fork y en Hugging Face.
+
 ## 11 y 12 de noviembre: segunda semilla en GitHub Actions (Miguel)
 
 - Entrenamos la v6 y el control con la semilla 1 en GitHub Actions (`.github/workflows/semillas-v6.yml`), para

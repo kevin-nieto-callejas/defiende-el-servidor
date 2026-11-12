@@ -58,10 +58,11 @@ ELEGIDA = {"ppo": 1, "qlearning": 1}   # por configs/seleccion.yaml: más vuelta
 # con models/semillas-v6.dvc. Sus resultados son los de la fase A en Linux con la red en numpy.
 SEMILLAS_V6 = {
     "ppo-modelo-v6-pistas-s1": {
-        "carpeta": Path("models/semillas-v6/v6-s1"), "seed": 1, "decision": "candidato",
+        "carpeta": Path("models/semillas-v6/v6-s1"), "seed": 1, "decision": "aceptado",   # promovida el 12-nov-2026
         "run_id": "65771e5dc18146f9ac59caaf44214212",   # en DagsHub, con la etiqueta origen_run_id
         "git_commit": "a193a45805a863c199eddcca7b1cbcb54b86042a",
         "resultados": ("metrics/semillas-v6.json", "v6-pistas-s1"),
+        "test_reservado": "metrics/test-final-v6-s1.json",
         "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 42948616971",
                        "python": "3.14", "torch": "2.15.0+cpu", "stable_baselines3": "2.9.2"},
     },
@@ -193,7 +194,20 @@ def manifiesto_semilla_v6(nombre):
             "entrenamiento_plataforma": c["plataforma"],
             "resultados": {k: {"vueltas_pct": res[k]["vueltas_pct"], "tiempo_mediano_s": res[k]["tiempo_mediano_s"],
                                "progreso_pct": res[k]["progreso_medio_pct"]} for k in ("seco", "mojado")},
-            "resultados_fuente": f"{archivo} (fase A en Linux, red en numpy)"}
+            "resultados_fuente": f"{archivo} (fase A en Linux, red en numpy)",
+            "test_reservado": _test_reservado(c.get("test_reservado"), nombre)}
+
+
+def _test_reservado(ruta, nombre):
+    """Resumen del test reservado (una sola corrida, semillas secretas), si ya se corrió."""
+    if not ruta or not Path(ruta).exists():
+        return None
+    t = json.loads(Path(ruta).read_text(encoding="utf-8"))
+    r = t["resultados"][nombre]
+    return {"archivo": ruta, "semillas_sha256": t["semillas_sha256"], "fecha": t["fecha"],
+            "seco": r["seco"]["vueltas_pct"], "mojado": r["mojado"]["vueltas_pct"],
+            "tiempo_seco_s": r["seco"]["tiempo_mediano_s"],
+            "pruebas_extremas_bajo_100": [n for n, v in r.items() if n not in ("seco", "mojado") and v["vueltas_pct"] < 100]}
 
 
 def generar(revisiones=None):

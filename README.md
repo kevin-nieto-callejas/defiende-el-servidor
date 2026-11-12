@@ -122,11 +122,12 @@ son pilotos de referencia.
 | `modelo-v4` | DAgger corrige los errores | 100 % / 100 %, pero falla en extremos | Aceptado |
 | `modelo-qlearning-v6` | Imitación tabular | 60 % / 15 % | Reemplazado |
 | `modelo-v5` (semilla 0) | Conocer el carro y practicar todos los deslizadores con ruido | 100 % / 100 %, 75.9 s y 92.0 s; 98.5 % en extremos | Candidato |
-| **`ppo-modelo-v5-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 68.6 s y 89.3 s; 100 % en extremos | **Recomendado** |
+| `ppo-modelo-v5-s1` | Misma configuración, semilla 1 | 100 % / 100 %, 68.6 s y 89.3 s; 100 % en extremos; 0 % en Puerto y Sierra | Recomendado hasta el 12 de noviembre |
 | `modelo-qlearning-v7` | Ver el margen de frenada y medir el pedal en m/s² | 87 % / 81 %; 64.8 % en extremos | Reemplazado |
 | `modelo-qlearning-v8` (semilla 0) | Practicar con carros lentos y ruido | 99 % / 100 %; 85.0 % en extremos | Candidato |
 | **`qlearning-modelo-qlearning-v8-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 81.0 s y 106.9 s; 85.9 % en extremos | **Elegido de su agente** |
-| `ppo-modelo-v6-pistas` | Practicar en tres pistas (Mónaco, Bosque y Puerto) evita memorizar Mónaco | 100 % / 100 %, 69.8 s y 86.6 s; **100 % / 100 % en la Sierra, que nunca vio** (v5-s1: 0 %) | Candidato |
+| `ppo-modelo-v6-pistas` | Practicar en tres pistas (Mónaco, Bosque y Puerto) evita memorizar Mónaco | 100 % / 100 %, 69.8 s y 86.6 s; 100 % / 100 % en la Sierra, que nunca vio (v5-s1: 0 %); 79.2 % en extremos | Rechazado |
+| **`ppo-modelo-v6-pistas-s1`** | Misma configuración, semilla 1 (entrenada en GitHub Actions) | **100 % / 100 %**, 80.4 s y 104.8 s; **100 % en extremos**; completa Mónaco, Bosque y Puerto | **Recomendado** |
 
 Resultados: seco / lluvia con 100 vueltas por condición. Las semillas 1 y 2 están en `finalistas/`, versionadas con
 DVC. Los detalles, las pruebas de extremos y los límites están en la ficha.
@@ -139,6 +140,8 @@ límites en [docs/experimentos/v6-pistas.md](docs/experimentos/v6-pistas.md).
 **Test reservado** (`rally test-final`, una sola corrida, semillas fuera del repositorio):
 PPO semilla 1 dio 100 % / 100 % y 99.9 % en extremos; Q-learning semilla 1, 99 % / 99 % y 84.8 %. Resultado en
 [metrics/test-final.json](metrics/test-final.json).
+La v6 semilla 1 tiene su propio test reservado, con una semilla nueva que nadie vio y una sola corrida: 100 % /
+100 % y 100 % en las 19 pruebas extremas ([metrics/test-final-v6-s1.json](metrics/test-final-v6-s1.json)).
 
 La evidencia del flujo de Prefect y del rollback de v5 a v4 y de vuelta está en
 [docs/evidencia/flujo/](docs/evidencia/flujo/) y [manifests/historial.json](manifests/historial.json).

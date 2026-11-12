@@ -1,6 +1,6 @@
 {
-  "modelo": "ppo-modelo-v5-s1",
-  "motivo": "cumple configs/seleccion.yaml",
+  "modelo": "ppo-modelo-v6-pistas-s1",
+  "motivo": "cumple configs/seleccion.yaml (decisiones.json) y el test reservado (metrics/test-final-v6-s1.json)",
   "resultados": {
     "seco": {
       "vueltas_pct": 100.0
@@ -9,5 +9,5 @@
       "vueltas_pct": 100.0
     }
   },
-  "fecha": "2026-11-01T21:57:41-0500"
+  "fecha": "2026-11-12T18:54:03-0500"
 }

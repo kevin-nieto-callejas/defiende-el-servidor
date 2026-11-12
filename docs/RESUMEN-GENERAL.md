@@ -39,8 +39,8 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 
 | Dato | Valor |
 |---|---|
-| Modelo recomendado | `ppo-modelo-v5-s1`: red neuronal PPO, versión 5, semilla 1 |
-| Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
+| Modelo recomendado | `ppo-modelo-v6-pistas-s1`: PPO entrenada en tres pistas, semilla 1 (desde el 12 de noviembre; antes, `ppo-modelo-v5-s1`) |
+| Resultado en el test reservado | v6-s1: 100 % en seco (80.4 s), 100 % con lluvia y 100 % en 19 pruebas extremas. v5-s1: 100 %, 100 % y 99.9 % |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
 | ¿Memorizó Mónaco? | La v5-s1 sí: 0 % en el Puerto y en la Sierra (pista reservada) |
 | Experimento más reciente | `ppo-modelo-v6-pistas`: entrenada en tres pistas, maneja en una pista que nunca vio (100 %), pero **no pasa la selección**: cae en condiciones extremas de Mónaco (sección 7.7) |

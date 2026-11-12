@@ -262,6 +262,21 @@ publica solo su SHA-256. El test corre una vez (`scripts/analisis/test_final_npz
 de al menos 85 % y ninguna prueba por debajo de 50 %). Si los cumple, la v6 semilla 1 se promueve a recomendada;
 si no, queda como candidata y el recomendado sigue siendo `ppo-modelo-v5-s1`.
 
+## Test reservado y promoción de la v6 semilla 1 (12 de noviembre)
+
+El test corrió una sola vez, con 100 semillas secretas (SHA-256 `541487e6…`) y la red en numpy en el Mac:
+
+| Seco | Lluvia | Pruebas extremas | Peor prueba |
+|---|---|---|---|
+| 100 % · 80.4 s | 100 % · 104.8 s | 100 % (19 de 19 en 100 %) | 100 % |
+
+Cumple los cinco umbrales de la regla fijada en `5ed48de`, así que **la v6 semilla 1 se promovió a recomendada**
+con `seleccion.promover`. Quedó como la entrada más reciente de `manifests/historial.json`; el rollback a la v5-s1
+sigue disponible con `rally seleccionar --rollback "motivo"`. Su manifiesto pasa a `aceptado` y guarda el resumen
+del test. El test corrió en el Mac, mientras que la v5-s1 tuvo el suyo en Linux; las diferencias de plataforma que
+medimos fueron de 2 a 4 puntos en pruebas límite, y aquí ninguna prueba bajó de 100 %. Los 16 769 segundos que
+registra el archivo incluyen horas en que el Mac estuvo suspendido por batería.
+
 ## Errores que aceptamos y límites
 
 - **Dos semillas por modelo.** La segunda semilla confirmó que la v6 es estable en las pistas de la fase A y que

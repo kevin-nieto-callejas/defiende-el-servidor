@@ -1,9 +1,9 @@
 {
-  "commit": "37768c77af6417dc49696a9ede0683037c62ca10",
-  "fecha": "2026-11-12T11:43:05-0500",
+  "commit": "5ed48de3c89b93388cebb958f961b75f96b24887",
+  "fecha": "2026-11-12T18:54:24-0500",
   "destino": "vercel",
-  "huella_src": "1d97a91ecdd43634806545ad79c18781bc658cc83705b5401580edf532d8196a",
-  "huella_manifests": "357b767d4e4640d0613512fc8274962304db442a6e61671f0f0fff6456842b8a",
+  "huella_src": "3ff82a44deb957e6b500d584528f371e691a42c29e20dc11503b8a2375d71843",
+  "huella_manifests": "608b9d989f104371bbd58332022db158ca3aeddb05978173745036534f24521d",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",

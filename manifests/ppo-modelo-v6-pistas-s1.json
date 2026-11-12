@@ -4,7 +4,7 @@
   "etiqueta_git": "modelo-v6-pistas-s1",
   "run_id": "65771e5dc18146f9ac59caaf44214212",
   "level_id": "N3",
-  "decision": "candidato",
+  "decision": "aceptado",
   "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
   "environment_version": "0.4-monaco-configurable",
   "ambiente_huella": "11f0dcd8a1cb",
@@ -86,5 +86,14 @@
     "torch": "2.15.0+cpu",
     "stable_baselines3": "2.9.2"
   },
-  "resultados_fuente": "metrics/semillas-v6.json (fase A en Linux, red en numpy)"
+  "resultados_fuente": "metrics/semillas-v6.json (fase A en Linux, red en numpy)",
+  "test_reservado": {
+    "archivo": "metrics/test-final-v6-s1.json",
+    "semillas_sha256": "541487e626fba5e333c4e8a06d73e3f2e0fb1fb7bd1a41c12adbae9440927d13",
+    "fecha": "2026-11-12T18:53:30-0500",
+    "seco": 100.0,
+    "mojado": 100.0,
+    "tiempo_seco_s": 80.4,
+    "pruebas_extremas_bajo_100": []
+  }
 }
