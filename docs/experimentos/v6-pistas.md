@@ -250,6 +250,18 @@ Para promoverla falta lo que solo puede hacer quien tiene el entorno de desplieg
 Límite que hay que decir: la v6 semilla 1 no tiene prueba en una pista que nunca vio (ver el punto 4 de la
 sección anterior).
 
+### Test reservado de la v6 semilla 1: regla fijada antes de correrlo (12 de noviembre)
+
+La semilla del test de la v5-s1 está solo en el `.env` de Kevin, así que para la v6 semilla 1 usamos una semilla
+nueva: se generó al azar, se guardó en el `.env` de Miguel sin mostrarse y nadie la vio antes del test. Se
+publica solo su SHA-256. El test corre una vez (`scripts/analisis/test_final_npz.py`, mismo procedimiento que
+`rally test-final`: 100 semillas, seco, lluvia y las 19 pruebas extremas) con la red en numpy, en el Mac.
+
+**Regla, escrita antes de ver el resultado:** el test reservado debe cumplir los mismos umbrales de
+`configs/seleccion.yaml` (seco y lluvia de al menos 98 %, tiempo en seco de 81.3 s o menos, promedio de extremos
+de al menos 85 % y ninguna prueba por debajo de 50 %). Si los cumple, la v6 semilla 1 se promueve a recomendada;
+si no, queda como candidata y el recomendado sigue siendo `ppo-modelo-v5-s1`.
+
 ## Errores que aceptamos y límites
 
 - **Dos semillas por modelo.** La segunda semilla confirmó que la v6 es estable en las pistas de la fase A y que
