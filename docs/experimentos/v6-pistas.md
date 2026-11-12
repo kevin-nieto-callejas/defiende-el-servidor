@@ -224,6 +224,32 @@ Lo que enseña:
    entrenamiento, y la Sierra ya se usó; su capacidad de manejar pistas nuevas se apoya en el resultado de la
    semilla 0 en la Sierra y en que la misma configuración se comporta igual en las dos semillas.
 
+## Veredicto de selección de la v6 semilla 1 (12 de noviembre)
+
+Aplicamos `seleccion.decidir`, la función de `rally seleccionar`, con los criterios de `configs/seleccion.yaml`
+(fijados el 1 de noviembre) y contra el recomendado actual, `ppo-modelo-v5-s1`. Los insumos son las mediciones
+de Linux de las secciones anteriores: la ficha en Mónaco (semillas 0 a 99) y las 21 pruebas extremas, con la
+red exportada a numpy (diferencia con PyTorch menor a 1e-6). Los veredictos quedaron en
+`manifests/decisiones.json` con `seleccion.anotar`. **No se promovió nada.**
+
+| Candidato | Seco | Lluvia | Tiempo seco | Extremos | Peor prueba | Veredicto |
+|---|---|---|---|---|---|---|
+| `ppo-modelo-v6-pistas-s1` | 100 % | 100 % | 80.4 s (máx. 81.3) | 100 % (mín. 85) | 100 % (mín. 50) | **aceptado**, 7 de 7 criterios |
+| `ppo-control-monaco-s1` | 100 % | 100 % | 81.5 s | 94.7 % | sensores cortos con lluvia, 0 % | rechazado |
+
+La v6 semilla 1 es el primer modelo que **maneja en pistas nuevas y aguanta las condiciones extremas** a la vez.
+Para promoverla falta lo que solo puede hacer quien tiene el entorno de despliegue:
+
+1. Correr el test reservado (`rally test-final`), una sola vez, como se hizo con la v5-s1. Su semilla está solo
+   en el `.env` de Kevin.
+2. Registrarla en el catálogo (manifiesto y etiqueta) y agregar su red numpy al paquete de Vercel. La exportación
+   ya existe en `models/semillas-v6/v6-s1/modelo.npz`, hecha en Linux.
+3. Si pasa, promoverla con `rally seleccionar --promover` o con el flujo de Prefect, publicar Vercel desde el
+   fork y abrir el pull request en Hugging Face.
+
+Límite que hay que decir: la v6 semilla 1 no tiene prueba en una pista que nunca vio (ver el punto 4 de la
+sección anterior).
+
 ## Errores que aceptamos y límites
 
 - **Dos semillas por modelo.** La segunda semilla confirmó que la v6 es estable en las pistas de la fase A y que

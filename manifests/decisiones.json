@@ -23,5 +23,55 @@
     },
     "criterios_de": "configs/seleccion.yaml",
     "fecha": "2026-11-10T21:42:15-0500"
+  },
+  {
+    "candidato": "ppo-modelo-v6-pistas-s1",
+    "tipo": "ppo",
+    "aceptado": true,
+    "criterios": {
+      "seco": true,
+      "mojado": true,
+      "tiempo_seco": true,
+      "extremos": true,
+      "peor_prueba": true,
+      "no_pierde_seco": true,
+      "no_pierde_mojado": true
+    },
+    "valores": {
+      "seco": 100.0,
+      "mojado": 100.0,
+      "tiempo_seco_s": 80.4,
+      "extremos_pct": 100.0,
+      "peor_prueba": {
+        "llovizna": 100.0
+      }
+    },
+    "criterios_de": "configs/seleccion.yaml",
+    "fecha": "2026-11-12T11:35:16-0500"
+  },
+  {
+    "candidato": "ppo-control-monaco-s1",
+    "tipo": "ppo",
+    "aceptado": false,
+    "criterios": {
+      "seco": true,
+      "mojado": true,
+      "tiempo_seco": false,
+      "extremos": true,
+      "peor_prueba": false,
+      "no_pierde_seco": true,
+      "no_pierde_mojado": true
+    },
+    "valores": {
+      "seco": 100.0,
+      "mojado": 100.0,
+      "tiempo_seco_s": 81.5,
+      "extremos_pct": 94.7,
+      "peor_prueba": {
+        "sensores_cortos_lluvia": 0.0
+      }
+    },
+    "criterios_de": "configs/seleccion.yaml",
+    "fecha": "2026-11-12T11:35:16-0500"
   }
 ]
