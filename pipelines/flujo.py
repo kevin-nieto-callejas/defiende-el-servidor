@@ -6,6 +6,11 @@ proyecto. Cada tarea deja evidencia en runs/flujo/ aunque el flujo falle despué
     ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --candidato ppo-modelo-v5 --tipo ppo
     ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --rollback "motivo"
     ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app
+
+Moto MotoGP: el mismo flujo con `--vehiculo moto` (etapas moto-* de DVC, selección en manifests/moto/):
+
+    ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --vehiculo moto --candidato ppo-moto-v1 --tipo ppo
+    ~/.venvs/rally-flujo/bin/python pipelines/flujo.py --vehiculo moto --rollback "motivo"
 """
 import argparse
 import json
@@ -31,7 +36,8 @@ def _correr(*cmd, timeout=None):
     return p.stdout
 
 
-def _evidencia(etapa, datos):
+def _evidencia(etapa, datos, vehiculo="carro"):
+    etapa = etapa if vehiculo == "carro" else f"moto-{etapa}"
     EVIDENCIA.mkdir(parents=True, exist_ok=True)
     (EVIDENCIA / f"{etapa}.json").write_text(json.dumps({"etapa": etapa, "fecha": time.strftime("%Y-%m-%dT%H:%M:%S%z"), **datos},
                                                         indent=2, ensure_ascii=False), encoding="utf-8")
@@ -39,14 +45,14 @@ def _evidencia(etapa, datos):
 
 
 @task(name="1-validar")
-def validar():
+def validar(vehiculo="carro"):
     salida = _correr(str(RAIZ / ".venv/bin/python"), "-c", (
-        "import yaml; from rally.env import VERSION, OBS_DIM, AutonomousRallyEnv as E;"
-        "p = yaml.safe_load(open('params.yaml')); yaml.safe_load(open('configs/seleccion.yaml'));"
-        "e = E(**p['ambiente']); o = e.reset(seed=0)[0];"
-        "assert o.shape == (OBS_DIM,) and e.observation_space.contains(o);"
-        "print(VERSION, OBS_DIM)"))
-    return _evidencia("validar", {"ambiente": salida.strip().splitlines()[-1]})
+        "import yaml; from rally import vehiculos as V; from rally.pipeline import params;"
+        f"v = '{vehiculo}'; p = params(v); yaml.safe_load(open('configs/seleccion.yaml'));"
+        "e = V.crear_env(v, **p['ambiente']); o = e.reset(seed=0)[0];"
+        "assert o.shape == (V.n_obs(v),) and e.observation_space.contains(o);"
+        "print(V.version(v), V.n_obs(v))"))
+    return _evidencia("validar", {"ambiente": salida.strip().splitlines()[-1]}, vehiculo)
 
 
 @task(name="2-pruebas")
@@ -55,31 +61,35 @@ def pruebas():
 
 
 @task(name="3-entrenar-y-evaluar", retries=1, retry_delay_seconds=60)
-def entrenar():
+def entrenar(vehiculo="carro"):
     """DVC reanuda desde el punto de guardado y no repite las etapas que ya están al día."""
     log = get_run_logger()
-    salida = _correr(str(RAIZ / ".venv/bin/dvc"), "repro")
+    etapas = ["moto-registrar", "moto-generalizacion"] if vehiculo == "moto" else []
+    salida = _correr(str(RAIZ / ".venv/bin/dvc"), "repro", *etapas)
     log.info(salida[-500:])
-    return _evidencia("entrenar", {"cola": salida.strip().splitlines()[-1]})
+    return _evidencia("entrenar", {"cola": salida.strip().splitlines()[-1]}, vehiculo)
 
 
 @task(name="4-registrar-manifiestos")
-def registrar():
-    return _evidencia("registrar", {"salida": _correr(RALLY, "manifiesto").strip().splitlines()[-3:]})
+def registrar(vehiculo="carro"):
+    extra = ["--vehiculo", "moto"] if vehiculo == "moto" else []
+    return _evidencia("registrar", {"salida": _correr(RALLY, "manifiesto", *extra).strip().splitlines()[-3:]}, vehiculo)
 
 
 @task(name="5-seleccionar")
-def seleccionar(candidato, tipo):
-    salida = _correr(RALLY, "seleccionar", candidato, "--tipo", tipo, "--anotar")   # aceptado o no, queda anotado
-    return _evidencia("seleccionar", json.loads(salida[salida.index("{"):]))
+def seleccionar(candidato, tipo, vehiculo="carro"):
+    salida = _correr(RALLY, "seleccionar", candidato, "--tipo", tipo, "--anotar",   # aceptado o no, queda anotado
+                     "--vehiculo", vehiculo)
+    return _evidencia("seleccionar", json.loads(salida[salida.index("{"):]), vehiculo)
 
 
 @task(name="6-promover")
-def promover(veredicto):
+def promover(veredicto, vehiculo="carro"):
     if not veredicto["aceptado"]:
-        return _evidencia("promover", {"promovido": False, "veredicto": veredicto})
-    salida = _correr(RALLY, "seleccionar", veredicto["candidato"], "--tipo", veredicto["tipo"], "--promover")
-    return _evidencia("promover", {"promovido": True, "salida": salida[-300:]})
+        return _evidencia("promover", {"promovido": False, "veredicto": veredicto}, vehiculo)
+    salida = _correr(RALLY, "seleccionar", veredicto["candidato"], "--tipo", veredicto["tipo"], "--promover",
+                     "--vehiculo", vehiculo)
+    return _evidencia("promover", {"promovido": True, "salida": salida[-300:]}, vehiculo)
 
 
 @task(name="7-publicar-catalogo")
@@ -96,40 +106,45 @@ def publicar():
 
 
 @task(name="8-comprobar-version-servida", retries=2, retry_delay_seconds=5)
-def comprobar(api):
+def comprobar(api, vehiculo="carro"):
     """Lo que dice la API es lo que cuenta: si no coincide con el recomendado, el flujo falla."""
     with urllib.request.urlopen(f"{api}/api/salud", timeout=20) as r:
         s = json.load(r)
-    esperado = json.loads((RAIZ / "manifests/recomendado.json").read_text(encoding="utf-8"))["modelo"]
-    if s["recomendado"].get("modelo") != esperado:
-        raise RuntimeError(f"La API sirve {s['recomendado'].get('modelo')} y se esperaba {esperado}")
-    return _evidencia("comprobar", {"servido": esperado, "commit": s["commit"], "ambiente": s["ambiente"]})
+    ruta = "manifests/moto/recomendado.json" if vehiculo == "moto" else "manifests/recomendado.json"
+    esperado = json.loads((RAIZ / ruta).read_text(encoding="utf-8"))["modelo"]
+    servido = s["vehiculos"]["moto"]["recomendado"] if vehiculo == "moto" else s["recomendado"].get("modelo")
+    if servido != esperado:
+        raise RuntimeError(f"La API sirve {servido} y se esperaba {esperado}")
+    ambiente = s["vehiculos"]["moto"]["ambiente"] if vehiculo == "moto" else s["ambiente"]
+    return _evidencia("comprobar", {"servido": esperado, "commit": s["commit"], "ambiente": ambiente}, vehiculo)
 
 
 @flow(name="autonomous-rally")
-def pipeline(candidato: str, tipo: str = "ppo", api: str = "http://127.0.0.1:8000", sin_entrenar: bool = False):
-    validar()
+def pipeline(candidato: str, tipo: str = "ppo", api: str = "http://127.0.0.1:8000", sin_entrenar: bool = False,
+             vehiculo: str = "carro"):
+    validar(vehiculo)
     pruebas()
     if not sin_entrenar:
-        entrenar()
-    registrar()
-    veredicto = seleccionar(candidato, tipo)
-    promover(veredicto)
+        entrenar(vehiculo)
+    registrar(vehiculo)
+    veredicto = seleccionar(candidato, tipo, vehiculo)
+    promover(veredicto, vehiculo)
     publicar()
-    return comprobar(api)
+    return comprobar(api, vehiculo)
 
 
 @flow(name="autonomous-rally-rollback")
-def rollback(motivo: str, api: str = "http://127.0.0.1:8000"):
-    _evidencia("rollback", {"salida": _correr(RALLY, "seleccionar", "--rollback", motivo)[-300:]})
+def rollback(motivo: str, api: str = "http://127.0.0.1:8000", vehiculo: str = "carro"):
+    _evidencia("rollback", {"salida": _correr(RALLY, "seleccionar", "--rollback", motivo, "--vehiculo", vehiculo)[-300:]},
+               vehiculo)
     publicar()   # la web publicada también debe servir la versión restaurada
-    return comprobar(api)
+    return comprobar(api, vehiculo)
 
 
 @flow(name="autonomous-rally-comprobar")
-def comprobar_publicada(api: str):
+def comprobar_publicada(api: str, vehiculo: str = "carro"):
     """Después del despliegue: la URL pública sirve el modelo recomendado del repositorio."""
-    return comprobar(api)
+    return comprobar(api, vehiculo)
 
 
 if __name__ == "__main__":
@@ -140,10 +155,11 @@ if __name__ == "__main__":
     a.add_argument("--sin-entrenar", action="store_true")
     a.add_argument("--rollback")
     a.add_argument("--comprobar", metavar="URL", help="solo comprobar la versión que sirve esa URL")
+    a.add_argument("--vehiculo", choices=["carro", "moto"], default="carro")
     x = a.parse_args()
     if x.comprobar:
-        print(comprobar_publicada(x.comprobar.rstrip("/")))
+        print(comprobar_publicada(x.comprobar.rstrip("/"), x.vehiculo))
     elif x.rollback:
-        print(rollback(x.rollback, x.api))
+        print(rollback(x.rollback, x.api, x.vehiculo))
     else:
-        print(pipeline(x.candidato, x.tipo, x.api, x.sin_entrenar))
+        print(pipeline(x.candidato, x.tipo, x.api, x.sin_entrenar, x.vehiculo))

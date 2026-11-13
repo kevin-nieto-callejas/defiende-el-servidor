@@ -24,10 +24,9 @@ from pathlib import Path
 import mlflow
 import numpy as np
 
-from rally import track
+from rally import track, vehiculos
 from rally.agentes.discreto import ACCIONES, N_ESTADOS, NEUTRA, a_mando, discreta, estado
-from rally.env import VERSION
-from rally.policies import PurePursuit
+from rally.policies import PurePursuit, PurePursuitMoto
 
 # Semillas de entrenamiento lejos de las de evaluación (0-99) y del dataset (500+)
 SEMILLA_BASE = 100_000
@@ -101,10 +100,12 @@ class PuntoQ:
 
 def maestro(p):
     """Pure pursuit que mira la señal de lluvia. Con lluvia va a 16 m/s en las rectas:
-    así la frenada para la curva cabe en los 50 m que la tabla alcanza a ver."""
-    seco = PurePursuit(p["maestro_mu_seco"], traccion=p["maestro_traccion_seco"])
-    lluvia = PurePursuit(p["maestro_mu_lluvia"], v_recta=p["maestro_v_recta_lluvia"],
-                         traccion=p["maestro_traccion_lluvia"])
+    así la frenada para la curva cabe en los 50 m que la tabla alcanza a ver.
+    Para la moto (`vehiculo: moto` en sus parámetros) es el pure pursuit que pide inclinación."""
+    clase = PurePursuitMoto if p.get("vehiculo") == "moto" else PurePursuit
+    seco = clase(p["maestro_mu_seco"], traccion=p["maestro_traccion_seco"])
+    lluvia = clase(p["maestro_mu_lluvia"], v_recta=p["maestro_v_recta_lluvia"],
+                   traccion=p["maestro_traccion_lluvia"])
     return lambda obs, info: (lluvia if obs[19] > 0.5 else seco)(obs, info)
 
 
@@ -154,7 +155,8 @@ def entrenar(env_fn, params, grabador=None, al_terminar_episodio=None, carpeta_p
     from rally.agentes.ppo import DominioAleatorio, RuidoSensores
 
     p = params
-    huella = hashlib.sha1(json.dumps([p, VERSION, N_ESTADOS], sort_keys=True).encode()).hexdigest()[:16]
+    version = vehiculos.version(p.get("vehiculo", "carro"))
+    huella = hashlib.sha1(json.dumps([p, version, N_ESTADOS], sort_keys=True).encode()).hexdigest()[:16]
     punto = PuntoQ(carpeta_punto, huella)
     previo = punto.cargar()
     ag = AgenteQ(p["alpha"], p["gamma"], p["semilla"])

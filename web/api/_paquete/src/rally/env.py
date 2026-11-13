@@ -102,6 +102,7 @@ class AutonomousRallyEnv(gym.Env):
     """
 
     metadata = {"render_modes": ["ansi"], "render_fps": 10}
+    vehiculo = "carro"
 
     def __init__(self, config: RallyConfig | None = None, render_mode=None, pista=None, **overrides):
         self.cfg = replace(config or RallyConfig())
@@ -175,6 +176,12 @@ class AutonomousRallyEnv(gym.Env):
         pista = self.pista
         u = np.clip(np.asarray(action, dtype=np.float64), -1.0, 1.0)
         u_acel, u_dir = float(u[0]), float(u[1])
+        self._fisica(u_acel, u_dir)
+        return self._reglas(u, u_acel, u_dir)
+
+    def _fisica(self, u_acel, u_dir):
+        """Mandos → nuevo estado del vehículo (la moto la reemplaza en rally.moto)."""
+        cfg = self.cfg
 
         # 1-5. Mandos -> aceleraciones, limitadas por el círculo de fricción.
         # La fuerza de las llantas se recorta por el agarre; la resistencia (drag)
@@ -210,6 +217,11 @@ class AutonomousRallyEnv(gym.Env):
         self.x += v_new * math.cos(self.psi) * cfg.dt
         self.y += v_new * math.sin(self.psi) * cfg.dt
         self.steps += 1
+
+    def _reglas(self, u, u_acel, u_dir):
+        """Pista, recompensa y terminaciones: las mismas para todos los vehículos."""
+        cfg = self.cfg
+        pista = self.pista
 
         # 9. Proyección sobre la pista; s acumulado sin módulo.
         # Un salto mayor a lo que se puede recorrer en un paso es una proyección
@@ -262,6 +274,9 @@ class AutonomousRallyEnv(gym.Env):
             reward += cfg.r_off_track
         self.stall_steps = 0 if gain > 1e-9 else self.stall_steps + 1
 
+        if not terminated and (falla := self._falla_vehiculo()):
+            terminated, self.outcome = True, falla
+            reward += cfg.r_fail
         if not terminated:
             if pista.car_collides(self.x, self.y, self.psi, cfg.car_length, cfg.car_width,
                                   cfg.track_width / 2):
@@ -281,6 +296,10 @@ class AutonomousRallyEnv(gym.Env):
             self.outcome = "tiempo"
 
         return self._obs(), float(reward), terminated, truncated, self._info()
+
+    def _falla_vehiculo(self):
+        """Fallo propio del vehículo (la caída de la moto). El carro no tiene: subvira."""
+        return None
 
     def render(self):
         if self.render_mode == "ansi":

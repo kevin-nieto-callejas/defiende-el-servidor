@@ -1,0 +1,13 @@
+{
+  "modelo": "ppo-moto-v1",
+  "motivo": "cumple configs/seleccion.yaml",
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0
+    }
+  },
+  "fecha": "2026-11-11T12:44:23-0500"
+}

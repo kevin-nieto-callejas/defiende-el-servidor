@@ -8,6 +8,10 @@
 
 Cada etapa lee sus parámetros de params.yaml, así DVC sabe qué rehacer cuando
 cambia un parámetro, el código o los datos.
+
+Con `vehiculo="moto"` (`rally pipeline <etapa> --vehiculo moto`) las mismas etapas trabajan con
+la moto MotoGP: leen la sección `moto:` de params.yaml encima de la del carro y escriben en
+data/processed/moto/, models/moto/ y metrics/moto/, con su propio experimento de MLflow.
 """
 
 import json
@@ -20,7 +24,7 @@ import mlflow
 import numpy as np
 import yaml
 
-from rally import policies, track
+from rally import policies, track, vehiculos
 from rally.agentes import seguimiento
 from rally.env import VERSION, AutonomousRallyEnv
 
@@ -29,10 +33,36 @@ ESCENARIOS = Path("data/processed/escenarios.json")
 METRICAS = Path("metrics")
 
 
-def params():
-    # RALLY_PARAMS permite pruebas rápidas con otro archivo sin tocar params.yaml
+def _crear_env(vehiculo="carro", **kw):
+    """Ambiente del vehículo (el del carro se busca aquí en tiempo de llamada: las pruebas lo espían)."""
+    return AutonomousRallyEnv(**kw) if vehiculos.validar(vehiculo) == "carro" else vehiculos.crear_env(vehiculo, **kw)
+
+
+def params(vehiculo="carro"):
+    """params.yaml; para la moto, su sección `moto:` reemplaza clave por clave a la del carro.
+
+    RALLY_PARAMS permite pruebas rápidas con otro archivo sin tocar params.yaml.
+    """
     ruta = Path(os.environ.get("RALLY_PARAMS", "params.yaml"))
-    return yaml.safe_load(ruta.read_text(encoding="utf-8"))
+    p = yaml.safe_load(ruta.read_text(encoding="utf-8"))
+    if vehiculos.validar(vehiculo) == "carro":
+        return p
+    propios = p.get("moto") or {}
+    out = {k: v for k, v in p.items() if k != "moto"}
+    for seccion, valores in propios.items():
+        out[seccion] = {**out.get(seccion, {}), **valores} if isinstance(valores, dict) else valores
+    for seccion in ("qlearning", "ppo"):   # los agentes eligen ambiente y maestro con esta clave
+        out[seccion] = {**out[seccion], "vehiculo": "moto"}
+    return out
+
+
+def rutas(vehiculo="carro"):
+    """Dónde lee y escribe cada etapa: el carro conserva sus rutas; la moto usa subcarpetas moto/."""
+    datos = vehiculos.carpeta("data/processed", vehiculo)
+    return {"demos": datos / "demos.npz", "escenarios": datos / "escenarios.json",
+            "metricas": vehiculos.carpeta(METRICAS, vehiculo),
+            "modelos": vehiculos.carpeta("models", vehiculo),
+            "runs": Path("runs") / ("moto" if vehiculo == "moto" else "")}
 
 
 def _escribir_json(ruta, datos):
@@ -41,47 +71,50 @@ def _escribir_json(ruta, datos):
     ruta.write_text(json.dumps(datos, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-def _config_ambiente():
+def _config_ambiente(vehiculo="carro"):
     """Configuración completa del ambiente (params.yaml + valores por defecto) y su huella."""
     import dataclasses
     import hashlib
 
-    cfg = dataclasses.asdict(AutonomousRallyEnv(**params()["ambiente"]).cfg)
+    cfg = dataclasses.asdict(_crear_env(vehiculo, **params(vehiculo)["ambiente"]).cfg)
     h = hashlib.sha1(json.dumps(cfg, sort_keys=True).encode())
     for arr in (track.XS, track.YS):
         h.update(np.ascontiguousarray(arr).tobytes())
     return cfg, h.hexdigest()[:12]
 
 
-def _run(nombre, p_etapa, extra_tags=None):
-    seguimiento.iniciar()
-    run = mlflow.start_run(run_name=nombre)
-    cfg, huella = _config_ambiente()
-    mlflow.set_tags({"etapa": nombre, "ambiente_version": VERSION, "ambiente_huella": huella,
+def _run(nombre, p_etapa, extra_tags=None, vehiculo="carro"):
+    seguimiento.iniciar(vehiculo)
+    run = mlflow.start_run(run_name=vehiculos.prefijo(vehiculo) + nombre)
+    cfg, huella = _config_ambiente(vehiculo)
+    mlflow.set_tags({"etapa": nombre, "vehiculo": vehiculo, "ambiente_version": vehiculos.version(vehiculo),
+                     "ambiente_huella": huella,
                      **seguimiento.etiquetas_git(), **(extra_tags or {})})
     # Parámetros de la etapa + toda la configuración del ambiente (física, recompensa, límites)
     mlflow.log_params({**seguimiento.aplanar(p_etapa), **seguimiento.aplanar(cfg, "env.")})
     return run
 
 
-def _dataset_mlflow():
-    d = np.load(DEMOS)
-    return mlflow.data.from_numpy(d["obs"], targets=d["acciones"], source=str(DEMOS),
-                                  name="demos-experto-monaco")
+def _dataset_mlflow(vehiculo="carro"):
+    demos = rutas(vehiculo)["demos"]
+    d = np.load(demos)
+    return mlflow.data.from_numpy(d["obs"], targets=d["acciones"], source=str(demos),
+                                  name=f"demos-experto-monaco{'-moto' if vehiculo == 'moto' else ''}")
 
 
 # ----------------------------------------------------------------- datos
 
-def etapa_datos():
-    p = params()
+def etapa_datos(vehiculo="carro"):
+    p = params(vehiculo)
+    r_ = rutas(vehiculo)
     amb, pd = p["ambiente"], p["datos"]
     obs_l, act_l, rew_l, ep_l, mu_l = [], [], [], [], []
     resumen = []
     ep = 0
     for piloto, mu in (("experto", amb["mu"]), ("prudente", p["evaluacion"]["mu_mojado"])):
-        env = AutonomousRallyEnv(**{**amb, "mu": mu})
+        env = _crear_env(vehiculo, **{**amb, "mu": mu})
         for k in range(pd["demos_episodios"]):
-            pol = policies.crear(piloto, pd["semilla"] + k)
+            pol = policies.crear(piloto, pd["semilla"] + k, vehiculo)
             obs, info = env.reset(seed=pd["semilla"] + k)
             done = False
             while not done:
@@ -96,32 +129,33 @@ def etapa_datos():
             resumen.append({"piloto": piloto, "mu": mu, "resultado": info["outcome"],
                             "tiempo": info["t"]})
             ep += 1
-    DEMOS.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(DEMOS, obs=np.array(obs_l, dtype=np.float32),
+    r_["demos"].parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(r_["demos"], obs=np.array(obs_l, dtype=np.float32),
                         acciones=np.array(act_l, dtype=np.float32),
                         recompensas=np.array(rew_l, dtype=np.float32),
                         episodio=np.array(ep_l, dtype=np.int32), mu=np.array(mu_l, dtype=np.float32))
     pe = p["evaluacion"]
-    _escribir_json(ESCENARIOS, {
+    _escribir_json(r_["escenarios"], {
         "descripcion": "Escenarios fijos del protocolo de evaluación (no se usan para entrenar)",
         "semillas": list(range(pe["semilla_inicial"], pe["semilla_inicial"] + pe["episodios"])),
         "condiciones": {"seco": pe["mu_seco"], "mojado": pe["mu_mojado"]},
-        "ambiente": amb, "ambiente_version": VERSION, "pista_m": round(track.LAP, 2),
+        "ambiente": amb, "ambiente_version": vehiculos.version(vehiculo), "vehiculo": vehiculo,
+        "pista_m": round(track.LAP, 2),
     })
     exitos = sum(r["resultado"] == "exito" for r in resumen)
     metricas = {"transiciones": len(obs_l), "episodios": ep, "episodios_exitosos": exitos}
-    _escribir_json(METRICAS / "datos.json", metricas)
-    with _run("datos", pd):
-        mlflow.log_input(_dataset_mlflow(), context="demostraciones")
+    _escribir_json(r_["metricas"] / "datos.json", metricas)
+    with _run("datos", pd, vehiculo=vehiculo):
+        mlflow.log_input(_dataset_mlflow(vehiculo), context="demostraciones")
         mlflow.log_metrics(metricas)
-        mlflow.log_artifact(str(ESCENARIOS))
-    print(f"Dataset: {len(obs_l)} transiciones de {ep} episodios ({exitos} exitosos) → {DEMOS}")
+        mlflow.log_artifact(str(r_["escenarios"]))
+    print(f"Dataset: {len(obs_l)} transiciones de {ep} episodios ({exitos} exitosos) → {r_['demos']}")
 
 
 # ----------------------------------------------------------------- modelos en MLflow
 
 class _PilotoPyfunc(mlflow.pyfunc.PythonModel):
-    """Envoltura MLflow: recibe observaciones (N×19) y devuelve acciones (N×2)."""
+    """Envoltura MLflow: recibe observaciones (N×24 el carro, N×26 la moto) y devuelve acciones (N×2)."""
 
     def __init__(self, tipo):
         self.tipo = tipo
@@ -140,10 +174,10 @@ class _PilotoPyfunc(mlflow.pyfunc.PythonModel):
         return np.array([self.piloto(o, None) for o in obs], dtype=np.float32)
 
 
-def _registrar_modelo(tipo, archivo, ejemplo):
+def _registrar_modelo(tipo, archivo, ejemplo, vehiculo="carro"):
     info = mlflow.pyfunc.log_model(
         name="modelo", python_model=_PilotoPyfunc(tipo), artifacts={"modelo": str(archivo)},
-        input_example=ejemplo, registered_model_name=seguimiento.MODELOS[tipo],
+        input_example=ejemplo, registered_model_name=seguimiento.modelos(vehiculo)[tipo],
         # El paquete no está en PyPI: se instala desde el repositorio del grupo
         pip_requirements=["autonomous-rally @ git+https://github.com/melo11miguel/defiende-el-servidor.git",
                           "stable-baselines3", "torch", "numpy", "scipy", "gymnasium"],
@@ -151,11 +185,11 @@ def _registrar_modelo(tipo, archivo, ejemplo):
     return info.registered_model_version
 
 
-def _ejemplo_obs():
-    return np.zeros((1, AutonomousRallyEnv().observation_space.shape[0]), dtype=np.float32)
+def _ejemplo_obs(vehiculo="carro"):
+    return np.zeros((1, vehiculos.n_obs(vehiculo)), dtype=np.float32)
 
 
-def _evaluador_rapido(ambiente, pe, n=5, pistas=None):
+def _evaluador_rapido(ambiente, pe, n=5, pistas=None, vehiculo="carro"):
     """Evaluación corta durante el entrenamiento: seco, mojado y extremos de los deslizadores.
 
     Con varias pistas de entrenamiento, seco y mojado corren `n` vueltas en cada una y los
@@ -169,7 +203,7 @@ def _evaluador_rapido(ambiente, pe, n=5, pistas=None):
                 {"mu": mm, "a_max": 6.0}, {"mu": ms, "a_max": 2.0}]
 
     def correr(modelo, cond, veces, pista="monaco"):
-        env = AutonomousRallyEnv(**{**ambiente, **cond}, pista=pista)
+        env = _crear_env(vehiculo, **{**ambiente, **cond}, pista=pista)
         ok, prog, tiempos = 0, 0.0, []
         for k in range(veces):
             obs, info = env.reset(seed=pe["semilla_eval_rapida"] + k)
@@ -207,17 +241,18 @@ def _evaluador_rapido(ambiente, pe, n=5, pistas=None):
 
 # ----------------------------------------------------------------- Q-learning
 
-def etapa_qlearning(vivo=False):
+def etapa_qlearning(vivo=False, vehiculo="carro"):
     from rally.agentes.qlearning import entrenar
     from rally.agentes.vivo import Grabador
 
-    p = params()
+    p = params(vehiculo)
+    r_ = rutas(vehiculo)
     amb, pq = p["ambiente"], p["qlearning"]
-    salida = Path("models/qlearning")
+    salida = r_["modelos"] / "qlearning"
     grabador = Grabador("qlearning", amb) if vivo else None
     t0 = time.time()
-    with _run("qlearning", pq, {"algoritmo": "Q-learning", "hipotesis": pq["hipotesis"]}) as run:
-        mlflow.log_input(_dataset_mlflow(), context="demostraciones")
+    with _run("qlearning", pq, {"algoritmo": "Q-learning", "hipotesis": pq["hipotesis"]}, vehiculo) as run:
+        mlflow.log_input(_dataset_mlflow(vehiculo), context="demostraciones")
         ventana = []
 
         def al_terminar(res, ag):
@@ -236,60 +271,66 @@ def etapa_qlearning(vivo=False):
                       f"recompensa media {np.mean([e['recompensa'] for e in ventana[-100:]]):+8.1f}  "
                       f"progreso {np.mean([e['progreso'] for e in ventana[-100:]]):6.1f} m")
 
-        ag, hist = entrenar(lambda: AutonomousRallyEnv(**amb), pq, grabador, al_terminar)
+        ag, hist = entrenar(lambda: _crear_env(vehiculo, **amb), pq, grabador, al_terminar,
+                            carpeta_punto=str(r_["runs"] / "qlearning-punto"))
         salida.mkdir(parents=True, exist_ok=True)
         ag.guardar(salida / "q_table.npz")
-        version = _registrar_modelo("qlearning", salida / "q_table.npz",
-                                    _ejemplo_obs())
+        nombre = seguimiento.modelos(vehiculo)["qlearning"]
+        version = _registrar_modelo("qlearning", salida / "q_table.npz", _ejemplo_obs(vehiculo), vehiculo)
         _escribir_json(salida / "info.json", {
-            "algoritmo": "Q-learning", "episodios": len(hist), "mlflow_run_id": run.info.run_id,
-            "mlflow_modelo": seguimiento.MODELOS["qlearning"], "mlflow_version": version,
+            "algoritmo": "Q-learning", "vehiculo": vehiculo, "episodios": len(hist),
+            "pasos": int(hist[-1]["pasos"]) if hist else 0, "mlflow_run_id": run.info.run_id,
+            "mlflow_modelo": nombre, "mlflow_version": version,
+            "ambiente_version": vehiculos.version(vehiculo), "ambiente_huella": _config_ambiente(vehiculo)[1],
             "estados_visitados": int((ag.visitas > 0).sum()), "segundos": round(time.time() - t0, 1),
         })
-    print(f"Q-learning listo: {salida} (MLflow {seguimiento.MODELOS['qlearning']} v{version})")
+    print(f"Q-learning listo: {salida} (MLflow {nombre} v{version})")
 
 
 # ----------------------------------------------------------------- PPO
 
-def etapa_ppo(vivo=False):
+def etapa_ppo(vivo=False, vehiculo="carro"):
     from rally.agentes import ppo
     from rally.agentes.vivo import Grabador
 
-    p = params()
+    p = params(vehiculo)
+    r_ = rutas(vehiculo)
     amb, pp = p["ambiente"], p["ppo"]
-    salida = Path("models/ppo")
+    salida = r_["modelos"] / "ppo"
     grabador = Grabador("ppo", amb) if vivo else None
     t0 = time.time()
     pistas = track.validar_entrenamiento(pp.get("pistas"))
     with _run("ppo", pp, {"algoritmo": "PPO", "hipotesis": pp["hipotesis"],
-                          "pistas_entrenamiento": ",".join(pistas)}) as run:
-        mlflow.log_input(_dataset_mlflow(), context="demostraciones")
+                          "pistas_entrenamiento": ",".join(pistas)}, vehiculo) as run:
+        mlflow.log_input(_dataset_mlflow(vehiculo), context="demostraciones")
         # Punto de guardado: si el computador se apaga, el próximo `dvc repro` sigue donde quedó.
         # La huella junta parámetros, versión del ambiente y dataset: si algo cambia, empieza de cero.
         import hashlib
-        huella = hashlib.sha1(json.dumps([amb, pp, VERSION, _config_ambiente()[1]], sort_keys=True).encode()
-                              + DEMOS.read_bytes()).hexdigest()[:16]
-        punto = ppo.PuntoGuardado("runs/ppo-punto", huella)
-        _, n_ep = ppo.entrenar(amb, pp, DEMOS, salida, grabador,
-                               _evaluador_rapido(amb, p["evaluacion"], pistas=pistas), punto)
-        version = _registrar_modelo("ppo", salida / "modelo.zip", _ejemplo_obs())
+        huella = hashlib.sha1(json.dumps([amb, pp, vehiculos.version(vehiculo), _config_ambiente(vehiculo)[1]],
+                                         sort_keys=True).encode() + r_["demos"].read_bytes()).hexdigest()[:16]
+        punto = ppo.PuntoGuardado(r_["runs"] / "ppo-punto", huella)
+        _, n_ep = ppo.entrenar(amb, pp, r_["demos"], salida, grabador,
+                               _evaluador_rapido(amb, p["evaluacion"], pistas=pistas, vehiculo=vehiculo), punto)
+        nombre = seguimiento.modelos(vehiculo)["ppo"]
+        version = _registrar_modelo("ppo", salida / "modelo.zip", _ejemplo_obs(vehiculo), vehiculo)
         info = json.loads((salida / "info.json").read_text(encoding="utf-8"))
-        info.update({"mlflow_run_id": run.info.run_id, "mlflow_modelo": seguimiento.MODELOS["ppo"],
-                     "ambiente_version": VERSION, "ambiente_huella": _config_ambiente()[1],
+        info.update({"mlflow_run_id": run.info.run_id, "mlflow_modelo": nombre, "vehiculo": vehiculo,
+                     "ambiente_version": vehiculos.version(vehiculo), "ambiente_huella": _config_ambiente(vehiculo)[1],
                      "mlflow_version": version, "segundos": round(time.time() - t0, 1),
                      "pistas_entrenamiento": pistas})
         _escribir_json(salida / "info.json", info)
-    print(f"PPO listo: {salida} ({n_ep} episodios, MLflow {seguimiento.MODELOS['ppo']} v{version})")
+    print(f"PPO listo: {salida} ({n_ep} episodios, MLflow {nombre} v{version})")
 
 
 # ----------------------------------------------------------------- evaluación
 
 def _evaluar_lote(args):
-    piloto, ambiente, mu, semillas = args
-    env = AutonomousRallyEnv(**{**ambiente, "mu": mu})
+    piloto, ambiente, mu, semillas, *resto = args
+    vehiculo = resto[0] if resto else "carro"
+    env = _crear_env(vehiculo, **{**ambiente, "mu": mu})
     out = []
     for s in semillas:
-        pol = policies.crear(piloto, s)
+        pol = policies.crear(piloto, s, vehiculo)
         obs, info = env.reset(seed=s)
         total, done = 0.0, False
         while not done:
@@ -297,8 +338,8 @@ def _evaluar_lote(args):
             total += r
             done = term or trunc
         out.append({"ok": info["outcome"] == "exito", "t": info["t"], "r": total,
-                    "inc": info["off_track_events"] + (info["outcome"] == "choque"),
-                    "prog": info["s_best"] / track.largo(info)})
+                    "inc": info["off_track_events"] + (info["outcome"] in ("choque", "caida")),
+                    "fin": info["outcome"], "prog": info["s_best"] / track.largo(info)})
     return piloto, mu, out
 
 
@@ -329,17 +370,18 @@ def veredicto(base, cand):
             "aceptado": all(criterios.values())}
 
 
-def etapa_evaluar():
-    p = params()
+def etapa_evaluar(vehiculo="carro"):
+    p = params(vehiculo)
+    r_ = rutas(vehiculo)
     amb, pe = p["ambiente"], p["evaluacion"]
-    esc = json.loads(ESCENARIOS.read_text(encoding="utf-8"))
-    pilotos = [x for x in pe["pilotos"] if policies.disponible(x)]
+    esc = json.loads(r_["escenarios"].read_text(encoding="utf-8"))
+    pilotos = [x for x in pe["pilotos"] if policies.disponible(x, vehiculo)]
     tareas = []
     for piloto in pilotos:
         for mu in esc["condiciones"].values():
             sem = esc["semillas"]
             for i in range(0, len(sem), 10):
-                tareas.append((piloto, amb, mu, sem[i:i + 10]))
+                tareas.append((piloto, amb, mu, sem[i:i + 10], vehiculo))
     filas = {}
     with ProcessPoolExecutor() as ex:
         for piloto, mu, out in ex.map(_evaluar_lote, tareas):
@@ -349,14 +391,14 @@ def etapa_evaluar():
         res[piloto] = {c: _metricas(filas[(piloto, mu)]) for c, mu in esc["condiciones"].items()}
     base = pe["base"]
     veredictos = {c: veredicto(res[base], res[c]) for c in pilotos if c != base}
-    salida = {"episodios_por_condicion": len(esc["semillas"]), "base": base,
-              "resultados": res, "veredictos": veredictos}
-    _escribir_json(METRICAS / "evaluacion.json", salida)
-    with _run("evaluacion", pe):
+    salida = {"episodios_por_condicion": len(esc["semillas"]), "base": base, "vehiculo": vehiculo,
+              "ambiente_version": vehiculos.version(vehiculo), "resultados": res, "veredictos": veredictos}
+    _escribir_json(r_["metricas"] / "evaluacion.json", salida)
+    with _run("evaluacion", pe, vehiculo=vehiculo):
         for piloto, cond in res.items():
             for c, m in cond.items():
                 mlflow.log_metrics({f"{piloto}.{c}.{k}": v for k, v in m.items() if v is not None})
-        mlflow.log_artifact(str(METRICAS / "evaluacion.json"))
+        mlflow.log_artifact(str(r_["metricas"] / "evaluacion.json"))
     for piloto, cond in res.items():
         print(f"  {piloto:10s} seco {cond['seco']['vueltas_pct']:5.1f}% "
               f"{cond['seco']['tiempo_mediano_s'] or '—'} s · mojado {cond['mojado']['vueltas_pct']:5.1f}%")
@@ -364,16 +406,17 @@ def etapa_evaluar():
 
 # ----------------------------------------------------------------- registro
 
-def etapa_registrar():
+def etapa_registrar(vehiculo="carro"):
     """Marca cada versión nueva como champion (si gana el protocolo) o challenger."""
     from mlflow import MlflowClient
 
-    seguimiento.iniciar()
+    seguimiento.iniciar(vehiculo)
+    r_ = rutas(vehiculo)
     cliente = MlflowClient()
-    ev = json.loads((METRICAS / "evaluacion.json").read_text(encoding="utf-8"))
+    ev = json.loads((r_["metricas"] / "evaluacion.json").read_text(encoding="utf-8"))
     registro = {}
-    for tipo, nombre in seguimiento.MODELOS.items():
-        info_path = Path(f"models/{tipo}/info.json")
+    for tipo, nombre in seguimiento.modelos(vehiculo).items():
+        info_path = r_["modelos"] / tipo / "info.json"
         if not info_path.exists() or tipo not in ev["resultados"]:
             continue
         info = json.loads(info_path.read_text(encoding="utf-8"))
@@ -406,4 +449,4 @@ def etapa_registrar():
         registro[tipo] = {"modelo": nombre, "version": version, "alias": alias, "puntaje": puntaje,
                           "protocolo_aceptado": ver.get("aceptado")}
         print(f"  {nombre} v{version} → @{alias} (puntaje {puntaje:.0f})")
-    _escribir_json(METRICAS / "registro.json", registro)
+    _escribir_json(r_["metricas"] / "registro.json", registro)

@@ -13,6 +13,7 @@ from pathlib import Path
 
 import numpy as np
 
+from rally import vehiculos
 from rally.agentes.discreto import ACCIONES, NEUTRA, a_mando
 from rally.env import RAYO_REF
 from rally.manifiesto import SALIDA, _cache
@@ -28,15 +29,20 @@ class SinAdaptador(Exception):
     """Esa versión no se puede ejecutar aquí; el catálogo la muestra solo como evidencia."""
 
 
+def vehiculo(entrada):
+    """Vehículo de una versión: el de su manifiesto (las del carro anteriores a la moto no lo traen)."""
+    return entrada.get("vehiculo") or vehiculos.de_version(entrada.get("environment_version"))
+
+
 def ejecutable(entrada):
     """Las tablas anteriores a la v6 usan otra discretización: quedan solo como evidencia."""
     return (entrada["tipo"] == "ppo" or "qlearning" in entrada["etiqueta_git"]
-            or entrada["environment_version"].startswith("0.4"))
+            or entrada["environment_version"].startswith("0.4") or vehiculo(entrada) == "moto")
 
 
 def catalogo():
     filas = json.loads((SALIDA / "catalogo.json").read_text(encoding="utf-8"))
-    return [{**f, "ejecutable": ejecutable(f)} for f in filas]
+    return [{**f, "vehiculo": vehiculo(f), "ejecutable": ejecutable(f)} for f in filas]
 
 
 def manifiesto(nombre):

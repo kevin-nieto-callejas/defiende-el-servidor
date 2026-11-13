@@ -10,6 +10,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { construirEscenario, tramoTunel } from "./escenario.js";
 import { crearCarro, crearHumo } from "./carro.js";
+import { crearMoto } from "./moto.js";
 import { pbr, cargas } from "./texturas.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js";
@@ -24,6 +25,8 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const params = new URLSearchParams(location.search);
 const SIN = new Set((params.get("sin") || "").split(","));   // diagnóstico de rendimiento
 const PISTA_PEDIDA = (params.get("pista") || "monaco").toLowerCase();   // ?pista=bosque
+const VEHICULO_PEDIDO = (params.get("vehiculo") || "carro").toLowerCase();   // ?vehiculo=moto
+const esMoto = () => pista?.vehiculo === "moto";
 
 // Si algo falla, se muestra en la pantalla de carga en vez de quedarse girando
 function mostrarError(msg) {
@@ -524,10 +527,14 @@ const carro = new THREE.Group();
 const ruedas = [];
 let luzFreno, faro;
 
-let humo = null;
+let humo = null, pilotoMoto = null;
 function construirCarro() {
-  // Cuando carga el modelo realista, sus ruedas reemplazan a las del carro básico
-  const c = crearCarro(pista.carro, { calidad: CALIDAD, alCargar: (nuevas) => { ruedas.length = 0; ruedas.push(...nuevas); } });
+  // Cuando carga el modelo realista, sus ruedas reemplazan a las del carro básico.
+  // La moto (rally/moto.py) se dibuja con su propio modelo y se inclina sobre las llantas.
+  const c = esMoto()
+    ? crearMoto(pista.carro)
+    : crearCarro(pista.carro, { calidad: CALIDAD, alCargar: (nuevas) => { ruedas.length = 0; ruedas.push(...nuevas); } });
+  if (esMoto()) { carro.rotation.order = "YXZ"; pilotoMoto = c.piloto; }   // rumbo, luego inclinación
   carro.add(c.grupo);
   ruedas.push(...c.ruedas);
   luzFreno = c.luzFreno;
@@ -573,7 +580,7 @@ function construirEstela() {
     const nx = -Math.sin(h) * 0.22, ny = Math.cos(h) * 0.22;
     const pts = [P(a.x + nx, a.y + ny, 0.06), P(a.x - nx, a.y - ny, 0.06), P(b.x + nx, b.y + ny, 0.06), P(b.x - nx, b.y - ny, 0.06)];
     for (const p of [pts[0], pts[1], pts[2], pts[1], pts[3], pts[2]]) pos.push(p.x, p.y, p.z);
-    c.setHSL(0.75 - clamp(b.v / 25, 0, 1) * 0.25, 0.9, 0.62);
+    c.setHSL(0.75 - clamp(b.v / (pista.v_max ?? 25), 0, 1) * 0.25, 0.9, 0.62);
     for (let j = 0; j < 6; j++) col.push(c.r, c.g, c.b);
   }
   const geo = new THREE.BufferGeometry();
@@ -586,10 +593,11 @@ function construirEstela() {
   const mp = [];
   marcasPorFrame = [0];
   const W = pista.carro.ancho / 2, back = -pista.carro.ejes / 2;
+  const lados = esMoto() ? [0] : [W, -W];   // la moto deja una sola huella
   for (let i = 0; i < f.length - 1; i++) {
     const a = f[i], b = f[i + 1];
     if (b.derrape || b.fuera > 0) {
-      for (const lado of [W, -W]) {
+      for (const lado of lados) {
         const pa = rueda(a, back, lado), pb = rueda(b, back, lado);
         const h = Math.atan2(pb.y - pa.y, pb.x - pa.x), nx = -Math.sin(h) * 0.16, ny = Math.cos(h) * 0.16;
         const q = [P(pa.x + nx, pa.y + ny, 0.055), P(pa.x - nx, pa.y - ny, 0.055), P(pb.x + nx, pb.y + ny, 0.055), P(pb.x - nx, pb.y - ny, 0.055)];
@@ -739,6 +747,7 @@ function estado() {
     x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), psi: lerpAng(a.psi, b.psi, t),
     v: lerp(a.v, b.v, t), d: lerp(a.d, b.d, t), s: lerp(a.s, b.s, t),
     accion: b.a, agarre: lerp(a.agarre, b.agarre, t),
+    incl: lerp(a.incl ?? 0, b.incl ?? 0, t),   // inclinación de la moto (rad); el carro no trae
   };
 }
 
@@ -776,15 +785,16 @@ function actualizarHUD(est) {
   const kmh = est.v * 3.6;
   $("i-kmh").textContent = kmh.toFixed(0);
   $("i-ms").textContent = `${est.v.toFixed(1)} m/s`;
-  const fv = clamp(kmh / 90, 0, 1);
+  const fv = clamp(kmh / ((pista.v_max ?? 25) * 3.6), 0, 1);
   $("arco-vel").style.strokeDashoffset = `${ARCO * (1 - fv)}`;
   $("aguja").style.transform = `rotate(${-135 + fv * 270}deg)`;
 
   const [acel, dir] = est.accion;
   $("i-acel").style.width = `${Math.max(0, acel) * 100}%`;
   $("i-freno").style.width = `${Math.max(0, -acel) * 100}%`;
-  const grados = dir * pista.delta_max * 180 / Math.PI;
-  $("volante").style.transform = `rotate(${-dir * 160}deg)`;
+  // En la moto el mando pide inclinación: se muestra la inclinación real (puede ir detrás del mando)
+  const grados = esMoto() ? est.incl * 180 / Math.PI : dir * pista.delta_max * 180 / Math.PI;
+  $("volante").style.transform = esMoto() ? `rotate(${-grados}deg)` : `rotate(${-dir * 160}deg)`;
   $("i-dir").textContent = `${grados > 0.5 ? "◀ " : grados < -0.5 ? "" : ""}${Math.abs(grados).toFixed(0)}°${grados < -0.5 ? " ▶" : ""}`;
 
   const ag = clamp(est.agarre, 0, 1);
@@ -813,7 +823,7 @@ function actualizarHUD(est) {
   // Estado y avisos
   const st = $("estado");
   if (b.fin === "exito") { st.textContent = "VUELTA COMPLETA"; st.className = "pastilla exito"; }
-  else if (b.fin) { st.textContent = { choque: "CHOQUE", salida: "FUERA DE PISTA", estancado: "ESTANCADO", tiempo: "SIN TIEMPO" }[b.fin]; st.className = "pastilla mal"; }
+  else if (b.fin) { st.textContent = { choque: "CHOQUE", caida: "CAÍDA", salida: "FUERA DE PISTA", estancado: "ESTANCADO", tiempo: "SIN TIEMPO" }[b.fin]; st.className = "pastilla mal"; }
   else if (b.fuera > 0) { st.textContent = `CÉSPED ${b.fuera.toFixed(1)}/1.0 s`; st.className = "pastilla alerta"; }
   else if (b.derrape) { st.textContent = "DERRAPE"; st.className = "pastilla alerta"; }
   else { st.textContent = "EN PISTA"; st.className = "pastilla ok"; }
@@ -962,7 +972,7 @@ function sortear() {
 
 // Registro de experimentos de la sesión (se guardan los episodios para repetirlos)
 const experimentos = [];
-const NOMBRE_FIN = { exito: "Vuelta completa", choque: "Choque", salida: "Salida de pista", estancado: "Estancado", tiempo: "Sin tiempo" };
+const NOMBRE_FIN = { exito: "Vuelta completa", choque: "Choque", caida: "Caída", salida: "Salida de pista", estancado: "Estancado", tiempo: "Sin tiempo" };
 function pintarExperimentos() {
   $("n-exp").textContent = experimentos.length;
   if (!experimentos.length) return;
@@ -998,7 +1008,7 @@ async function cargarEpisodio() {
   $("cargando-txt").textContent = `Simulando en Python (${piloto})…`;
   $("cargando").classList.remove("oculto");
   $("resultado").classList.add("oculto");
-  const q = new URLSearchParams({ piloto, semilla, pista: pista.pista ?? "monaco" });
+  const q = new URLSearchParams({ piloto, semilla, pista: pista.pista ?? "monaco", vehiculo: pista.vehiculo ?? "carro" });
   for (const { k } of PARAMS) q.set(k, valorParam(k));
   const fallo = (texto) => {
     $("cargando-txt").textContent = texto;
@@ -1056,7 +1066,7 @@ function mostrarEpisodio(nuevo) {
 function mostrarResultado() {
   const ok = ep.resultado === "exito", last = ep.frames[ep.frames.length - 1];
   $("resultado").dataset.fin = ok ? "ok" : "mal";
-  $("r-titulo").textContent = { exito: "VUELTA COMPLETA", choque: "CHOQUE", salida: "SALIDA DE PISTA", estancado: "ESTANCADO", tiempo: "TIEMPO AGOTADO" }[ep.resultado];
+  $("r-titulo").textContent = { exito: "VUELTA COMPLETA", choque: "CHOQUE", caida: "CAÍDA", salida: "SALIDA DE PISTA", estancado: "ESTANCADO", tiempo: "TIEMPO AGOTADO" }[ep.resultado];
   $("r-titulo").style.color = ok ? "#fff" : "#ff4d45";
   $("r-tiempo").textContent = `${ep.tiempo.toFixed(1)} s`;
   $("r-recompensa").textContent = `${ep.recompensa >= 0 ? "+" : ""}${ep.recompensa.toFixed(1)}`;
@@ -1130,13 +1140,24 @@ function animar() {
 
   carro.position.copy(P(est.x, est.y));
   carro.rotation.y = est.psi;
-  const delta = est.accion[1] * pista.delta_max;
+  // La moto gira inclinándose: el manubrio casi no se mueve (solo a baja velocidad)
+  const delta = esMoto() ? clamp(est.accion[1] * 4 / Math.max(est.v, 4), -0.5, 0.5) * 0.3 : est.accion[1] * pista.delta_max;
   for (const r of ruedas) {
     if (r.delantera) r.pivote.rotation.y = delta;
-    r.giro.rotation.z -= est.v * dt * velocidad * (reproduciendo ? 1 : 0) / 0.36;
+    r.giro.rotation.z -= est.v * dt * velocidad * (reproduciendo ? 1 : 0) / (r.radio ?? 0.36);
   }
-  carro.rotation.z = clamp(-est.accion[0] * 0.02, -0.02, 0.02);         // cabeceo al acelerar/frenar
-  carro.rotation.x = clamp(est.accion[1] * est.v * 0.002, -0.05, 0.05);  // inclinación en curva
+  if (esMoto()) {
+    carro.rotation.x = -est.incl;                                          // inclinación real del simulador
+    carro.rotation.z = clamp(est.accion[0] * 0.03, -0.03, 0.04);           // se levanta al acelerar, se hunde al frenar
+    if (pilotoMoto) {   // el piloto se cuelga hacia el interior de la curva
+      const f = clamp(est.incl / 0.9, -1, 1);
+      pilotoMoto.position.z = -0.18 * f;
+      pilotoMoto.rotation.x = -0.25 * f;
+    }
+  } else {
+    carro.rotation.z = clamp(-est.accion[0] * 0.02, -0.02, 0.02);         // cabeceo al acelerar/frenar
+    carro.rotation.x = clamp(est.accion[1] * est.v * 0.002, -0.05, 0.05);  // inclinación en curva
+  }
   luzFreno.emissiveIntensity = est.accion[0] < -0.05 ? 4 : 0.4;
 
   // Humo de llantas: al derrapar, al pisar la zona de escape o al arrancar fuerte
@@ -1145,7 +1166,7 @@ function animar() {
     if (mu < 0.75 && est.v > 6) fuerte = Math.max(fuerte, (est.v / 25) * 0.55);   // rocío de agua con lluvia
     if (fuerte > 0) {
       const back = -pista.carro.ejes / 2, W = pista.carro.ancho / 2;
-      for (const lado of [W, -W]) {
+      for (const lado of esMoto() ? [0] : [W, -W]) {
         const p = rueda({ x: est.x, y: est.y, psi: est.psi }, back, lado);
         humo.emitir(P(p.x, p.y), fuerte * Math.min(1, dt * velocidad * 60));
       }
@@ -1234,8 +1255,8 @@ function mostrarFinVivo() {
   const prog = ep.progreso ?? 100 * last.s / pista.largo;
   const R = ep.recompensa ?? last.R;
   $("fin-vivo").className = `fin-vivo ${ok ? "ok" : "mal"}`;
-  $("fin-vivo-icono").textContent = { exito: "🏁", choque: "💥", salida: "🌀", estancado: "⏸", tiempo: "⏱" }[ep.resultado] || "■";
-  $("fin-vivo-titulo").textContent = `Episodio #${ep.id} · ${{ exito: "Vuelta completa", choque: "Choque", salida: "Salida de pista", estancado: "Estancado", tiempo: "Sin tiempo" }[ep.resultado] || ep.resultado}`;
+  $("fin-vivo-icono").textContent = { exito: "🏁", choque: "💥", caida: "🏍", salida: "🌀", estancado: "⏸", tiempo: "⏱" }[ep.resultado] || "■";
+  $("fin-vivo-titulo").textContent = `Episodio #${ep.id} · ${{ exito: "Vuelta completa", choque: "Choque", caida: "Caída", salida: "Salida de pista", estancado: "Estancado", tiempo: "Sin tiempo" }[ep.resultado] || ep.resultado}`;
   $("fin-vivo-datos").textContent = `${(ep.tiempo ?? last.t).toFixed(1)} s · ${R >= 0 ? "+" : ""}${R.toFixed(1)} pts · ${Math.round(prog)}% de la vuelta`;
   clearTimeout(finVivoTimer);
   finVivoTimer = setTimeout(ocultarFinVivo, 6000);
@@ -1357,6 +1378,20 @@ function conectar() {
   sel.value = params.get("piloto") || pista.recomendado || "experto";
   $("inp-semilla").value = params.get("semilla") || "0";
 
+  // Selector de vehículo: carro o moto MotoGP. Cambiarlo recarga el visor con su modelo y sus pilotos
+  const selVehiculo = $("sel-vehiculo");
+  if (selVehiculo && pista.vehiculos?.length > 1) {
+    for (const v of pista.vehiculos) selVehiculo.insertAdjacentHTML("beforeend", `<option value="${v.nombre}">${v.titulo}</option>`);
+    selVehiculo.value = pista.vehiculo ?? "carro";
+    selVehiculo.onchange = () => {
+      if (selVehiculo.value === "carro") params.delete("vehiculo"); else params.set("vehiculo", selVehiculo.value);
+      for (const k of ["t", "pausa", "piloto", "a_max"]) params.delete(k);   // pilotos y base de aceleración cambian
+      location.search = params.toString();
+    };
+  } else {
+    $("campo-vehiculo")?.classList.add("oculto");
+  }
+
   // Selector de pista: solo si la API dice cuáles hay (el replay sin API trae solo Mónaco)
   const selPista = $("sel-pista");
   if (pista.pistas?.length > 1) {
@@ -1474,17 +1509,25 @@ async function prepararEscena(limite = 15000) {
 // Si la pedida no está disponible (reservada, desconocida o sin API), se carga Mónaco y se avisa.
 let avisoPista = "";
 {
-  let r = await fetch(`${API}/api/pista?pista=${encodeURIComponent(PISTA_PEDIDA)}`);
+  const v = `vehiculo=${encodeURIComponent(VEHICULO_PEDIDO)}`;
+  let r = await fetch(`${API}/api/pista?pista=${encodeURIComponent(PISTA_PEDIDA)}&${v}`);
   if (!r.ok && PISTA_PEDIDA !== "monaco") {
     const e = await r.json().catch(() => ({}));
     avisoPista = `${e.detail ?? `La pista ${PISTA_PEDIDA} no está disponible`}. Se muestra Mónaco.`;
     params.delete("pista");
     history.replaceState(null, "", `${location.pathname}${params.toString() ? `?${params}` : ""}`);
+    r = await fetch(`${API}/api/pista?${v}`);
+  }
+  if (!r.ok && VEHICULO_PEDIDO !== "carro") {
+    const e = await r.json().catch(() => ({}));
+    avisoPista = `${e.detail ?? `El vehículo ${VEHICULO_PEDIDO} no está disponible`}. Se muestra el carro.`;
+    params.delete("vehiculo");
+    history.replaceState(null, "", `${location.pathname}${params.toString() ? `?${params}` : ""}`);
     r = await fetch(`${API}/api/pista`);
   }
   pista = await r.json();
 }
-$("subtitulo-pista").textContent = `${pista.titulo ?? "Mónaco"} · AutonomousRally-v0`;
+$("subtitulo-pista").textContent = `${pista.titulo ?? "Mónaco"} · ${esMoto() ? "AutonomousRallyMoto-v0 · MotoGP" : "AutonomousRally-v0"}`;
 {
   const [MX, MY] = pista.mapa;
   // Cámara de sombras de 120 m que sigue al carro (más detalle que cubrir todo el mapa)

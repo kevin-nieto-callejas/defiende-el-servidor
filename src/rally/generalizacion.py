@@ -15,18 +15,18 @@ from concurrent.futures import ProcessPoolExecutor
 import mlflow
 import numpy as np
 
-from rally import policies, track
-from rally.env import AutonomousRallyEnv
-from rally.pipeline import METRICAS, _escribir_json, _metricas, _run, params
+from rally import policies, track, vehiculos
+from rally.pipeline import _escribir_json, _metricas, _run, params, rutas
 
 
 def _lote(args):
-    piloto, ambiente, prueba, semillas = args
-    env = AutonomousRallyEnv(**{**ambiente, **prueba.get("ambiente", {})})
+    piloto, ambiente, prueba, semillas, *resto = args
+    vehiculo = resto[0] if resto else "carro"
+    env = vehiculos.crear_env(vehiculo, **{**ambiente, **prueba.get("ambiente", {})})
     ruido = prueba.get("ruido_sensores", 0.0)
     out = []
     for s in semillas:
-        pol = policies.crear(piloto, s)
+        pol = policies.crear(piloto, s, vehiculo)
         rng = np.random.default_rng(s)
         obs, info = env.reset(seed=s)
         total, done = 0.0, False
@@ -37,7 +37,7 @@ def _lote(args):
             total += r
             done = term or trunc
         out.append({"ok": info["outcome"] == "exito", "t": info["t"], "r": total,
-                    "inc": info["off_track_events"] + (info["outcome"] == "choque"),
+                    "inc": info["off_track_events"] + (info["outcome"] in ("choque", "caida")),
                     "prog": info["s_best"] / track.largo(info)})
     return piloto, prueba["nombre"], out
 
@@ -49,14 +49,15 @@ def _nucleos():
         return os.cpu_count() or 1
 
 
-def etapa_generalizacion():
-    p = params()
+def etapa_generalizacion(vehiculo="carro"):
+    p = params(vehiculo)
+    metricas = rutas(vehiculo)["metricas"]
     amb, pg, pe = p["ambiente"], p["generalizacion"], p["evaluacion"]
-    pilotos = [x for x in pg["pilotos"] if policies.disponible(x)]
+    pilotos = [x for x in pg["pilotos"] if policies.disponible(x, vehiculo)]
     semillas = list(range(pg["semilla_inicial"], pg["semilla_inicial"] + pg["episodios"]))
     pruebas = [{"nombre": "seco", "ambiente": {"mu": pe["mu_seco"]}},
                {"nombre": "mojado", "ambiente": {"mu": pe["mu_mojado"]}}] + pg["pruebas"]
-    tareas = [(piloto, amb, prueba, semillas[i:i + 10])
+    tareas = [(piloto, amb, prueba, semillas[i:i + 10], vehiculo)
               for piloto in pilotos for prueba in pruebas for i in range(0, len(semillas), 10)]
     filas = {}
     with ProcessPoolExecutor(max_workers=_nucleos()) as ex:
@@ -80,13 +81,13 @@ def etapa_generalizacion():
     salida = {"episodios_por_prueba": len(semillas), "caida_max_puntos": pg["caida_max"],
               "pruebas": {pr["nombre"]: pr for pr in pruebas},
               "resultados": res, "veredictos": veredictos}
-    _escribir_json(METRICAS / "generalizacion.json", salida)
-    with _run("generalizacion", pg):
+    _escribir_json(metricas / "generalizacion.json", salida)
+    with _run("generalizacion", pg, vehiculo=vehiculo):
         for piloto, cond in res.items():
             for c, m in cond.items():
                 mlflow.log_metrics({f"{piloto}.{c}.{k}": v for k, v in m.items() if v is not None})
             mlflow.log_metric(f"{piloto}.sobreajuste", int(veredictos[piloto]["sobreajuste"]))
-        mlflow.log_artifact(str(METRICAS / "generalizacion.json"))
+        mlflow.log_artifact(str(metricas / "generalizacion.json"))
 
     nombres = [pr["nombre"] for pr in pruebas]
     print("  " + " " * 10 + " ".join(f"{n[:11]:>11s}" for n in nombres))
