@@ -1,10 +1,11 @@
 <section id="limites" data-transition="fade" style="background:#F3F1EA;color:#14161B;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Lo que este trabajo no demuestra</h2>
 <ul style="font-size:36px;line-height:1.5">
-<li><b>Memoria o robustez:</b> la v5-s1 memorizó Mónaco; la v6 maneja pistas nuevas pero no aguanta los extremos</li>
-<li><b>Ayuda procesada:</b> no medimos cuánto depende el agente de la velocidad segura</li>
+<li><b>Pista nueva para la recomendada:</b> la v6-s1 no tiene prueba en una pista que nunca vio; la Sierra ya se usó</li>
+<li><b>Velocidad:</b> la v6-s1 es 11.8 s más lenta en seco que la v5-s1</li>
+<li><b>Dos semillas de la v6:</b> una pasa y otra no; no sabemos qué tan seguido pasa</li>
 <li><b>Extremos combinados:</b> se probaron uno a la vez; todos juntos, el modelo falla</li>
 </ul>
-<p style="font-size:44px;line-height:1.3;font-weight:600">Siguiente hipótesis: elegir el punto del entrenamiento mirando también los extremos, con varias semillas.</p>
-<aside>Cerrar con la limitación más importante: hoy no tenemos un modelo que maneje en pistas nuevas y aguante el diluvio a la vez. La v6 eligió su mejor punto mirando solo sus pistas; la hipótesis es que mirando también los extremos se logren las dos cosas. Abrir preguntas.</aside>
+<p style="font-size:44px;line-height:1.3;font-weight:600">Siguiente hipótesis: una tercera semilla y una quinta pista reservada, de otra familia.</p>
+<aside>Cerrar con la limitación más importante: sabemos que la v6 semilla 0 generaliza a una pista nueva, pero no lo hemos medido para la semilla 1. Con una quinta pista reservada y una tercera semilla se respondería si la v6-s1 maneja y aguanta los extremos a la vez, con los mismos criterios. Tampoco medimos cuánto depende el agente de la nota de velocidad segura. Abrir preguntas.</aside>
 </section>

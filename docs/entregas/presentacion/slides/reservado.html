@@ -1,10 +1,10 @@
 <section id="reservado" data-transition="fade" style="background:#14161B;color:#F3F1EA;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:48px">
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">El test reservado confirmó el resultado</h2>
 <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:32px">
-<div style="display:flex;flex-direction:column;gap:12px"><p style="font-family:'Oswald', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1.1;color:#FFD23F">100 %</p><p style="font-size:32px;line-height:1.3">en seco, 68.6 s</p></div>
-<div style="display:flex;flex-direction:column;gap:12px"><p style="font-family:'Oswald', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1.1;color:#FFD23F">100 %</p><p style="font-size:32px;line-height:1.3">con lluvia, 89.3 s</p></div>
-<div style="display:flex;flex-direction:column;gap:12px"><p style="font-family:'Oswald', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1.1;color:#FFD23F">99.9 %</p><p style="font-size:32px;line-height:1.3">en 19 pruebas extremas; la peor, diluvio 98 %</p></div>
+<div style="display:flex;flex-direction:column;gap:12px"><p style="font-family:'Oswald', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1.1;color:#FFD23F">100 %</p><p style="font-size:32px;line-height:1.3">en seco, 80.4 s</p></div>
+<div style="display:flex;flex-direction:column;gap:12px"><p style="font-family:'Oswald', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1.1;color:#FFD23F">100 %</p><p style="font-size:32px;line-height:1.3">con lluvia, 104.8 s</p></div>
+<div style="display:flex;flex-direction:column;gap:12px"><p style="font-family:'Oswald', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1.1;color:#FFD23F">100 %</p><p style="font-size:32px;line-height:1.3">en las 19 pruebas extremas; ninguna bajo 100 %</p></div>
 </div>
-<p style="font-size:32px;line-height:1.3">PPO v5 semilla 1. 100 semillas que no están en el repositorio, una sola corrida, con los modelos ya elegidos.</p>
-<aside>Por qué importa: comparar tres semillas con la misma suite favorece a la ganadora. Este test es la medida honesta. Solo se publica el SHA-256 de las semillas. Q-learning semilla 1 dio 99 %, 99 % y 84.8 %.</aside>
+<p style="font-size:32px;line-height:1.3">PPO v6 semilla 1, la recomendada. 100 semillas nuevas que no están en el repositorio, una sola corrida, con la regla escrita antes en git. La v5 semilla 1 dio 100 %, 100 % y 99.9 % en el suyo.</p>
+<aside>Por qué importa: comparar semillas con la misma suite favorece a la ganadora; este test es la medida honesta. Solo se publica el SHA-256 de las semillas. La v6 semilla 1 usó semillas nuevas porque las anteriores ya se habían usado con la v5; la regla quedó en el commit 5ed48de antes de correrlo. Q-learning semilla 1 dio 99 %, 99 % y 84.8 %.</aside>
 </section>

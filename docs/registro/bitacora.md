@@ -240,3 +240,8 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   que sube frente a las graderías, eco en el túnel, Doppler y paneo con la cámara de TV, cuenta regresiva (el carro
   espera en la salida), fanfarria y aplausos al completar la vuelta, golpe al chocar. Volumen por canal en 🔊, y M
   silencia. Medido en Chrome: sin excepciones, picos de 0.33 en carrera y 0.64 en la llegada, sin saturar.
+- MLflow: el `@champion` de `rally-ppo` seguía en la v5-s1 (versión 6) aunque la recomendada era la v6-s1. Se
+  registró la v6-s1 como versión 7: apunta a `models/semillas-v6/v6-s1`, con su SHA-256 verificado, y enlaza a su
+  run en DagsHub, porque se entrenó en GitHub Actions. Quedan `@champion` = 7 y `@rollback` = 6.
+- Presentación (18 diapositivas, dos nuevas: segunda semilla y moto), informe y resumen general actualizados a la v6-s1.
+- Vercel publica en producción con un push a `main` del fork (`kevin`); `ambiente-v0.4` queda para vistas previas.

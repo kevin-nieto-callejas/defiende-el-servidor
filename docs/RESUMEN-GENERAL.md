@@ -48,7 +48,7 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | ¿Memorizó Mónaco? | La v5-s1 sí: 0 % en el Puerto y en la Sierra (pista reservada) |
 | Experimento más reciente | `ppo-modelo-v6-pistas`: entrenada en tres pistas, maneja en una pista que nunca vio (100 %), pero **no pasa la selección**: cae en condiciones extremas de Mónaco (sección 7.7) |
 | Segundo vehículo | Moto MotoGP (`AutonomousRallyMoto-v0`): mismo circuito, física de inclinación y caída. Recomendada `ppo-moto-v1`: 100 % en seco (78.2 s) y 100 % con lluvia (110.0 s) |
-| Avance estimado frente a la rúbrica | Cerca del 95 % (estimación del equipo, no una medición) |
+| Avance estimado frente a la rúbrica | Cerca del 97 % (estimación del equipo, no una medición) |
 | Lo que más falta | Ensayo, nombre del equipo y contribuciones, y respuestas del docente |
 | Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api`; selector de pista desde el 10 de noviembre) |
 | Pruebas automáticas | 109, todas pasan. Las de la API se saltaban en CI porque faltaba `httpx` en `requirements.txt`; desde el 11 de noviembre corren |
@@ -329,6 +329,9 @@ El detalle de cada decisión está en la [bitácora](registro/bitacora.md) y en 
 | 6 nov | API publicada en Vercel con los modelos reales. Allison y Miguel, colaboradores de DagsHub |
 | 6–8 nov | Experimento v6 de Miguel: tres pistas nuevas. La v5-s1 da 0 % en el Puerto y en la Sierra; la v6, 100 % |
 | 10 nov | Selector de pista en la web (PR #3). Evaluación oficial de la v6: **no pasa la selección**. La web pública queda al día |
+| 11 nov | Moto MotoGP de Allison (PR #7): segundo vehículo, con sus dos agentes, su API y su selección |
+| 12 nov | Segunda semilla de la v6 en GitHub Actions (PR #8, Miguel): **pasa 7 de 7 criterios y su test reservado; se promueve** |
+| 13 nov | PR #9 une la v6-s1 y la moto. Vercel, Hugging Face y el `@champion` de MLflow pasan a la v6-s1. Sonido en el visor y la lluvia ya no cae dentro del túnel |
 
 ### 6.1 Los aprendizajes que hay que contar
 
@@ -342,8 +345,10 @@ El detalle de cada decisión está en la [bitácora](registro/bitacora.md) y en 
 3. **Una sola semilla engaña.** La semilla 0 de PPO v5, promovida primero, resultó la más lenta y la menos robusta
    de las tres.
 4. **100 % en una pista puede ser memoria.** La v5-s1 da 100 % en Mónaco y 0 % en el Puerto y la Sierra, que el
-   maestro sí completa. Entrenar en tres pistas (v6) lo corrige, pero la v6 pierde aguante en condiciones extremas
-   de Mónaco. Los criterios, fijados antes, lo detectaron y no la dejaron reemplazar a la recomendada.
+   maestro sí completa. Entrenar en tres pistas (v6) lo corrige, pero la v6 semilla 0 pierde aguante en condiciones
+   extremas de Mónaco. Los criterios, fijados antes, lo detectaron y no la dejaron reemplazar a la recomendada.
+5. **La semilla también cuenta en un experimento.** La v6 semilla 1 pasó los mismos criterios, sin tocarlos, y su
+   test reservado. Se promovió con la v5-s1 lista para rollback. Gana robustez a cambio de 11.8 s en seco.
 
 ---
 
@@ -359,8 +364,9 @@ Todas las cifras son % de vueltas completas sobre 100 episodios, y tiempo median
 | `modelo-v2` | Un sensor de agarre ayuda con lluvia | 100 %, 63.1 s | 0 % | Reemplazada: no ayudó |
 | `experimento-v3` | Practicar con lluvia e imitar vueltas | 0 % | 0 % | Rechazada |
 | `modelo-v4` | DAgger corrige los errores de la red | 100 %, 75.6 s | 100 %, 91.8 s | Aceptada y luego reemplazada |
-| **`ppo-modelo-v5-s1`** | Conocer el carro y practicar todo con ruido | **100 %, 68.6 s** | **100 %, 89.3 s** | **Recomendada** |
+| `ppo-modelo-v5-s1` | Conocer el carro y practicar todo con ruido | 100 %, 68.6 s | 100 %, 89.3 s | Aceptada; reemplazada el 12 nov, queda para rollback |
 | `ppo-modelo-v6-pistas` | Practicar en tres pistas permite manejar en una nueva | 100 %, 69.8 s | 100 %, 86.6 s | Hipótesis cumplida; rechazada por la selección (7.7) |
+| **`ppo-modelo-v6-pistas-s1`** | La misma v6 con otra semilla | **100 %, 80.4 s** | **100 %, 104.8 s** | **Recomendada** (7.7) |
 
 ### 7.2 Evolución de Q-learning
 
@@ -460,7 +466,7 @@ en Mónaco se entrenaron en el Mac de Miguel con la misma configuración y la mi
 | Piloto | Bosque | Puerto | Sierra (reservada, una sola corrida) |
 |---|---|---|---|
 | Maestro | 100 / 100 % | 100 / 100 % | 100 / 100 % |
-| v5 semilla 1 (la recomendada) | 100 / 100 % | **0 / 0 %** | **0 / 0 %** |
+| v5 semilla 1 (la recomendada entonces) | 100 / 100 % | **0 / 0 %** | **0 / 0 %** |
 | Control, solo Mónaco | 100 / 30 % | 100 / 100 % | 100 / 100 % · 77.3 / 99.4 s |
 | **v6, tres pistas** | 100 / 100 % | 100 / 100 % | **100 / 100 % · 68.8 / 88.0 s** |
 
@@ -484,12 +490,33 @@ Dónde cae, frente a la v5 semilla 0 (la que estaba en `models/ppo`): diluvio 82
 100 → **14 %**, pista de 6 m en seco 100 → **5 %**, sensores de 10 m con lluvia 100 → **0 %**. En las otras 17
 pruebas da entre 85 y 100 %.
 
-**Conclusión:** la v6 generaliza a pistas nuevas pero pierde robustez en condiciones extremas de Mónaco. Es un
-compromiso, y los criterios fijados el 1 de noviembre lo detectaron. **La recomendada sigue siendo la v5-s1** y no
-se publicó la v6 en Hugging Face. La v6 queda en el catálogo y en la web para comparar.
+**Conclusión del 10 de noviembre:** la v6 semilla 0 generaliza a pistas nuevas pero pierde robustez en condiciones
+extremas de Mónaco. Es un compromiso, y los criterios fijados el 1 de noviembre lo detectaron. No se promovió y
+queda en el catálogo y en la web para comparar.
+
+**Segunda semilla (12 de noviembre, PR #8 de Miguel).** ¿La caída venía de las tres pistas, del Mac o de la
+semilla? Se entrenaron la v6 y el control con la semilla 1 en GitHub Actions, con la misma configuración, y se
+midieron en las pistas de entrenamiento (sin la Sierra, ya usada):
+
+| Modelo | Mónaco seco / lluvia | Bosque | Puerto | Extremos | Peor prueba | Selección |
+|---|---|---|---|---|---|---|
+| v6 semilla 0 (Mac) | 100 / 100 %, 69.8 s | 100 / 100 % | 100 / 100 % | 79.2 % | diluvio 0 % | rechazada |
+| **v6 semilla 1** (Actions) | **100 / 100 %, 80.4 s** | **100 / 100 %** | **100 / 100 %** | **100 %** | **100 %** | **aceptada, 7 de 7** |
+| Control semilla 1 (Actions) | 100 / 100 %, 81.5 s | **0 / 0 %** | 100 / **0 %** | 94.7 % | sensores cortos con lluvia 0 % | rechazada |
+
+- Practicar en tres pistas da un resultado estable entre semillas; solo en Mónaco, no.
+- La caída de la semilla 0 no venía de las pistas ni del Mac: la semilla 1 da 100 % en extremos y el control
+  semilla 0, entrenado en el mismo Mac, 98 %.
+- La semilla 0 es la única que afinó con PPO hasta el final y la más rápida. La hipótesis es que afinar mucho cambia
+  robustez por velocidad; con dos semillas no está comprobado.
+
+La v6 semilla 1 tuvo su **test reservado** con semillas nuevas, fuera del repositorio, y una regla escrita antes
+(commit `5ed48de`): 100 % en seco (80.4 s), 100 % con lluvia (104.8 s) y 100 % en las 19 pruebas extremas.
+Se promovió con `seleccion.promover` y el historial conserva la v5-s1 para rollback. Ambos veredictos están en
+`manifests/decisiones.json`. **Límite:** la semilla 1 no tiene prueba en una pista que nunca vio.
 
 **Demo para la sustentación:** https://autonomous-rally.vercel.app/?pista=puerto con `ppo-modelo-v5-s1` (en seco se
-sale a los 28.4 s y con lluvia choca) y después con `ppo-modelo-v6-pistas` (completa en 78.8 s y 99.6 s).
+sale a los 28.4 s y con lluvia choca) y después con `ppo-modelo-v6-pistas-s1`, la recomendada, que completa.
 
 ### 7.8 La moto MotoGP: sus dos agentes
 
@@ -572,8 +599,9 @@ API (FastAPI) sirve el recomendado ──► web en Vercel (en vivo; replay si l
 - **Bajar los modelos pide usuario y token de DagsHub**, aunque el repositorio no sea privado. Se guardan en
   `.dvc/config.local`, que no se sube a git.
 - **Estado al 10 de noviembre: `dvc status` dice "Data and pipelines are up to date".** `models/ppo` es la v6 y
-  `metrics/evaluacion.json` y `metrics/generalizacion.json` son de la v6; la v5-s1 recomendada vive en
-  `finalistas/`.
+  `metrics/evaluacion.json` y `metrics/generalizacion.json` son de la v6; la v5-s1 vive en `finalistas/` y la
+  v6-s1 recomendada en `models/semillas-v6/` (`models/semillas-v6.dvc`). El 13 de noviembre, tras unir la moto,
+  se volvió a comprobar sin reentrenar: `datos` y `evaluar` dan los mismos números.
 - Cómo se dejó al día sin reentrenar, con evidencia para cada etapa:
 
 | Etapa | Qué había cambiado | Cómo se comprobó | Qué se hizo |
@@ -619,8 +647,8 @@ Además: `catalogo.json` (lista para la web), `recomendado.json` (el que sirve l
 promoción y rollback con fecha y motivo) y `decisiones.json` (cada veredicto de selección, aceptado o rechazado,
 criterio por criterio). Una prueba automática revisa que todos los manifiestos tengan los 12 campos del enunciado.
 
-Los 17 manifiestos: PPO v1, v2, v3, v4, v5, v5-s1, v5-s2 y v6-pistas; Q-learning v1, v2, v3, v4, v6, v7, v8,
-v8-s1 y v8-s2. El de la v6 dice en qué máquina se entrenó (el Mac de Miguel), porque la huella del ambiente cambia
+Los 20 manifiestos del catálogo: PPO v1, v2, v3, v4, v5, v5-s1, v5-s2, v6-pistas y v6-pistas-s1; Q-learning v1,
+v2, v3, v4, v6, v7, v8, v8-s1 y v8-s2; y la moto, ppo-moto-v1 y qlearning-moto-v1. El de la v6 dice en qué máquina se entrenó (el Mac de Miguel), porque la huella del ambiente cambia
 en el último bit entre macOS y Linux con el mismo código.
 
 ### 8.5 Recuperar modelos viejos: adaptadores
@@ -691,7 +719,7 @@ función lleva su propia cuenta y se reinicia cuando Vercel la recicla; la respu
 | Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada y al día: commit `dedbc1b`, 10 de noviembre, con el selector de pista |
 | API | Vercel, función de Python en `web/api/index.py`, en el mismo dominio | Publicada el 6 de noviembre con `web/api/_paquete` (modelos reales, 2.8 MB). La función pesa 191 MB, bajo el límite de 500. Hugging Face quedó descartado: los Spaces con Docker exigen PRO |
 | Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | GitHub Actions lo construye sin pesos y prueba sus rutas en cada push. Queda como alternativa para un host con Docker |
-| Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v5 semilla 1, etiqueta `v5-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo. Las versiones anteriores siguen en las etiquetas `v1`, `v2` y `v4` |
+| Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v6 semilla 1, etiqueta `v6-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo (13 nov). Las versiones anteriores siguen en las etiquetas `v1`, `v2`, `v4` y `v5-s1` |
 
 **Por qué numpy en la API publicada:** una función de Vercel no puede cargar PyTorch, que pesa más que su límite.
 La red de PPO es una red pequeña (24 entradas, dos capas de 256 con tanh y 2 salidas), así que su cuenta se
@@ -733,7 +761,13 @@ pública. La versión publicada es `dedbc1b` (10 de noviembre).
 - **Paneles:** Telemetría, Registro de experimentos y Aprendizaje.
 - **Controles:** espacio pausa, R reinicia, flechas avanzan o retroceden 2 s, H oculta paneles, Esc cierra el
   resultado. Velocidad ½×, 1×, 2× y 4×. Calidad Auto, Alta, Media o Baja.
-- **Catálogo de modelos:** lista las 17 versiones con su hipótesis, decisión, ambiente y SHA-256; permite cargar,
+- **Sonido** (botón 🔊, tecla M): sintetizado en vivo con Web Audio, sin archivos. El motor sube de revoluciones con
+  la velocidad del episodio y hace los cambios; las llantas chillan cuando el simulador marca derrape; hay público,
+  cuenta regresiva, fanfarria al completar la vuelta y golpe al chocar. Con la cámara de TV suena con Doppler y en
+  el túnel con eco. Volumen por canal. El navegador exige tocar la pantalla una vez para que suene.
+- **Lluvia:** no cae ni salpica bajo el techo del túnel. Es solo visual: en el simulador el agarre es el mismo en
+  toda la pista.
+- **Catálogo de modelos:** lista las 20 versiones con su hipótesis, decisión, ambiente y SHA-256; permite cargar,
   evaluar y comparar modelos, y muestra el monitoreo.
 - **Medidor de rendimiento** (arriba a la derecha, en pantallas anchas): por ejemplo "24 FPS · 90% · Media" son
   cuadros por segundo, resolución de la imagen y calidad. En "Auto" la web los baja sola si el computador va lento.
@@ -851,7 +885,7 @@ La instalación completa está en la [guía para empezar](guias/empezar.md).
 | Visor viejo con entrenamiento en vivo | `.venv/bin/rally web` → puerto 8765 |
 | Interfaz de MLflow | `.venv/bin/rally mlflow` |
 | Regenerar manifiestos | `.venv/bin/rally manifiesto` |
-| Aplicar criterios | `.venv/bin/rally seleccionar ppo-modelo-v5-s1 --tipo ppo --semilla 1` |
+| Aplicar criterios | `.venv/bin/rally seleccionar ppo-modelo-v5-s1 --tipo ppo --semilla 1 --anotar` (la v6-s1 se evaluó con `seleccion.decidir` sobre `metrics/semillas-v6.json`) |
 | Rollback | `~/.venvs/rally-flujo/bin/python pipelines/flujo.py --rollback "motivo"` |
 | Regenerar vueltas grabadas | `.venv/bin/rally replays` |
 | Copiar MLflow a DagsHub | `.venv/bin/rally sincronizar` (necesita `DAGSHUB_TOKEN`) |
@@ -932,12 +966,16 @@ docente.
 
 ## 15. Límites que hay que decir en la sustentación
 
-- **El modelo recomendado (v5-s1) memorizó Mónaco.** Da 0 % en el Puerto y en la Sierra, que el maestro sí
-  completa. Hay que decirlo antes de que el docente cambie de pista en la web. La v6, entrenada en tres pistas,
-  sí maneja en pistas nuevas, pero no pasa los criterios de selección porque cae en condiciones extremas de
-  Mónaco (diluvio 0 %). Hoy no tenemos un modelo que haga las dos cosas.
-- **Las cuatro pistas son de la misma familia:** rectas y arcos de radio constante. La v6 y su control tienen una
-  sola semilla cada uno.
+- **La recomendada (v6-s1) no tiene prueba en una pista que nunca vio.** Para ella el Bosque y el Puerto son de
+  entrenamiento, y la Sierra ya se usó con la semilla 0. Sabemos que la v6 semilla 0 generaliza, no la semilla 1.
+- **La v6-s1 es más lenta:** 80.4 s en seco contra 68.6 s de la v5-s1, casi igual al maestro. Los criterios no
+  premian el tiempo por debajo del máximo (81.3 s).
+- **La v5-s1, la anterior, memorizó Mónaco:** 0 % en el Puerto y en la Sierra. Hay que contarlo como el hallazgo que
+  llevó a la v6.
+- **Las cuatro pistas son de la misma familia:** rectas y arcos de radio constante. La v6 tiene dos semillas (una
+  pasa y otra no) y su control también.
+- **La tabla Q de la moto no está en DagsHub:** su manifiesto y su SHA-256 existen, pero `dvc pull` falla hasta que
+  se suba.
 - **Las 19 pruebas extremas cambian una condición a la vez.** Combinadas, el modelo falla: con diluvio y
   aceleración 6 completó 1 de 3 vueltas, y con todos los deslizadores al extremo (pista de 6 m, μ 0.4, aceleración
   6 y sensores de 10 m), 0 de 3. Medido el 3 de noviembre en la API local. Si el docente prueba eso en la web, va a
@@ -956,13 +994,18 @@ docente.
 ## 16. Preguntas frecuentes del equipo
 
 **¿Qué modelo presentamos?**
-`ppo-modelo-v5-s1`. Es el recomendado en `manifests/recomendado.json` y el `@champion` de `rally-ppo` en MLflow. El
-de Q-learning es `qlearning-modelo-qlearning-v8-s1`.
+`ppo-modelo-v6-pistas-s1`. Es el recomendado en `manifests/recomendado.json`, lo que sirve la API pública, lo que
+está en Hugging Face (etiqueta `v6-s1`) y el `@champion` de `rally-ppo` en MLflow (versión 7; la v5-s1 es la
+versión 6, con el alias `@rollback`). La v6-s1 se entrenó en GitHub Actions, así que su versión en el registro
+local apunta a `models/semillas-v6/v6-s1` y su run está en DagsHub. El de Q-learning es
+`qlearning-modelo-qlearning-v8-s1`. El de la moto, `ppo-moto-v1`.
 
-**¿Por qué no promovimos la v6 si maneja en todas las pistas?**
-Porque los criterios de selección, fijados el 1 de noviembre, exigen 85 % de promedio en las pruebas extremas y
-ninguna bajo 50 %. La v6 dio 79.2 % y 0 % en diluvio. No se cambian los criterios para que un modelo pase: el
-sistema hizo lo que tenía que hacer. Detalle en la sección 7.7.
+**¿Por qué la v6 semilla 0 no y la semilla 1 sí? ¿No eligieron la semilla que convenía?**
+Los criterios son los mismos del 1 de noviembre, sin tocarlos: 85 % de promedio en las pruebas extremas y ninguna
+bajo 50 %. La semilla 0 dio 79.2 % y 0 % en diluvio; la semilla 1, 100 % y 100 %. Los dos veredictos están en
+`manifests/decisiones.json`. Además, la semilla 1 pasó un test reservado nuevo, de una sola corrida, con la regla
+escrita antes. Lo honesto: de dos semillas pasó una, y la semilla 1 no tiene prueba en una pista nueva. Detalle en
+la sección 7.7.
 
 **¿Por qué la Sierra no aparece en el selector de pista?**
 Es la prueba reservada del experimento v6: se usó una sola vez, el 8 de noviembre. Si se pudiera correr a voluntad,
@@ -1058,9 +1101,9 @@ debe poder explicar lo que se hizo.
 | ¿Cómo evitan sobreajustar a la evaluación? | Semillas de entrenamiento distintas, pruebas extremas, tres semillas y test reservado de una sola corrida | `metrics/test-final.json` |
 | ¿Qué fue lo más difícil? | La lluvia extrema; la causa era física, no de aprendizaje | Sección 6.1 |
 | ¿Qué pasa si falla en producción? | Monitoreo en la API, criterios y rollback | `/api/monitoreo`, `historial.json` |
-| ¿Cuál es la principal limitación? | La v5-s1 memorizó Mónaco; la v6 generaliza a pistas pero no aguanta extremos | Sección 15, web con `?pista=puerto` |
+| ¿Cuál es la principal limitación? | La v6-s1 no tiene prueba en una pista que nunca vio, y es 11.8 s más lenta que la v5-s1 | Sección 15 |
 | ¿Su modelo sabe manejar o memorizó? | Lo medimos con pistas nuevas y una reservada: la v5-s1 memorizó, la v6 no. La Sierra se corrió una sola vez | Sección 7.7, `metrics/sierra-v6.json` |
-| ¿Por qué no promovieron la v6? | Generaliza a pistas nuevas pero cae en las pruebas extremas: 79.2 % frente al mínimo de 85 %, y diluvio 0 % | `metrics/generalizacion.json`, `manifests/decisiones.json` |
+| ¿Por qué la v6 semilla 0 no y la semilla 1 sí? | Mismos criterios: la 0 cayó en extremos (79.2 %, diluvio 0 %); la 1 dio 100 % y pasó su test reservado | `manifests/decisiones.json`, `metrics/test-final-v6-s1.json` |
 | ¿Qué pasa cuando un modelo nuevo no cumple? | No se promueve: el flujo de Prefect rechazó la v6 solo | `docs/evidencia/flujo-rechazo-v6/` |
 | ¿Por qué Prefect? | Es Python, corre local sin servidor y deja evidencia por etapa | `pipelines/flujo.py` |
 | ¿Qué harían después? | Entender por qué la v6 pierde en extremos, entrenar en varias pistas con más semillas y buscar un modelo que cumpla las dos cosas | Sección 7.7 |
@@ -1106,7 +1149,7 @@ debe poder explicar lo que se hizo.
 | Experimento v6 | [experimentos/v6-pistas.md](experimentos/v6-pistas.md) |
 | Experimentos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments |
 | Datos y modelos | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
-| Modelo publicado (PPO v5 semilla 1) | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
+| Modelo publicado (PPO v6 semilla 1) | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
 | Ficha del ambiente | [ambiente-v0.1.md](ambiente-v0.1.md) |
 | Informe | [entregas/informe.md](entregas/informe.md) |
 | Presentación | [entregas/presentacion/](entregas/presentacion/) |

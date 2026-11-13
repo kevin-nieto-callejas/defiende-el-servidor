@@ -3,9 +3,9 @@
 <h2 style="font-family:'Oswald', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.1"><a href="https://autonomous-rally.vercel.app" style="color:#F3F1EA">autonomous-rally.vercel.app</a></h2>
 <ul style="font-size:32px;line-height:1.5">
 <li>Abrir el catálogo y leer versión, ambiente, commit y SHA-256</li>
-<li>Cargar un modelo histórico y ver que se marca como tal</li>
-<li>Comparar la v1 con la versión recomendada, seco y lluvia</li>
-<li>Pista Puerto: la v5-s1 se sale y la v6 completa</li>
+<li>Comparar la v1 con la recomendada (v6-s1), seco y lluvia</li>
+<li>Pista Puerto: la v5-s1 se sale y la v6-s1 completa</li>
+<li>Moto MotoGP y sonido: motor, derrape y público en vivo</li>
 </ul>
-<aside>La API corre en la misma URL, como función de Vercel: el catálogo evalúa en vivo y los deslizadores corren experimentos nuevos. Cada resultado dice motor (numpy para PPO), ambiente y commit. Si la API no responde, la web entra en replay y lo dice en la nota del panel. Antes de mover todos los deslizadores al extremo a la vez, avisar que combinados el modelo falla. Para el Puerto: abrir autonomous-rally.vercel.app/?pista=puerto, correr ppo-modelo-v5-s1 (en seco se sale a los 28.4 s) y después ppo-modelo-v6-pistas (78.8 s). La Sierra no está en el selector: es la prueba reservada.</aside>
+<aside>Tocar la pantalla una vez para activar el sonido. La API corre en la misma URL, como función de Vercel: el catálogo evalúa en vivo y los deslizadores corren experimentos nuevos. Cada resultado dice motor (numpy para PPO), ambiente y commit. Si la API no responde, la web entra en replay y lo dice. Antes de mover todos los deslizadores al extremo a la vez, avisar que combinados el modelo falla. Para el Puerto: autonomous-rally.vercel.app/?pista=puerto, correr ppo-modelo-v5-s1 (en seco se sale a los 28.4 s) y después ppo-modelo-v6-pistas-s1. Moto: ?vehiculo=moto. La cámara TV (tecla 2) deja oír el carro pasar con Doppler. La Sierra no está en el selector: es la prueba reservada.</aside>
 </section>

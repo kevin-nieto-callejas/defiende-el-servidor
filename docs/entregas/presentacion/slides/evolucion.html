@@ -1,14 +1,15 @@
 <section id="evolucion" data-section="Cómo evolucionaron los experimentos y qué falló" data-transition="fade" style="background:#14161B;color:#F3F1EA;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
-<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Seis versiones, cada una con su hipótesis</h2>
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Siete versiones, cada una con su hipótesis</h2>
 <table style="font-size:28px;color:#F3F1EA">
 <tr><th style="width:16%;text-align:left">Versión</th><th style="width:52%;text-align:left">Hipótesis</th><th style="width:10%;text-align:left">Seco</th><th style="width:10%;text-align:left">Lluvia</th><th style="width:12%;text-align:left">Decisión</th></tr>
 <tr><td>v1</td><td>Primer modelo, entrenado en seco</td><td>100 %</td><td>0 %</td><td>Reemplazada</td></tr>
 <tr><td>v2</td><td>Un sensor de agarre ayuda con lluvia</td><td>100 %</td><td>0 %</td><td>Reemplazada</td></tr>
 <tr><td>v3</td><td>Practicar con lluvia e imitar vueltas</td><td>0 %</td><td>0 %</td><td>Rechazada</td></tr>
 <tr><td>v4</td><td>DAgger corrige los errores de la red</td><td>100 %</td><td>100 %</td><td>Reemplazada</td></tr>
-<tr style="background:#2A2D35"><td><b>v5</b></td><td><b>Conocer el carro y practicar todo con ruido</b></td><td><b>100 %</b></td><td><b>100 %</b></td><td><b>Recomendada</b></td></tr>
+<tr><td>v5</td><td>Conocer el carro y practicar todo con ruido</td><td>100 %</td><td>100 %</td><td>Reemplazada</td></tr>
 <tr><td>v6</td><td>Practicar en tres pistas permite manejar en una nueva</td><td>100 %</td><td>100 %</td><td>Rechazada</td></tr>
+<tr style="background:#2A2D35"><td><b>v6-s1</b></td><td><b>La misma v6 con otra semilla</b></td><td><b>100 %</b></td><td><b>100 %</b></td><td><b>Recomendada</b></td></tr>
 </table>
 <p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#C7C9CC">PPO, 100 vueltas por condición. Las hipótesis de v1 a v4 se escribieron después de entrenar y están marcadas así en MLflow.</p>
-<aside>Decirlo sin rodeos: los intentos fallidos se conservan. La v3 es la más útil: copiar vueltas perfectas no sirve, porque al primer error la red llega a estados que nunca vio. DAgger lo resolvió. La v6 se explica más adelante: cumplió su hipótesis y aun así no pasó la selección.</aside>
+<aside>Decirlo sin rodeos: los intentos fallidos se conservan. La v3 es la más útil: copiar vueltas perfectas no sirve, porque al primer error la red llega a estados que nunca vio. DAgger lo resolvió. La v6 se explica más adelante: con la semilla 0 cumplió su hipótesis y aun así no pasó la selección; con la semilla 1 sí pasó y es la recomendada desde el 12 de noviembre. La v5 semilla 1 queda para rollback.</aside>
 </section>

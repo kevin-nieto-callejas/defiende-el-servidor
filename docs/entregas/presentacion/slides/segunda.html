@@ -1,0 +1,12 @@
+<section id="segunda" data-transition="fade" style="background:#14161B;color:#F3F1EA;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-family:'Oswald', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;text-transform:uppercase">Con otra semilla, la v6 sí pasó</h2>
+<table style="font-size:28px;color:#F3F1EA">
+<tr><th style="width:30%;text-align:left">Modelo</th><th style="width:20%;text-align:left">Mónaco, seco</th><th style="width:14%;text-align:left">Bosque</th><th style="width:14%;text-align:left">Extremos</th><th style="width:22%;text-align:left">Selección</th></tr>
+<tr><td>v6 semilla 0, Mac</td><td>100 %, 69.8 s</td><td>100 / 100 %</td><td>79.2 %</td><td style="color:#FF6B66">rechazada</td></tr>
+<tr style="background:#2A2D35"><td><b>v6 semilla 1, Actions</b></td><td><b>100 %, 80.4 s</b></td><td><b>100 / 100 %</b></td><td><b>100 %</b></td><td style="color:#2EE59D"><b>7 de 7, promovida</b></td></tr>
+<tr><td>Control semilla 1, solo Mónaco</td><td>100 %, 81.5 s</td><td style="color:#FF6B66">0 / 0 %</td><td>94.7 %</td><td style="color:#FF6B66">rechazada</td></tr>
+</table>
+<p style="font-size:32px;line-height:1.3;color:#FFD23F">No eran las pistas ni el Mac. Tres pistas dan un resultado estable; solo Mónaco, no.</p>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#C7C9CC">Mismos criterios del 1 de noviembre, sin tocarlos. Más robusta que la v5-s1 pero 11.8 s más lenta en seco. Rollback a la v5-s1 disponible.</p>
+<aside>Experimento de Miguel en GitHub Actions. La semilla 0 es la única que afinó con PPO hasta el final y la más rápida: la hipótesis es que afinar mucho cambia robustez por velocidad, pero con dos semillas no está comprobado. Pregunta esperable: ¿eligieron la semilla que convenía? Respuesta: los criterios eran los mismos, se anotaron los dos veredictos en decisiones.json y la semilla 1 pasó un test reservado nuevo, con la regla escrita antes. Límite honesto: la semilla 1 no tiene prueba en una pista que nunca vio, porque la Sierra ya se usó.</aside>
+</section>
