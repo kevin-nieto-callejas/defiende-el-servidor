@@ -221,3 +221,22 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   usa la web, y con DAgger el PPO no lee `demos.npz`.
 - Al volver a correr `registrar`, el alias `@champion` de `rally-qlearning` pasó de la versión 9 (semilla 1, la
   elegida) a la 8 (semilla 0, la de `models/qlearning`). Se devolvió a la 9 y quedó anotado en el resumen.
+
+## 13 nov 2026 — integración de la v6 semilla 1 y la moto, Hugging Face y sonido
+
+- Los PR #8 (v6 semilla 1, Miguel) y #7 (moto, Allison) chocaban en 5 archivos. Se unieron en el PR #9: quedan los
+  dos lados en `manifiesto.py`, el catálogo tiene 20 filas y el paquete de Vercel 16 modelos, sin reexportar ninguno.
+- El #7 reorganizó `env.py`, `pipeline.py`, `policies.py` y los agentes, y DVC marcaba las 6 etapas del carro como
+  modificadas. Se comprobó que el carro no cambia: misma huella física en 100 000 valores con acciones al azar, y
+  `datos` y `evaluar` vueltos a correr dan los mismos números (solo agregan `vehiculo`). Luego `dvc commit` del
+  resto, sin volver a correr `registrar` para no mover `@champion`.
+- La tabla Q de la moto (`models/moto/qlearning`) no está en DagsHub: `dvc pull` falla. Falta su `dvc push`.
+- Vercel en producción con el commit `c9906d2`: sirve la v6 semilla 1 y la moto; la v6-s1 completa el Puerto con
+  lluvia en la función de Python, y pedir la moto en el carro responde 409.
+- Hugging Face (`Kevinnieto0001/autonomous-rally-ppo`): la v6 semilla 1 con la etiqueta `v6-s1`, su manifiesto y su
+  test reservado. El SHA-256 del archivo bajado coincide con el manifiesto. La etiqueta `v5-s1` sigue ahí para rollback.
+- Sonido en el visor (`static/sonido.js`), sintetizado con Web Audio, sin archivos: motor con caja de cambios según
+  la velocidad del episodio, chillido cuando el simulador marca derrape, grava, rocío con lluvia, viento, público
+  que sube frente a las graderías, eco en el túnel, Doppler y paneo con la cámara de TV, cuenta regresiva (el carro
+  espera en la salida), fanfarria y aplausos al completar la vuelta, golpe al chocar. Volumen por canal en 🔊, y M
+  silencia. Medido en Chrome: sin excepciones, picos de 0.33 en carrera y 0.64 en la llegada, sin saturar.

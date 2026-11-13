@@ -8,7 +8,8 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { construirEscenario, tramoTunel } from "./escenario.js";
+import { construirEscenario, tramoTunel, tramosPublico } from "./escenario.js";
+import { crearSonido } from "./sonido.js";
 import { crearCarro, crearHumo } from "./carro.js";
 import { crearMoto } from "./moto.js";
 import { pbr, cargas } from "./texturas.js";
@@ -1054,6 +1055,7 @@ function mostrarEpisodio(nuevo) {
   construirEstela();
   tiempo = parseFloat(params.get("t") || "0");
   params.delete("t");
+  cuentaPendiente = tiempo === 0 && !ep.vivo;   // desde la salida: cuenta regresiva (en vivo no)
   ultimoCP = 1;
   reproduciendo = params.get("pausa") !== "1";
   $("btn-play").textContent = reproduciendo ? "❚❚" : "▶";
@@ -1121,18 +1123,30 @@ function medirFps() {
 // ------------------------------------------------------------------ bucle
 const reloj = new THREE.Clock();
 let terminado = false;
+// Sonido: el carro espera en la salida mientras corre la cuenta regresiva (cuentaHasta, reloj real)
+let sonido = null, cuentaPendiente = false, cuentaHasta = 0, sonidoDist = null, sonidoRadial = 0;
+const _rel = new THREE.Vector3(), _der = new THREE.Vector3();
 function animar() {
   requestAnimationFrame(animar);
   const dt = Math.min(reloj.getDelta(), 0.1);
   if (!ep) return;
   const dur = (ep.frames.length - 1) * pista.dt;
-  if (reproduciendo && listo) {
+  if (cuentaPendiente && listo && reproduciendo) {
+    cuentaPendiente = false;
+    cuentaHasta = performance.now() + (sonido ? sonido.cuenta() : 0);
+  }
+  const enCuenta = reproduciendo && performance.now() < cuentaHasta;
+  if (reproduciendo && listo && !enCuenta) {
     tiempo += dt * velocidad;
     if (tiempo >= dur) {
       tiempo = dur;
       reproduciendo = false;
       $("btn-play").textContent = "▶";
-      if (!terminado) { terminado = true; if (ep.vivo) mostrarFinVivo(); else setTimeout(mostrarResultado, 700); }
+      if (!terminado) {
+        terminado = true;
+        sonido?.fin(ep.resultado);
+        if (ep.vivo) mostrarFinVivo(); else setTimeout(mostrarResultado, 700);
+      }
     }
   }
   if (tiempo < dur) terminado = false;
@@ -1231,6 +1245,22 @@ function animar() {
     }
   }
   actualizarCamara(est, dt);
+  if (sonido) {
+    // Dónde está el carro respecto de la cámara: distancia, si se acerca o se aleja (Doppler) y de qué lado
+    _rel.copy(carro.position).sub(cam.position);
+    const dist = _rel.length();
+    _der.setFromMatrixColumn(cam.matrixWorld, 0);
+    const radial = sonidoDist === null ? 0 : clamp((dist - sonidoDist) / Math.max(dt, 1e-3), -60, 60);
+    sonidoDist = dist;
+    sonidoRadial += (radial - sonidoRadial) * Math.min(1, dt * 8);
+    const s = ((est.s % pista.largo) + pista.largo) % pista.largo;
+    const lejos = Math.min(...tramosPublico(pista).map(([a, b]) => (s < a ? a - s : s > b ? s - b : 0)));
+    sonido.actualizar(est, {
+      reproduciendo: reproduciendo && listo, enCuenta, moto: esMoto(), mojado: mu < 0.75, dt,
+      enTunel: !!tunelTV && est.s >= tunelTV[0] && est.s <= tunelTV[1], publicoCerca: Math.exp(-lejos / 40),
+      vmax: pista.v_max ?? 25, vista: { distancia: dist, radial: sonidoRadial, paneo: _rel.dot(_der) / Math.max(dist, 1) },
+    });
+  }
   hudAcum += dt;
   if (!SIN.has("hud") && (hudAcum >= 0.05 || !reproduciendo)) { hudAcum = 0; actualizarHUD(est); }
   cuadro++;
@@ -1452,13 +1482,16 @@ function conectar() {
     document.querySelectorAll("#sel-vel button").forEach((x) => x.classList.toggle("activo", x === b));
   }));
   const playPausa = () => {
-    if (!reproduciendo && tiempo >= (ep.frames.length - 1) * pista.dt) tiempo = 0;
+    if (!reproduciendo && tiempo >= (ep.frames.length - 1) * pista.dt) { tiempo = 0; cuentaPendiente = !ep.vivo; }
     reproduciendo = !reproduciendo;
     $("btn-play").textContent = reproduciendo ? "❚❚" : "▶";
     $("resultado").classList.add("oculto");
   };
   $("btn-play").onclick = playPausa;
-  $("btn-reiniciar").onclick = () => { tiempo = 0; reproduciendo = true; $("btn-play").textContent = "❚❚"; $("resultado").classList.add("oculto"); };
+  $("btn-reiniciar").onclick = () => {
+    tiempo = 0; reproduciendo = true; cuentaPendiente = !ep.vivo;
+    $("btn-play").textContent = "❚❚"; $("resultado").classList.add("oculto");
+  };
   $("barra").oninput = (e) => { tiempo = e.target.value * (ep.frames.length - 1) * pista.dt; };
   $("r-repetir").onclick = () => $("btn-reiniciar").onclick();
   $("r-cerrar").onclick = () => $("resultado").classList.add("oculto");
@@ -1544,6 +1577,7 @@ construirRayos();
 construirLluvia();
 prepararHUD();
 conectar();
+if (!SIN.has("sonido")) sonido = crearSonido({ acciones: $("acciones"), escena: document.body });
 ponerCamara(camara);
 await cargarEpisodio();
 animar();

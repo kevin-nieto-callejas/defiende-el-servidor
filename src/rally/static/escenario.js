@@ -430,7 +430,7 @@ export function construirEscenario({ scene, renderer, pista, P }) {
   const paleta = [0xf3e3c3, 0xeccb9a, 0xe7b48f, 0xf6dfc0, 0xefe6d6, 0xd99a7a, 0xf8f2e6, 0xe4c58f, 0xf2c9b8, 0xfff4d6];
   const edificios = [], parque = [], palmeras = [], pinos = [];
   // Tramos de pista con graderías (s en metros): ahí no van palmeras ni faroles
-  const tramos = [[0, 140], [150, 215], [380, 440], [520, 600], [880, 960], [1000, pista.largo]];
+  const tramos = tramosPublico(pista);
   const enTramo = (s) => tramos.some(([a, b]) => s >= a && s <= b);
   const paso = 13;
   for (let x = -MX - 90; x <= MX + 90; x += paso) {
@@ -935,6 +935,11 @@ varying vec3 vTinte;
 
   aplicarClima(false);
   return { aplicarClima, actualizar };
+}
+
+// Tramos [s0, s1] con graderías y público; también los usa el sonido (la tribuna suena más al pasar)
+export function tramosPublico(pista) {
+  return [[0, 140], [150, 215], [380, 440], [520, 600], [880, 960], [1000, pista.largo]];
 }
 
 // Tramo [s0, s1] de la pista bajo techo; también lo usan las cámaras de TV

@@ -389,3 +389,28 @@ body.limpio #panel-control, body.limpio #col-der, body.limpio #instrumentos, bod
   #acciones { gap: 4px; }
   #acciones button { padding: 6px 7px; font-size: 11px; }
 }
+
+/* ------------------------------------------------------------------ sonido */
+.sonido-caja { position: relative; }
+#btn-sonido.dormido { animation: latido .7s infinite alternate; box-shadow: inset 0 0 0 1px var(--amarillo); }
+#panel-sonido {
+  position: absolute; right: 0; top: 38px; width: 260px; max-width: calc(100vw - 32px); padding: 12px 14px; z-index: 7;
+  background: #12151b; border-top: 2px solid var(--rojo); color: var(--tenue); font-size: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+.ps-titulo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ps-titulo b { color: var(--texto); text-transform: uppercase; letter-spacing: .08em; font-size: 12.5px; }
+.ps-titulo label, .ps-check { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--texto); }
+.ps-fila { display: grid; grid-template-columns: 96px 1fr 28px; align-items: center; gap: 8px; margin: 7px 0; }
+.ps-fila output { font: 700 11px "JetBrains Mono", monospace; color: var(--texto); text-align: right; }
+.ps-check { margin-top: 10px; }
+.ps-nota { margin: 10px 0 0; font-size: 11px; line-height: 1.45; }
+#cuenta-regresiva {
+  position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 8; pointer-events: none;
+  font: 900 min(22vw, 150px)/1 "Titillium Web", system-ui, sans-serif; color: #fff; font-style: italic;
+  text-shadow: 0 0 24px rgba(225, 6, 0, .9), 0 6px 0 rgba(0, 0, 0, .55);
+}
+#cuenta-regresiva.ya { color: var(--verde); text-shadow: 0 0 30px rgba(46, 229, 157, .9), 0 6px 0 rgba(0, 0, 0, .55); }
+#cuenta-regresiva.pulso { animation: cuenta .8s ease-out both; }
+@keyframes cuenta { from { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } 25% { opacity: 1; } to { transform: translate(-50%, -50%) scale(1); opacity: .9; } }
+@media (max-width: 480px) { #panel-sonido { position: fixed; right: 16px; top: 56px; } }
