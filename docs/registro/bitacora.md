@@ -245,3 +245,15 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
   run en DagsHub, porque se entrenó en GitHub Actions. Quedan `@champion` = 7 y `@rollback` = 6.
 - Presentación (18 diapositivas, dos nuevas: segunda semilla y moto), informe y resumen general actualizados a la v6-s1.
 - Vercel publica en producción con un push a `main` del fork (`kevin`); `ambiente-v0.4` queda para vistas previas.
+
+## 13 nov 2026 (noche) — moto MotoGP rediseñada
+
+- Pedido de Kevin: una moto con calidad de MotoGP real, guiada por una foto de referencia y con los colores del
+  proyecto (los del carro: azul, azul oscuro, dorado, amarillo, blanco y el 24).
+- `static/moto.js` rehecho, sin modelos descargados: silueta de prototipo (nariz sobre la rueda y carenado que la
+  rodea por detrás), decoración con cortes blancos angulares y franjas doradas, fibra de carbono, alerones con
+  perfil de ala, cúpula ahumada, horquilla invertida dorada, discos perforados flotantes con pinzas radiales,
+  basculante de aluminio, cadena y corona, resorte amarillo, escape de titanio, llantas slick con letras en el
+  flanco y piloto con casco decorado y deslizadores en las rodillas.
+- Las medidas del simulador no cambian (largo, ejes, radio de llanta): es solo dibujo. Probado en Chrome con lluvia,
+  túnel, curva con inclinación y sonido: sin excepciones, ~30 FPS como antes.
