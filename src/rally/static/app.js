@@ -8,7 +8,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { construirEscenario, tramoTunel, tramosPublico } from "./escenario.js";
+import { construirEscenario, tramoTunel, tramosPublico, techoTunel } from "./escenario.js";
 import { crearSonido } from "./sonido.js";
 import { crearCarro, crearHumo } from "./carro.js";
 import { crearMoto } from "./moto.js";
@@ -38,6 +38,7 @@ addEventListener("error", (e) => mostrarError(`${e.message} (${(e.filename || ""
 addEventListener("unhandledrejection", (e) => mostrarError(e.reason && (e.reason.stack || e.reason.message) || String(e.reason)));
 
 let pista, ep = null;
+let techo = null;   // huella del techo del túnel: ahí no cae lluvia ni salpica agua (techoTunel en escenario.js)
 const alcance = () => (ep ? ep.params.r_max : pista.rayos.alcance);
 let reproduciendo = true, velocidad = 1, tiempo = 0, camara = params.get("cam") || "persecucion";
 let listo = false;   // false mientras se prepara el escenario detrás de la pantalla de carga
@@ -1177,7 +1178,8 @@ function animar() {
   // Humo de llantas: al derrapar, al pisar la zona de escape o al arrancar fuerte
   if (reproduciendo && humo) {
     let fuerte = est.b.derrape ? 1 : est.b.fuera > 0 ? 0.8 : est.accion[0] > 0.8 && est.v < 7 ? 0.35 : 0;
-    if (mu < 0.75 && est.v > 6) fuerte = Math.max(fuerte, (est.v / 25) * 0.55);   // rocío de agua con lluvia
+    // Rocío de agua con lluvia, salvo bajo el techo del túnel (ahí el piso no recibe lluvia)
+    if (mu < 0.75 && est.v > 6 && !techo?.cubre(est.x, est.y)) fuerte = Math.max(fuerte, (est.v / 25) * 0.55);
     if (fuerte > 0) {
       const back = -pista.carro.ejes / 2, W = pista.carro.ancho / 2;
       for (const lado of esMoto() ? [0] : [W, -W]) {
@@ -1224,14 +1226,18 @@ function animar() {
 
   if (lluvia.visible) {
     const p = lluvia.geometry.attributes.position, arr = p.array, caida = 30 * dt;
+    lluvia.position.set(cam.position.x * 0.6, 0, cam.position.z * 0.6);
+    const ox = lluvia.position.x, oz = lluvia.position.z;
     for (let i = 0; i < arr.length; i += 6) {
       let y = arr[i + 1] - caida;
       if (y < 0) y += 40;
       arr[i + 1] = y;
-      arr[i + 4] = y + GOTA;
+      // Bajo el techo del túnel no llueve: la gota queda de largo cero (invisible). Encima del techo sí cae.
+      const tapada = techo && y < techo.alto && techo.cubre(arr[i] + ox, -(arr[i + 2] + oz));
+      arr[i + 3] = arr[i] + (tapada ? 0 : 0.12);
+      arr[i + 4] = tapada ? y : y + GOTA;
     }
     p.needsUpdate = true;
-    lluvia.position.set(cam.position.x * 0.6, 0, cam.position.z * 0.6);
   }
 
   // Sombras nítidas: la cámara de sombras del sol sigue al carro (cuadro de 120 m)
@@ -1570,6 +1576,7 @@ $("subtitulo-pista").textContent = `${pista.titulo ?? "Mónaco"} · ${esMoto() ?
   void MX; void MY;
 }
 prepararCamsTV();
+techo = techoTunel(pista);
 construirMundo();
 construirPista(pista.ancho);
 construirCarro();

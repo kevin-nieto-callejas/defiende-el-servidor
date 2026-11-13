@@ -244,10 +244,11 @@ export function crearSonido({ acciones, escena }) {
     const fuera = activo && b.fuera > 0 ? clamp(v / 8, 0, 1) : 0;
     red.gravaG.gain.setTargetAtTime(fuera * 0.35, t, 0.05);
     red.gravaAm.gain.setTargetAtTime(fuera * 0.25, t, 0.05);
-    red.rocioG.gain.setTargetAtTime(activo && mojado ? 0.14 * clamp(v / 20, 0, 1) : 0, t, 0.1);
+    // Bajo techo el piso no recibe lluvia: no salpica, y la lluvia se oye apagada, desde afuera
+    red.rocioG.gain.setTargetAtTime(activo && mojado && !enTunel ? 0.14 * clamp(v / 20, 0, 1) : 0, t, 0.1);
     red.vientoG.gain.setTargetAtTime(activo ? 0.22 * clamp(v / 25, 0, 1.3) ** 2 : 0, t, 0.1);
     red.viento.frequency.setTargetAtTime(380 + 500 * clamp(v / 25, 0, 1), t, 0.2);
-    red.lluviaG.gain.setTargetAtTime(mojado ? 0.06 : 0, t, 0.5);
+    red.lluviaG.gain.setTargetAtTime(mojado ? (enTunel ? 0.012 : 0.06) : 0, t, 0.5);
 
     // Cámara: cerca suena encima; lejos, bajo y apagado (el aire se come los agudos)
     const d = vista.distancia;

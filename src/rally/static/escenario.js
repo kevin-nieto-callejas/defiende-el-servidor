@@ -849,8 +849,8 @@ varying vec3 vTinte;
     const grupoT = new THREE.Group();
     const matT = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide });
     pbr(matT, "grey_plaster_02", { repetir: [1, 1], rugosidad: false });
-    for (const off of [-muro - 0.6, muro + 0.6]) grupoT.add(new THREE.Mesh(paredTramo(pista, P, off, 0, 6.5, s0, s1, 0xd6d3d1), matT));
-    grupoT.add(new THREE.Mesh(techoTramo(pista, P, -muro - 0.6, muro + 0.6, 6.5, s0, s1, 0x9ca3af), matT));
+    for (const off of [-muro - 0.6, muro + 0.6]) grupoT.add(new THREE.Mesh(paredTramo(pista, P, off, 0, ALTO_TECHO_TUNEL, s0, s1, 0xd6d3d1), matT));
+    grupoT.add(new THREE.Mesh(techoTramo(pista, P, -muro - 0.6, muro + 0.6, ALTO_TECHO_TUNEL, s0, s1, 0x9ca3af), matT));
     for (const off of [-2.5, 2.5]) {
       grupoT.add(new THREE.Mesh(techoTramo(pista, P, off - 0.15, off + 0.15, 6.45, s0, s1, 0xfff1c4),
         new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, toneMapped: false })));
@@ -949,6 +949,40 @@ export function tramoTunel(pista) {
   const kt = 1 / tunel.radio;
   const idx = pista.centro.map((c, i) => [i, c]).filter(([, c]) => Math.abs(Math.abs(c[4]) - kt) < 1e-4).map(([i]) => i);
   return [pista.centro[idx[0]][0] + 8, pista.centro[idx[idx.length - 1]][0] - 8];
+}
+
+// Huella del techo del túnel en el suelo, como una grilla de celdas de 1 m: `cubre(x, y)` dice si un
+// punto (coordenadas del simulador) está bajo techo. La usan la lluvia (no cae adentro) y el rocío de
+// las llantas. Mismo ancho que el techo que se dibuja: muro + 0.6 m a cada lado de la línea central.
+export const ALTO_TECHO_TUNEL = 6.5;
+export function techoTunel(pista) {
+  const tramo = tramoTunel(pista);
+  if (!tramo) return null;
+  const [s0, s1] = tramo, R = pista.ancho / 2 + pista.escape + 0.6;
+  const puntos = pista.centro.filter((c) => c[0] >= s0 && c[0] <= s1);
+  const xs = puntos.map((c) => c[1]), ys = puntos.map((c) => c[2]);
+  const x0 = Math.floor(Math.min(...xs) - R - 1), y0 = Math.floor(Math.min(...ys) - R - 1);
+  const ancho = Math.ceil(Math.max(...xs) + R + 1) - x0, alto = Math.ceil(Math.max(...ys) + R + 1) - y0;
+  const celdas = new Uint8Array(ancho * alto);
+  for (let k = 0; k < puntos.length; k++) {
+    const [, x, y, h] = puntos[k];
+    const nx = -Math.sin(h), ny = Math.cos(h);
+    // la grilla se llena con pasos de medio metro a lo largo y a lo ancho, sin huecos entre puntos
+    const [, x2, y2] = puntos[Math.min(k + 1, puntos.length - 1)];
+    const pasos = Math.max(1, Math.ceil(Math.hypot(x2 - x, y2 - y) / 0.5));
+    for (let p = 0; p < pasos; p++) {
+      const cx = x + (x2 - x) * p / pasos, cy = y + (y2 - y) * p / pasos;
+      for (let o = -R; o <= R; o += 0.5) {
+        const i = Math.floor(cx + nx * o) - x0, j = Math.floor(cy + ny * o) - y0;
+        if (i >= 0 && j >= 0 && i < ancho && j < alto) celdas[j * ancho + i] = 1;
+      }
+    }
+  }
+  const cubre = (x, y) => {
+    const i = Math.floor(x) - x0, j = Math.floor(y) - y0;
+    return i >= 0 && j >= 0 && i < ancho && j < alto && celdas[j * ancho + i] === 1;
+  };
+  return { s0, s1, alto: ALTO_TECHO_TUNEL, cubre };
 }
 
 // Pared y techo solo en un tramo de la pista (para el túnel), con uv para textura
