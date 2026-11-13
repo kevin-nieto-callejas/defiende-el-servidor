@@ -5,16 +5,16 @@ stages:
     deps:
     - path: src/rally/env.py
       hash: md5
-      md5: 668ca9bcf309ada03852762945e5e014
-      size: 16545
+      md5: 05cef39cf34908da8ae335889a671798
+      size: 17275
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 24539757306c1d0f299f1bf6a03602b7
-      size: 19177
+      md5: 5be4a93a15f5874470ab6619f4978997
+      size: 22205
     - path: src/rally/policies.py
       hash: md5
-      md5: 269bb512094b81903f5f013f11113264
-      size: 5061
+      md5: 8535e141accf0765720997d42dbd185c
+      size: 9374
     - path: src/rally/track.py
       hash: md5
       md5: 7d2482fb6288f2b5b674f5660a366d34
@@ -40,8 +40,8 @@ stages:
       size: 1155184
     - path: data/processed/escenarios.json
       hash: md5
-      md5: b77aed5e2fb153f9df51bf3ecef362f8
-      size: 1131
+      md5: dd8787797dc2a08b54759dc403de9e55
+      size: 1154
     - path: metrics/datos.json
       hash: md5
       md5: cdb854a5575060833df3a388d7066c21
@@ -59,16 +59,16 @@ stages:
       size: 3011
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 38ac1e3b2b6b41638a0b0511ce377df1
-      size: 12010
+      md5: d371126e934a4b98c21e85d3f5ea5b60
+      size: 12223
     - path: src/rally/env.py
       hash: md5
-      md5: 668ca9bcf309ada03852762945e5e014
-      size: 16545
+      md5: 05cef39cf34908da8ae335889a671798
+      size: 17275
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 24539757306c1d0f299f1bf6a03602b7
-      size: 19177
+      md5: 5be4a93a15f5874470ab6619f4978997
+      size: 22205
     - path: src/rally/track.py
       hash: md5
       md5: 7d2482fb6288f2b5b674f5660a366d34
@@ -128,20 +128,20 @@ stages:
       size: 1155184
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: f5e13bb6edfa414b4f9c2ccbc94cc9d9
-      size: 16497
+      md5: 4465fbd9b3e5972882fe85c297de0445
+      size: 16680
     - path: src/rally/env.py
       hash: md5
-      md5: 668ca9bcf309ada03852762945e5e014
-      size: 16545
+      md5: 05cef39cf34908da8ae335889a671798
+      size: 17275
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 24539757306c1d0f299f1bf6a03602b7
-      size: 19177
+      md5: 5be4a93a15f5874470ab6619f4978997
+      size: 22205
     - path: src/rally/policies.py
       hash: md5
-      md5: 269bb512094b81903f5f013f11113264
-      size: 5061
+      md5: 8535e141accf0765720997d42dbd185c
+      size: 9374
     - path: src/rally/track.py
       hash: md5
       md5: 7d2482fb6288f2b5b674f5660a366d34
@@ -215,8 +215,8 @@ stages:
     deps:
     - path: data/processed/escenarios.json
       hash: md5
-      md5: b77aed5e2fb153f9df51bf3ecef362f8
-      size: 1131
+      md5: dd8787797dc2a08b54759dc403de9e55
+      size: 1154
     - path: models/ppo
       hash: md5
       md5: e5763f6fff5d6e74ddadfc5cae4cfb6d.dir
@@ -233,24 +233,24 @@ stages:
       size: 3011
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: f5e13bb6edfa414b4f9c2ccbc94cc9d9
-      size: 16497
+      md5: 4465fbd9b3e5972882fe85c297de0445
+      size: 16680
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 38ac1e3b2b6b41638a0b0511ce377df1
-      size: 12010
+      md5: d371126e934a4b98c21e85d3f5ea5b60
+      size: 12223
     - path: src/rally/env.py
       hash: md5
-      md5: 668ca9bcf309ada03852762945e5e014
-      size: 16545
+      md5: 05cef39cf34908da8ae335889a671798
+      size: 17275
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 24539757306c1d0f299f1bf6a03602b7
-      size: 19177
+      md5: 5be4a93a15f5874470ab6619f4978997
+      size: 22205
     - path: src/rally/policies.py
       hash: md5
-      md5: 269bb512094b81903f5f013f11113264
-      size: 5061
+      md5: 8535e141accf0765720997d42dbd185c
+      size: 9374
     - path: src/rally/track.py
       hash: md5
       md5: 7d2482fb6288f2b5b674f5660a366d34
@@ -278,15 +278,15 @@ stages:
     outs:
     - path: metrics/evaluacion.json
       hash: md5
-      md5: c2d5e2394d16ed1e18b74609d2302ebc
-      size: 3302
+      md5: afa36885774968b7d7527fb63affa851
+      size: 3374
   registrar:
     cmd: rally pipeline registrar
     deps:
     - path: metrics/evaluacion.json
       hash: md5
-      md5: c2d5e2394d16ed1e18b74609d2302ebc
-      size: 3302
+      md5: afa36885774968b7d7527fb63affa851
+      size: 3374
     - path: models/ppo
       hash: md5
       md5: e5763f6fff5d6e74ddadfc5cae4cfb6d.dir
@@ -299,12 +299,12 @@ stages:
       nfiles: 2
     - path: src/rally/agentes/seguimiento.py
       hash: md5
-      md5: ad9d337a11de279cb13fb664c2e2f85f
-      size: 1519
+      md5: 75e037357e0f065d045469f6cecca31a
+      size: 2045
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 24539757306c1d0f299f1bf6a03602b7
-      size: 19177
+      md5: 5be4a93a15f5874470ab6619f4978997
+      size: 22205
     params:
       params.yaml:
         evaluacion:
@@ -344,28 +344,28 @@ stages:
       size: 3011
     - path: src/rally/agentes/ppo.py
       hash: md5
-      md5: f5e13bb6edfa414b4f9c2ccbc94cc9d9
-      size: 16497
+      md5: 4465fbd9b3e5972882fe85c297de0445
+      size: 16680
     - path: src/rally/agentes/qlearning.py
       hash: md5
-      md5: 38ac1e3b2b6b41638a0b0511ce377df1
-      size: 12010
+      md5: d371126e934a4b98c21e85d3f5ea5b60
+      size: 12223
     - path: src/rally/env.py
       hash: md5
-      md5: 668ca9bcf309ada03852762945e5e014
-      size: 16545
+      md5: 05cef39cf34908da8ae335889a671798
+      size: 17275
     - path: src/rally/generalizacion.py
       hash: md5
-      md5: ae8b34aba3b5c06683d9775e885a6162
-      size: 4638
+      md5: 902959e9fb9dc54e2fd27ba0d1b68bac
+      size: 4797
     - path: src/rally/pipeline.py
       hash: md5
-      md5: 24539757306c1d0f299f1bf6a03602b7
-      size: 19177
+      md5: 5be4a93a15f5874470ab6619f4978997
+      size: 22205
     - path: src/rally/policies.py
       hash: md5
-      md5: 269bb512094b81903f5f013f11113264
-      size: 5061
+      md5: 8535e141accf0765720997d42dbd185c
+      size: 9374
     - path: src/rally/track.py
       hash: md5
       md5: 7d2482fb6288f2b5b674f5660a366d34
