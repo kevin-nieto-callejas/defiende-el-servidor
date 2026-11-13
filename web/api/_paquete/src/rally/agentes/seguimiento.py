@@ -14,13 +14,26 @@ import mlflow
 TRACKING_URI = "sqlite:///mlflow.db"
 EXPERIMENTO = "autonomous-rally-monaco"
 MODELOS = {"qlearning": "rally-qlearning", "ppo": "rally-ppo"}
+# La moto tiene su propio experimento y sus propios modelos registrados: sus métricas y sus
+# recompensas no se comparan con las del carro (otro ambiente, otra física).
+EXPERIMENTO_MOTO = "autonomous-rally-motogp"
+MODELOS_MOTO = {"qlearning": "rally-moto-qlearning", "ppo": "rally-moto-ppo"}
 
 
-def iniciar():
+def experimento(vehiculo="carro"):
+    return EXPERIMENTO_MOTO if vehiculo == "moto" else EXPERIMENTO
+
+
+def modelos(vehiculo="carro"):
+    return MODELOS_MOTO if vehiculo == "moto" else MODELOS
+
+
+def iniciar(vehiculo="carro"):
+    nombre = experimento(vehiculo)
     mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", TRACKING_URI))
-    if mlflow.get_experiment_by_name(EXPERIMENTO) is None:
-        mlflow.create_experiment(EXPERIMENTO, artifact_location=Path("mlruns").resolve().as_uri())
-    mlflow.set_experiment(EXPERIMENTO)
+    if mlflow.get_experiment_by_name(nombre) is None:
+        mlflow.create_experiment(nombre, artifact_location=Path("mlruns").resolve().as_uri())
+    mlflow.set_experiment(nombre)
 
 
 def etiquetas_git():

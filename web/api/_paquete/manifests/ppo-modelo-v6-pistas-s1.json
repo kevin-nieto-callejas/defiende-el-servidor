@@ -1,0 +1,99 @@
+{
+  "nombre": "ppo-modelo-v6-pistas-s1",
+  "tipo": "ppo",
+  "etiqueta_git": "modelo-v6-pistas-s1",
+  "run_id": "65771e5dc18146f9ac59caaf44214212",
+  "level_id": "N3",
+  "decision": "aceptado",
+  "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
+  "environment_version": "0.4-monaco-configurable",
+  "ambiente_huella": "11f0dcd8a1cb",
+  "git_commit": "a193a45805a863c199eddcca7b1cbcb54b86042a",
+  "config_sha256": "a958dd3e589b840777e7f9e4620659210b9e86d9255bdf201a29f9ec51d1ac7e",
+  "model_uri": "dvc://models/semillas-v6/v6-s1/modelo.zip@modelo-v6-pistas-s1",
+  "model_md5_dvc": "cecbf8ff088392a2911aa883cd44ff86",
+  "model_sha256": "1f68d191777373d5811c205ce23650558dd0cf2ac55d6fd50156be20c1c94edf",
+  "mlflow_modelo": null,
+  "mlflow_version": null,
+  "normalization_uri": "git://src/rally/env.py@a193a45805a863c199eddcca7b1cbcb54b86042a",
+  "normalizacion": "Sin VecNormalize ni estadísticas aprendidas: el ambiente entrega las observaciones ya escaladas con divisores fijos (orden y divisores en contrato.orden)",
+  "runtime_ref": "requirements.txt y pyproject.toml en f9d5e25381c79f28aafc1d77f65612210c01c3c7",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 1,
+  "parent_run_id": null,
+  "parent_run_nota": "Sin run padre: se entrenó desde cero (imitación y refuerzo en el mismo run), sin heredar pesos",
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "pasos": 3000000,
+    "episodios": 3369,
+    "segundos": 3724.8
+  },
+  "contrato": {
+    "observaciones": 24,
+    "orden": [
+      "v/25 m/s",
+      "ω/2 rad/s",
+      "sin φ",
+      "cos φ",
+      "d/(w/2)",
+      "eψ/π rad",
+      "rayo -90°/40 m",
+      "rayo -60°/40 m",
+      "rayo -30°/40 m",
+      "rayo 0°/40 m",
+      "rayo 30°/40 m",
+      "rayo 60°/40 m",
+      "rayo 90°/40 m",
+      "curvatura a 10 m·R",
+      "curvatura a 25 m·R",
+      "curvatura a 50 m·R",
+      "agarre usado",
+      "derrape",
+      "μ estimado/1.2",
+      "lluvia",
+      "ancho/12 m",
+      "a_max/6 m/s²",
+      "r_max/40 m",
+      "velocidad segura/25 m/s"
+    ],
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_dir [-1, 1]"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 80.4,
+      "progreso_pct": 100.0
+    },
+    "mojado": {
+      "vueltas_pct": 100.0,
+      "tiempo_mediano_s": 104.8,
+      "progreso_pct": 100.0
+    }
+  },
+  "pistas_entrenamiento": [
+    "monaco",
+    "bosque",
+    "puerto"
+  ],
+  "entrenamiento_plataforma": {
+    "maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 42948616971",
+    "python": "3.14",
+    "torch": "2.15.0+cpu",
+    "stable_baselines3": "2.9.2"
+  },
+  "resultados_fuente": "metrics/semillas-v6.json (fase A en Linux, red en numpy)",
+  "test_reservado": {
+    "archivo": "metrics/test-final-v6-s1.json",
+    "semillas_sha256": "541487e626fba5e333c4e8a06d73e3f2e0fb1fb7bd1a41c12adbae9440927d13",
+    "fecha": "2026-11-12T18:53:30-0500",
+    "seco": 100.0,
+    "mojado": 100.0,
+    "tiempo_seco_s": 80.4,
+    "pruebas_extremas_bajo_100": []
+  }
+}

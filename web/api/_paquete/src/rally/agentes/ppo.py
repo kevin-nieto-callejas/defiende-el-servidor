@@ -25,8 +25,8 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv
 
-from rally import track
-from rally.env import RAYO_REF, AutonomousRallyEnv
+from rally import track, vehiculos
+from rally.env import RAYO_REF
 
 
 class DominioAleatorio(gym.Wrapper):
@@ -79,7 +79,7 @@ def crear_env(ambiente, ppo_params, rank):
     pistas = track.validar_entrenamiento(ppo_params.get("pistas"))
 
     def _f():
-        env = AutonomousRallyEnv(**ambiente, pista=pistas)
+        env = vehiculos.crear_env(ppo_params.get("vehiculo", "carro"), **ambiente, pista=pistas)
         if ppo_params.get("dominio_aleatorio"):
             env = DominioAleatorio(env, ppo_params)
         if ppo_params.get("ruido_sensores"):
@@ -124,10 +124,11 @@ def dagger(model, ambiente, p, evaluador=None):
     Iteración 0: solo maneja el maestro. Después, con probabilidad beta (que baja a 0)
     maneja el maestro y si no la red; todos los datos se acumulan.
     """
-    from rally.policies import Maestro
+    from rally.policies import Maestro, MaestroMoto
 
-    maestro = Maestro(p["maestro_mu_seco"], p["maestro_mu_lluvia"],
-                      p["maestro_traccion_seco"], p["maestro_traccion_lluvia"])
+    clase = MaestroMoto if p.get("vehiculo") == "moto" else Maestro
+    maestro = clase(p["maestro_mu_seco"], p["maestro_mu_lluvia"],
+                    p["maestro_traccion_seco"], p["maestro_traccion_lluvia"])
     env = crear_env(ambiente, p, 99)()
     rng = np.random.default_rng(p["semilla"])
     pol = model.policy
@@ -299,7 +300,8 @@ class PilotoPPO:
     """Usa el modelo entrenado como piloto (acción determinista).
 
     Los modelos de la familia 0.3 (v3 y v4, 20 observaciones) corren con un adaptador:
-    reciben las 20 primeras y los rayos otra vez divididos por el alcance.
+    reciben las 20 primeras y los rayos otra vez divididos por el alcance. Los de la moto
+    (26 observaciones) solo corren en el ambiente de la moto.
     """
 
     def __init__(self, ruta):

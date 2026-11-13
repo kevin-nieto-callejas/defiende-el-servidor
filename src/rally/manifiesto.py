@@ -54,6 +54,19 @@ FINALISTAS = Path("finalistas")   # semillas 1 y 2: DVC las versiona con finalis
 FAMILIA = {"ppo": "modelo-v5", "qlearning": "modelo-qlearning-v8"}
 METRICAS = {"ppo": Path("metrics/semillas.json"), "qlearning": Path("metrics/semillas-qlearning.json")}
 ELEGIDA = {"ppo": 1, "qlearning": 1}   # por configs/seleccion.yaml: más vueltas y luego menor tiempo
+# Otras semillas de la v6, entrenadas en GitHub Actions (.github/workflows/semillas-v6.yml) y versionadas
+# con models/semillas-v6.dvc. Sus resultados son los de la fase A en Linux con la red en numpy.
+SEMILLAS_V6 = {
+    "ppo-modelo-v6-pistas-s1": {
+        "carpeta": Path("models/semillas-v6/v6-s1"), "seed": 1, "decision": "aceptado",   # promovida el 12-nov-2026
+        "run_id": "65771e5dc18146f9ac59caaf44214212",   # en DagsHub, con la etiqueta origen_run_id
+        "git_commit": "a193a45805a863c199eddcca7b1cbcb54b86042a",
+        "resultados": ("metrics/semillas-v6.json", "v6-pistas-s1"),
+        "test_reservado": "metrics/test-final-v6-s1.json",
+        "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 42948616971",
+                       "python": "3.14", "torch": "2.15.0+cpu", "stable_baselines3": "2.9.2"},
+    },
+}
 
 
 def _git(*a):
@@ -160,7 +173,166 @@ def manifiesto_finalista(tipo, s):
             "presupuesto": {}, "resultados": {"seco": res["seco"], "mojado": res["mojado"]}}
 
 
-def generar(revisiones=None):
+def manifiesto_semilla_v6(nombre):
+    """Otra semilla de la v6: contrato, ambiente e hipótesis de su familia; pesos, run y resultados propios."""
+    c = SEMILLAS_V6[nombre]
+    pesos = c["carpeta"] / ARCHIVO["ppo"]
+    info = json.loads((c["carpeta"] / "info.json").read_text(encoding="utf-8"))
+    archivo, clave = c["resultados"]
+    res = json.loads(Path(archivo).read_text(encoding="utf-8"))["resultados"][clave]["monaco"]
+    datos = pesos.read_bytes()
+    etiqueta = nombre.removeprefix("ppo-")
+    return {**manifiesto("modelo-v6-pistas", "ppo"), "nombre": nombre, "etiqueta_git": etiqueta,
+            "run_id": c["run_id"], "git_commit": c["git_commit"], "seed": c["seed"], "decision": c["decision"],
+            "ambiente_huella": info.get("ambiente_huella"),
+            "normalization_uri": f"git://src/rally/env.py@{c['git_commit']}",
+            "parent_run_nota": _padre(info),
+            "model_uri": f"dvc://{pesos}@{etiqueta}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
+            "model_sha256": hashlib.sha256(datos).hexdigest(), "mlflow_modelo": None, "mlflow_version": None,
+            "presupuesto": {k: v for k, v in info.items() if k in ("pasos", "episodios", "segundos")},
+            "pistas_entrenamiento": info.get("pistas_entrenamiento"),
+            "entrenamiento_plataforma": c["plataforma"],
+            "resultados": {k: {"vueltas_pct": res[k]["vueltas_pct"], "tiempo_mediano_s": res[k]["tiempo_mediano_s"],
+                               "progreso_pct": res[k]["progreso_medio_pct"]} for k in ("seco", "mojado")},
+            "resultados_fuente": f"{archivo} (fase A en Linux, red en numpy)",
+            "test_reservado": _test_reservado(c.get("test_reservado"), nombre)}
+
+
+def _test_reservado(ruta, nombre):
+    """Resumen del test reservado (una sola corrida, semillas secretas), si ya se corrió."""
+    if not ruta or not Path(ruta).exists():
+        return None
+    t = json.loads(Path(ruta).read_text(encoding="utf-8"))
+    r = t["resultados"][nombre]
+    return {"archivo": ruta, "semillas_sha256": t["semillas_sha256"], "fecha": t["fecha"],
+            "seco": r["seco"]["vueltas_pct"], "mojado": r["mojado"]["vueltas_pct"],
+            "tiempo_seco_s": r["seco"]["tiempo_mediano_s"],
+            "pruebas_extremas_bajo_100": [n for n, v in r.items() if n not in ("seco", "mojado") and v["vueltas_pct"] < 100]}
+
+
+# ------------------------------------------------------------------ moto MotoGP
+# Versiones de la moto: la etiqueta de git `moto-v1` marca el commit que las contiene. Mientras esa
+# etiqueta no exista (los modelos se entrenaron con los cambios todavía sin confirmar), el manifiesto
+# se arma con los archivos del directorio de trabajo y lo dice en `git_estado`. Después del commit:
+# `git tag moto-v1 && rally manifiesto --vehiculo moto` lo vuelve a armar desde la etiqueta.
+VERSIONES_MOTO = {
+    "moto-v1": ("N2", "Primera moto: la receta del carro (DAgger con el maestro de moto y luego refuerzo) "
+                      "aplicada a la física de inclinación y caída"),
+}
+OBS_MOTO = [("v/32 m/s" if o == "v/25 m/s" else "velocidad segura/32 m/s" if o == "velocidad segura/25 m/s" else o)
+            for o in OBS_0_4] + ["inclinación/60°", "riesgo de caída (pasos patinando/3)"]
+ACCIONES_MOTO = ["u_acel [-1, 1]", "u_incl [-1, 1] (inclinación pedida/60°)"]
+
+
+def _leer_en(commit, ruta):
+    """Archivo del repo en ese commit, o del directorio de trabajo si commit es None."""
+    return Path(ruta).read_text(encoding="utf-8") if commit is None else _git("show", f"{commit}:{ruta}")
+
+
+def _decision_moto(nombre):
+    """Lo que dijeron los criterios de configs/seleccion.yaml (sección moto) sobre esa versión."""
+    from rally import seleccion
+
+    recomendado, _, decisiones = seleccion.archivos("moto")
+    if recomendado.exists() and json.loads(recomendado.read_text(encoding="utf-8")).get("modelo") == nombre:
+        return "aceptado"
+    if decisiones.exists():
+        previas = [d for d in json.loads(decisiones.read_text(encoding="utf-8")) if d["candidato"] == nombre]
+        if previas:
+            return "aceptado" if previas[-1]["aceptado"] else "rechazado"
+    return "candidato"
+
+
+def manifiesto_moto(tipo, rev="moto-v1"):
+    etiquetas = _git("tag", "-l").split()
+    commit = _git("rev-parse", f"{rev}^{{commit}}").strip() if rev in etiquetas else None
+    lock = yaml.safe_load(_leer_en(commit, "dvc.lock"))
+    texto_params = _leer_en(commit, "params.yaml")
+    params = yaml.safe_load(texto_params)
+    version_env = re.search(r'^VERSION = "(.+)"', _leer_en(commit, "src/rally/moto.py"), re.M).group(1)
+    md5 = _salidas(lock, f"moto-{tipo}", f"models/moto/{tipo}")
+    hijos = {e["relpath"]: e["md5"] for e in json.loads(_cache(md5).read_text())}
+    pesos = _cache(hijos[ARCHIVO[tipo]])
+    info = json.loads(_cache(hijos["info.json"]).read_text())
+    try:
+        ev = json.loads(_leer_en(commit, "metrics/moto/evaluacion.json"))["resultados"].get(tipo)
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        ev = None
+    nivel, hipotesis = VERSIONES_MOTO.get(rev, (None, None))
+    p = {**params.get(tipo, {}), **params.get("moto", {}).get(tipo, {})}
+    base = commit or _git("rev-parse", "HEAD").strip()
+    nombre = f"{tipo}-{rev}"
+    return {
+        "nombre": nombre, "tipo": tipo, "vehiculo": "moto", "etiqueta_git": rev,
+        "run_id": info.get("mlflow_run_id"), "level_id": nivel,
+        "decision": _decision_moto(nombre), "hipotesis": p.get("hipotesis") or hipotesis,
+        "environment_version": version_env, "ambiente_huella": info.get("ambiente_huella"),
+        "git_commit": base,
+        "git_estado": ("etiqueta " + rev) if commit else
+                      (f"entrenado sobre {base[:8]} con los cambios de la moto sin confirmar; tras el commit, "
+                       f"`git tag {rev}` y `rally manifiesto --vehiculo moto` fijan el commit"),
+        "config_sha256": hashlib.sha256(texto_params.encode()).hexdigest(),
+        "model_uri": f"dvc://models/moto/{tipo}/{ARCHIVO[tipo]}@{base}",
+        "model_md5_dvc": hijos[ARCHIVO[tipo]], "model_sha256": _sha256(pesos),
+        "mlflow_modelo": info.get("mlflow_modelo"), "mlflow_version": info.get("mlflow_version"),
+        "normalization_uri": f"git://src/rally/moto.py@{base}", "normalizacion": NORMALIZACION,
+        "runtime_ref": f"requirements.txt y pyproject.toml en {base}",
+        "evaluation_suite_id": SUITE, "seed": p.get("semilla"),
+        "parent_run_id": None, "parent_run_nota": _padre(info),
+        "origen": "desde cero con imitación" if p.get("dagger_iter") else "desde cero",
+        "presupuesto": {k: v for k, v in info.items() if k in ("pasos", "episodios", "segundos")},
+        "contrato": {"observaciones": len(OBS_MOTO), "orden": OBS_MOTO, "acciones": ACCIONES_MOTO,
+                     "clipping": "[-1, 1]", "paso_s": 0.1},
+        "resultados": ev,
+        "pistas_entrenamiento": info.get("pistas_entrenamiento", ["monaco"]),
+        "entrenamiento_plataforma": {"maquina": "entorno en la nube de Claude, 2 CPU, 7 GB", "sistema": "Linux",
+                                     "python": "3.13", "nota": "presupuesto reducido (params.yaml, sección moto)"},
+    }
+
+
+def _fila(m):
+    return {k: m.get(k) for k in ("nombre", "tipo", "vehiculo", "etiqueta_git", "level_id", "decision", "hipotesis",
+                                  "environment_version", "git_commit", "model_sha256", "resultados")
+            if k != "vehiculo" or m.get("vehiculo")}
+
+
+def generar_moto(catalogo=None, revisiones=None):
+    """Manifiestos de la moto; reemplaza sus filas del catálogo y deja intactas las del carro.
+
+    Si ningún manifiesto se puede regenerar (lo normal en un clon sin `dvc pull`: los pesos no
+    están en la caché de DVC), se conservan las filas que ya tenía el catálogo. Antes se
+    reescribía sin ellas y la moto desaparecía de la web y de la API sin aviso.
+    """
+    revisiones = revisiones or list(VERSIONES_MOTO)
+    ruta_cat = SALIDA / "catalogo.json"
+    if catalogo is None:
+        catalogo = json.loads(ruta_cat.read_text(encoding="utf-8")) if ruta_cat.exists() else []
+    previas = [f for f in catalogo if f.get("vehiculo") == "moto"]
+    catalogo = [f for f in catalogo if f.get("vehiculo") != "moto"]
+    nuevas = []
+    for rev in revisiones:
+        for tipo in ARCHIVO:
+            try:
+                m = manifiesto_moto(tipo, rev)
+            except (KeyError, FileNotFoundError, subprocess.CalledProcessError) as e:
+                print(f"  moto {tipo} {rev}: sin manifiesto ({e})")
+                continue
+            ruta = SALIDA / f"{m['nombre']}.json"
+            ruta.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
+            nuevas.append(_fila(m))
+            print(f"  {ruta}  {m['model_sha256'][:12]}")
+    if not nuevas and previas:
+        print(f"  moto: no se regeneró ningún manifiesto; se conservan sus {len(previas)} filas del "
+              "catálogo (¿falta `dvc pull -r dagshub`?)")
+        nuevas = previas
+    ruta_cat.write_text(json.dumps(catalogo + nuevas, indent=2, ensure_ascii=False), encoding="utf-8")
+    return catalogo + nuevas
+
+
+def generar(revisiones=None, vehiculo=None):
+    """Todos los manifiestos (por defecto); `vehiculo="moto"` arma solo los de la moto."""
+    if vehiculo == "moto":
+        return generar_moto()
     revisiones = revisiones or [t for t in _git("tag", "-l").split() if t in VERSIONES]
     SALIDA.mkdir(exist_ok=True)
     catalogo = []
@@ -183,5 +355,16 @@ def generar(revisiones=None):
     for carpeta in sorted(FINALISTAS.glob("*-s*")):
         tipo, s = carpeta.name.rsplit("-s", 1)
         agregar(manifiesto_finalista(tipo, int(s)))
-    (SALIDA / "catalogo.json").write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
-    return catalogo
+    for nombre, c in SEMILLAS_V6.items():
+        if (c["carpeta"] / ARCHIVO["ppo"]).exists():
+            agregar(manifiesto_semilla_v6(nombre))
+            continue
+        # Sin `dvc pull models/semillas-v6.dvc` se conserva su fila: si no, desaparecería de la web
+        ruta_cat = SALIDA / "catalogo.json"
+        previas = json.loads(ruta_cat.read_text(encoding="utf-8")) if ruta_cat.exists() else []
+        catalogo.extend(f for f in previas if f["nombre"] == nombre)
+        print(f"  {nombre}: sin pesos (dvc pull models/semillas-v6.dvc); se conserva su fila del catálogo")
+    if vehiculo == "carro":
+        (SALIDA / "catalogo.json").write_text(json.dumps(catalogo, indent=2, ensure_ascii=False), encoding="utf-8")
+        return catalogo
+    return generar_moto(catalogo)

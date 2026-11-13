@@ -14,3 +14,21 @@ qlearning:
   extremos_min_pct: 40
   prueba_min_pct: 0
   perdida_max_puntos: 2
+# Moto MotoGP: criterios fijados el 2026-11-11, ANTES de entrenar sus agentes. Son los mismos
+# umbrales del carro; el tiempo en seco se mide contra el experto de la moto (74.7 s con la
+# suite de la ficha y a_max 5 m/s²) + 5 %.
+moto:
+  ppo:
+    seco_min_pct: 98
+    mojado_min_pct: 98
+    tiempo_seco_max_s: 78.4
+    extremos_min_pct: 85
+    prueba_min_pct: 50
+    perdida_max_puntos: 2
+  qlearning:
+    seco_min_pct: 70
+    mojado_min_pct: 50
+    tiempo_seco_max_s: 90.0
+    extremos_min_pct: 40
+    prueba_min_pct: 0
+    perdida_max_puntos: 2

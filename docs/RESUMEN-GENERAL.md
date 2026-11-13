@@ -7,6 +7,9 @@ preguntas de la sustentación. Si después de leerlo te queda una duda, revisa l
 Última actualización: 10 de noviembre de 2026, sobre el commit `dedbc1b` de `main`, que es el publicado en Vercel.
 Incluye el experimento v6 (tres pistas), el selector de pista de la web y el veredicto de selección de la v6.
 
+Desde el 11 de noviembre incluye también el **segundo vehículo**, la moto MotoGP: su ambiente, sus dos
+agentes, sus manifiestos y su veredicto de selección (secciones 4.10 y 7.8).
+
 ## Contenido
 
 1. En un minuto
@@ -39,16 +42,17 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 
 | Dato | Valor |
 |---|---|
-| Modelo recomendado | `ppo-modelo-v5-s1`: red neuronal PPO, versión 5, semilla 1 |
-| Resultado en el test reservado | 100 % de vueltas en seco (68.6 s), 100 % con lluvia (89.3 s), 99.9 % en 19 pruebas extremas |
+| Modelo recomendado | `ppo-modelo-v6-pistas-s1`: PPO entrenada en tres pistas, semilla 1 (desde el 12 de noviembre; antes, `ppo-modelo-v5-s1`) |
+| Resultado en el test reservado | v6-s1: 100 % en seco (80.4 s), 100 % con lluvia y 100 % en 19 pruebas extremas. v5-s1: 100 %, 100 % y 99.9 % |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
 | ¿Memorizó Mónaco? | La v5-s1 sí: 0 % en el Puerto y en la Sierra (pista reservada) |
 | Experimento más reciente | `ppo-modelo-v6-pistas`: entrenada en tres pistas, maneja en una pista que nunca vio (100 %), pero **no pasa la selección**: cae en condiciones extremas de Mónaco (sección 7.7) |
+| Segundo vehículo | Moto MotoGP (`AutonomousRallyMoto-v0`): mismo circuito, física de inclinación y caída. Recomendada `ppo-moto-v1`: 100 % en seco (78.2 s) y 100 % con lluvia (110.0 s) |
 | Avance estimado frente a la rúbrica | Cerca del 95 % (estimación del equipo, no una medición) |
 | Lo que más falta | Ensayo, nombre del equipo y contribuciones, y respuestas del docente |
 | Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api`; selector de pista desde el 10 de noviembre) |
-| Pruebas automáticas | 85, todas pasan |
-| Versiones de modelos con manifiesto | 17 |
+| Pruebas automáticas | 109, todas pasan. Las de la API se saltaban en CI porque faltaba `httpx` en `requirements.txt`; desde el 11 de noviembre corren |
+| Versiones de modelos con manifiesto | 19: 17 del carro y 2 de la moto |
 
 **Nota sobre el nombre:** el repositorio se llama `defiende-el-servidor` porque empezó con otro proyecto. Ese plan
 quedó guardado en [antecedentes/](antecedentes/defiende-el-servidor.md) y ya no aplica. Todo lo actual es
@@ -230,6 +234,41 @@ Mónaco.
 | Sierra | 1 099 m | 11 | 11 m | antihorario | **prueba reservada**: el código no deja entrenar con ella y la API responde 403 |
 
 El experto, el prudente y el maestro completan las cuatro en seco y con lluvia, así que todas se pueden manejar.
+
+### 4.10 El segundo vehículo: la moto MotoGP (desde el 11 de noviembre)
+
+Ficha completa en [ambiente-moto.md](ambiente-moto.md). El mismo circuito y la misma misión con otro vehículo,
+intercambiable con el carro: `AutonomousRallyMoto-v0` en [`src/rally/moto.py`](../src/rally/moto.py). **El carro no
+cambió**: sus rutas, sus modelos y sus resultados son los de siempre.
+
+**Qué decisión nueva obliga a aprender.** La moto no gira con un volante: gira inclinándose, y la inclinación
+tarda en llegar (sube a lo sumo 80 °/s, así que llegar a 35° toma casi medio segundo). Hay que empezar a tumbarla
+**antes** de la curva. Y pasarse del agarre no perdona: el carro subvira y sigue; la moto patina, y 0.3 s seguidos
+patinando terminan el episodio con resultado `caida`, que cuesta lo mismo que un choque.
+
+| | Carro | Moto |
+|---|---|---|
+| Observación | 24 números | 26: las 24 del carro más la inclinación y el riesgo de caída |
+| Dirección | ángulo de volante δ | inclinación pedida φ (máx. 60°) |
+| Cómo gira | κ = tan δ / L | a_lat = g · tan φ, κ = a_lat / v² |
+| Pasarse del agarre | subvira | patina y se cae |
+| Velocidad máxima | 25 m/s | 32 m/s |
+| Modelos y métricas | `models/`, `metrics/` | `models/moto/`, `metrics/moto/` |
+| Parámetros | `params.yaml` | sección `moto:` de `params.yaml` (hereda lo demás) |
+| MLflow | `autonomous-rally-monaco` | `autonomous-rally-motogp` |
+| Selección | `configs/seleccion.yaml`, `manifests/` | sección `moto:`, `manifests/moto/` |
+| Etapas DVC | `datos` … `generalizacion` | `moto-datos` … `moto-generalizacion` |
+
+**Son otra familia de modelos.** Un modelo del carro no corre en la moto ni al revés, porque su contrato de
+observaciones es distinto (24 contra 26): la API responde **409** si se le pide. El registro de vehículos está en
+[`src/rally/vehiculos.py`](../src/rally/vehiculos.py) y todos los comandos aceptan `--vehiculo moto`.
+
+**Las 4 transiciones de su ficha** (M1 a M4) las comprueban `rally transiciones --vehiculo moto` y
+`tests/test_moto.py`. Sus pilotos de referencia son los mismos cuatro del carro con pure pursuit de inclinación:
+el experto hace 100 % en seco (74.7 s) y 0 % con lluvia (se cae), el prudente 100 % / 100 % y el maestro, que es
+quien enseña en DAgger, 100 % en 78.4 s y 100 % en 108.4 s.
+
+---
 
 ---
 
@@ -451,6 +490,46 @@ se publicó la v6 en Hugging Face. La v6 queda en el catálogo y en la web para 
 
 **Demo para la sustentación:** https://autonomous-rally.vercel.app/?pista=puerto con `ppo-modelo-v5-s1` (en seco se
 sale a los 28.4 s y con lluvia choca) y después con `ppo-modelo-v6-pistas` (completa en 78.8 s y 99.6 s).
+
+### 7.8 La moto MotoGP: sus dos agentes
+
+Entrenados con `dvc repro` (etapas `moto-*`) con presupuesto reducido frente al carro, en un equipo de 2 CPU: PPO
+20 iteraciones de DAgger y 1 millón de pasos; Q-learning 30 iteraciones de DAgger y 400 episodios. Suite de la
+ficha: 100 semillas por condición ([metrics/moto/evaluacion.json](../metrics/moto/evaluacion.json)); extremos, 19
+pruebas con 30 semillas cada una ([generalizacion.json](../metrics/moto/generalizacion.json)). Los criterios se
+fijaron **antes de entrenar**, en la sección `moto:` de [configs/seleccion.yaml](../configs/seleccion.yaml).
+
+| Versión | Seco | Lluvia | Extremos | Peor prueba | Decisión |
+|---|---|---|---|---|---|
+| **`ppo-moto-v1`** | **100 %, 78.2 s** | **100 %, 110.0 s** | **98.1 %** | límite de lluvia 63.3 % | **aceptada y recomendada** |
+| `qlearning-moto-v1` | **0 %** | 96 %, 112.4 s | 40.4 % | más agarre 0 % | **rechazada** |
+| Maestro (referencia) | 100 %, 78.4 s | 100 %, 108.4 s | 100 % | — | piloto de reglas |
+
+**El PPO de la moto ganó velocidad y perdió confiabilidad con el refuerzo.** El mejor punto fue el de la red recién
+imitada, el paso 0: 100 % en seco, con lluvia y en extremos. Practicando, el tiempo en seco bajó de 77.6 s a
+72.6 s, pero los extremos cayeron a 61–89 % y la lluvia llegó a 47 %. La regla de `MejorModelo` —primero vueltas,
+después tiempo— se quedó con la red imitada, y eso es lo que se publicó. Es el mismo aprendizaje de la v6 del
+carro visto desde otro ángulo: un criterio fijado antes evita cambiar robustez por cronómetro.
+
+**El Q-learning no aprendió la moto en seco: 0 %.** Con lluvia imita bien al maestro (96 %), pero en seco se cae
+siempre, y el refuerzo no mejoró la mejor tabla de la imitación. La causa es de diseño, no de presupuesto: la
+tabla usa la discretización del carro y **no ve la inclinación**. En seco la moto va más rápido, necesita más
+inclinación y necesita empezar a tumbarse antes; sin verla en el estado, no puede saber cuándo. Queda como versión
+rechazada y conservada, con su manifiesto y su veredicto. Siguiente hipótesis, `qlearning-moto-v2`: agregar la
+observación 24 (inclinación) a `src/rally/agentes/discreto.py` con 3 rangos, que lleva la tabla de 117 600 a
+352 800 estados.
+
+**Dónde falla el PPO aceptado.** En `limite_lluvia` (μ = 0.75) da 63.3 %: con ese agarre el sensor de lluvia marca
+seco, la moto entra a las curvas como si lo estuviera y se cae en 37 de cada 100 vueltas. La regla de
+generalización la marca como sobreajuste (cae 36.7 puntos, más de los 20 permitidos); los criterios de selección
+la aceptan porque ninguna prueba baja de 50 %. Hay que decirlo en la sustentación: es la misma frontera que ya
+mostraba el carro, y en la moto pesa más porque pasarse tira la moto.
+
+El veredicto completo, criterio por criterio, está en
+[manifests/moto/decisiones.json](../manifests/moto/decisiones.json); la promoción, en
+[historial.json](../manifests/moto/historial.json).
+
+---
 
 ---
 
@@ -779,6 +858,18 @@ La instalación completa está en la [guía para empezar](guias/empezar.md).
 | Armar la API de Vercel | `.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --vercel` |
 | Revisar que el paquete está al día | `.venv/bin/python deploy/api/empaquetar.py web/api/_paquete --verificar` |
 | Comprobar la URL pública | `~/.venvs/rally-flujo/bin/python pipelines/flujo.py --comprobar https://autonomous-rally.vercel.app` |
+
+Los mismos comandos con la moto, que acepta `--vehiculo moto`:
+
+| Para | Comando |
+|---|---|
+| Ver una vuelta de la moto | `.venv/bin/rally ver --vehiculo moto --piloto maestro --lluvia` |
+| Las 4 transiciones de su ficha | `.venv/bin/rally transiciones --vehiculo moto` |
+| Entrenar y evaluar sus dos agentes | `OMP_NUM_THREADS=1 .venv/bin/dvc repro moto-registrar moto-generalizacion` |
+| Sus manifiestos | `.venv/bin/rally manifiesto --vehiculo moto` |
+| Aplicar sus criterios | `.venv/bin/rally seleccionar ppo-moto-v1 --tipo ppo --vehiculo moto --anotar` |
+| Sus vueltas grabadas | `.venv/bin/rally replays --vehiculo moto` |
+| Verla en la web | `.venv/bin/rally web` → http://localhost:8765/?vehiculo=moto |
 
 La web compilada (puerto 4173) siempre entra en modo replay si se compiló sin `VITE_API_BASE_URL`. Para la
 simulación en vivo en local, usa `npm run dev` (puerto 5173) con la API encendida.

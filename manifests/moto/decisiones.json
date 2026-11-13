@@ -1,0 +1,48 @@
+[
+  {
+    "candidato": "ppo-moto-v1",
+    "tipo": "ppo",
+    "aceptado": true,
+    "criterios": {
+      "seco": true,
+      "mojado": true,
+      "tiempo_seco": true,
+      "extremos": true,
+      "peor_prueba": true
+    },
+    "valores": {
+      "seco": 100.0,
+      "mojado": 100.0,
+      "tiempo_seco_s": 78.2,
+      "extremos_pct": 98.1,
+      "peor_prueba": {
+        "limite_lluvia": 63.3
+      }
+    },
+    "criterios_de": "configs/seleccion.yaml",
+    "fecha": "2026-11-11T12:44:23-0500"
+  },
+  {
+    "candidato": "qlearning-moto-v1",
+    "tipo": "qlearning",
+    "aceptado": false,
+    "criterios": {
+      "seco": false,
+      "mojado": true,
+      "tiempo_seco": false,
+      "extremos": true,
+      "peor_prueba": true
+    },
+    "valores": {
+      "seco": 0.0,
+      "mojado": 96.0,
+      "tiempo_seco_s": null,
+      "extremos_pct": 40.4,
+      "peor_prueba": {
+        "mas_agarre": 0.0
+      }
+    },
+    "criterios_de": "configs/seleccion.yaml",
+    "fecha": "2026-11-11T12:44:23-0500"
+  }
+]

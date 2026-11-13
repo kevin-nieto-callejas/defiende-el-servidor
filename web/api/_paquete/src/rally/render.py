@@ -351,6 +351,8 @@ def _estado(info, cfg):
         return Text("🏁 ¡VUELTA COMPLETA!", style="bold black on bright_green")
     if out == "choque":
         return Text("💥 CHOQUE", style="bold white on red")
+    if out == "caida":
+        return Text("🏍 CAÍDA: SE PASÓ DEL AGARRE", style="bold white on red")
     if out == "salida":
         return Text("✖ SE SALIÓ DE LA PISTA", style="bold white on red")
     if out == "estancado":
@@ -385,6 +387,7 @@ def resumen(info, total, politica, mu):
     titulo = {
         "exito": "🏁 VUELTA COMPLETA",
         "choque": "💥 CHOQUE",
+        "caida": "🏍 CAÍDA",
         "salida": "✖ SALIDA DE PISTA",
         "estancado": "⏸ ESTANCADO",
         "tiempo": "⏱ TIEMPO AGOTADO",

@@ -1,0 +1,188 @@
+{
+  "episodios": 100,
+  "semillas_sha256": "541487e626fba5e333c4e8a06d73e3f2e0fb1fb7bd1a41c12adbae9440927d13",
+  "semilla_en": ".env (RALLY_SEMILLA_RESERVADA_V6S1), fuera del repositorio",
+  "semilla_nueva": true,
+  "fecha": "2026-11-12T18:53:30-0500",
+  "corridas": 1,
+  "modelo": {
+    "nombre": "ppo-modelo-v6-pistas-s1",
+    "model_sha256": "1f68d191777373d5811c205ce23650558dd0cf2ac55d6fd50156be20c1c94edf",
+    "motor": "numpy",
+    "max_diferencia_con_pytorch": 5.960464477539062e-07
+  },
+  "plataforma": "Darwin x86_64, Python 3.12.14",
+  "segundos": 16768.8,
+  "resultados": {
+    "ppo-modelo-v6-pistas-s1": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 80.4,
+        "tiempo_p90_s": 80.5,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 167.16,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 104.8,
+        "tiempo_p90_s": 104.8,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.9,
+        "progreso_pct": 100.0
+      },
+      "llovizna": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 105.2,
+        "tiempo_p90_s": 105.3,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.9,
+        "progreso_pct": 100.0
+      },
+      "casi_seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 105.7,
+        "tiempo_p90_s": 105.8,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.81,
+        "progreso_pct": 100.0
+      },
+      "mas_agarre": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 79.5,
+        "tiempo_p90_s": 79.5,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 167.69,
+        "progreso_pct": 100.0
+      },
+      "salida_torcida": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 80.5,
+        "tiempo_p90_s": 80.6,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 167.05,
+        "progreso_pct": 100.0
+      },
+      "salida_torcida_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 104.8,
+        "tiempo_p90_s": 104.9,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.82,
+        "progreso_pct": 100.0
+      },
+      "sensores_ruido": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 81.0,
+        "tiempo_p90_s": 81.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 159.33,
+        "progreso_pct": 100.0
+      },
+      "sensores_ruido_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 105.8,
+        "tiempo_p90_s": 106.41,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 143.15,
+        "progreso_pct": 100.0
+      },
+      "diluvio": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 105.5,
+        "tiempo_p90_s": 105.6,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.11,
+        "progreso_pct": 100.0
+      },
+      "limite_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 80.9,
+        "tiempo_p90_s": 80.9,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 166.98,
+        "progreso_pct": 100.0
+      },
+      "pista_angosta": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 80.8,
+        "tiempo_p90_s": 80.9,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 166.7,
+        "progreso_pct": 100.0
+      },
+      "pista_angosta_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 106.1,
+        "tiempo_p90_s": 106.3,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 153.95,
+        "progreso_pct": 100.0
+      },
+      "pista_ancha": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 80.9,
+        "tiempo_p90_s": 80.9,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 167.16,
+        "progreso_pct": 100.0
+      },
+      "pista_ancha_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 104.2,
+        "tiempo_p90_s": 104.3,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 155.54,
+        "progreso_pct": 100.0
+      },
+      "sensores_cortos": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 81.6,
+        "tiempo_p90_s": 81.6,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 165.49,
+        "progreso_pct": 100.0
+      },
+      "sensores_cortos_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 104.4,
+        "tiempo_p90_s": 104.5,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.43,
+        "progreso_pct": 100.0
+      },
+      "sensores_largos": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 81.5,
+        "tiempo_p90_s": 81.6,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 166.53,
+        "progreso_pct": 100.0
+      },
+      "sensores_largos_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 105.2,
+        "tiempo_p90_s": 105.4,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.46,
+        "progreso_pct": 100.0
+      },
+      "carro_lento": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 92.5,
+        "tiempo_p90_s": 92.6,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 161.52,
+        "progreso_pct": 100.0
+      },
+      "carro_rapido_lluvia": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 103.8,
+        "tiempo_p90_s": 104.0,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 155.71,
+        "progreso_pct": 100.0
+      }
+    }
+  }
+}

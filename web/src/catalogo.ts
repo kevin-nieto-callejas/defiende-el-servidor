@@ -1,5 +1,5 @@
 import * as api from "./api";
-import type { Evaluacion, Version } from "./api";
+import type { Evaluacion, Vehiculo, Version } from "./api";
 import { COMMIT_WEB, MLFLOW_URL } from "./config";
 
 const pct = (v?: { vueltas_pct: number }) => (v ? `${v.vueltas_pct}%` : "—");
@@ -26,6 +26,12 @@ function pistaActual(): string {
   return new URLSearchParams(location.search).get("pista") ?? "monaco";
 }
 
+/** Vehículo del visor (?vehiculo=): el catálogo muestra solo las versiones que corren en él. */
+function vehiculoActual(): Vehiculo {
+  return new URLSearchParams(location.search).get("vehiculo") === "moto" ? "moto" : "carro";
+}
+const TITULO: Record<Vehiculo, string> = { carro: "carro", moto: "moto MotoGP" };
+
 function fila(v: Version, recomendado: string | null): string {
   const r = v.resultados ?? {};
   const acciones = v.ejecutable
@@ -49,13 +55,13 @@ function resumen(nombre: string, e: Evaluacion): string {
 }
 
 async function correr(nombres: string[], salida: HTMLElement) {
-  const c = condiciones(), pista = pistaActual();
-  salida.textContent = `Evaluando ${nombres.join(", ")} en ${pista} con 10 semillas…`;
+  const c = condiciones(), pista = pistaActual(), vehiculo = vehiculoActual();
+  salida.textContent = `Evaluando ${nombres.join(", ")} (${TITULO[vehiculo]}) en ${pista} con 10 semillas…`;
   try {
-    const res = await Promise.all(nombres.map((n) => api.evaluar(n, c, pista)));
+    const res = await Promise.all(nombres.map((n) => api.evaluar(n, c, pista, 10, vehiculo)));
     salida.innerHTML = `<table><thead><tr><th>Versión</th><th>Vueltas</th><th>Tiempo</th><th>Fin</th><th>Ambiente</th></tr></thead>
       <tbody>${res.map((e, i) => resumen(nombres[i], e)).join("")}</tbody></table>
-      <p>Pista: ${esc(pista)} · condición: ${esc(JSON.stringify(c))} · modelo congelado · API en ${corto(res[0].commit_servido)}</p>`;
+      <p>Vehículo: ${esc(TITULO[vehiculo])} · pista: ${esc(pista)} · condición: ${esc(JSON.stringify(c))} · modelo congelado · API en ${corto(res[0].commit_servido)}</p>`;
   } catch (e) {
     salida.textContent = `Error del servicio: ${(e as Error).message}`;
   }
@@ -89,15 +95,21 @@ async function abrir(panel: HTMLElement) {
   const estado = panel.querySelector<HTMLElement>("#cat-estado")!;
   cuerpo.textContent = "Consultando el catálogo…";
   pintarMonitoreo(panel);
+  const vehiculo = vehiculoActual();
+  panel.querySelector<HTMLElement>("h2")!.textContent = `Catálogo de modelos · ${TITULO[vehiculo]}`;
   try {
-    const [cat, s] = await Promise.all([api.catalogo(), api.salud()]);
-    estado.innerHTML = `API ${esc(s.estado)} · ambiente ${esc(s.ambiente)} · commit ${corto(s.commit)} · web ${esc(corto(COMMIT_WEB))}
-      · recomendado <b>${esc(s.recomendado.modelo ?? "sin promover")}</b>
+    const [cat, s] = await Promise.all([api.catalogo(vehiculo), api.salud()]);
+    const ambiente = s.vehiculos?.[vehiculo]?.ambiente ?? s.ambiente;
+    const rec = (cat.recomendados?.[vehiculo] ?? cat.recomendado).modelo;
+    // En replay el catálogo grabado trae los dos vehículos: se filtra aquí también
+    const modelos = cat.modelos.filter((v) => (v.vehiculo ?? "carro") === vehiculo);
+    estado.innerHTML = `API ${esc(s.estado)} · ambiente ${esc(ambiente)} · commit ${corto(s.commit)} · web ${esc(corto(COMMIT_WEB))}
+      · recomendado <b>${esc(rec ?? "sin promover")}</b>
       · ${s.episodios} episodios, ${s.errores} errores, ${s.latencia_paso_ms ?? "—"} ms por paso
       · <a href="${MLFLOW_URL}" target="_blank" rel="noopener">Abrir MLflow</a>`;
     cuerpo.innerHTML = `<table><thead><tr><th>Versión</th><th>Nivel</th><th>Decisión</th><th>Ambiente</th><th>Commit</th>
       <th>Seco</th><th>Lluvia</th><th></th></tr></thead>
-      <tbody>${cat.modelos.map((v) => fila(v, cat.recomendado.modelo)).join("")}</tbody></table>`;
+      <tbody>${modelos.map((v) => fila(v, rec)).join("") || `<tr><td colspan="8">Todavía no hay versiones entrenadas de la ${esc(TITULO[vehiculo])}.</td></tr>`}</tbody></table>`;
   } catch (e) {
     cuerpo.textContent = `Error del servicio: ${(e as Error).message}`;
   }

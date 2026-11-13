@@ -491,5 +491,88 @@
         "progreso_pct": 98.6
       }
     }
+  },
+  {
+    "nombre": "ppo-modelo-v6-pistas-s1",
+    "tipo": "ppo",
+    "etiqueta_git": "modelo-v6-pistas-s1",
+    "level_id": "N3",
+    "decision": "aceptado",
+    "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
+    "environment_version": "0.4-monaco-configurable",
+    "git_commit": "a193a45805a863c199eddcca7b1cbcb54b86042a",
+    "model_sha256": "1f68d191777373d5811c205ce23650558dd0cf2ac55d6fd50156be20c1c94edf",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 80.4,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 104.8,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "ppo-moto-v1",
+    "tipo": "ppo",
+    "vehiculo": "moto",
+    "etiqueta_git": "moto-v1",
+    "level_id": "N2",
+    "decision": "aceptado",
+    "hipotesis": "Moto v1: la receta del PPO del carro (DAgger con el maestro de moto + PPO con dominio aleatorio en Mónaco, Bosque y Puerto) aprende a anticipar la inclinación y completa al menos 98 % de las vueltas en seco y con lluvia, sin caerse",
+    "environment_version": "moto-0.1",
+    "git_commit": "05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
+    "model_sha256": "d66ae9adb10812259f05b5d2af19a7fbba4f9532f9f372b7e0483c6378f56ee1",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 78.2,
+        "tiempo_p90_s": 78.2,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 168.79,
+        "progreso_pct": 100.0
+      },
+      "mojado": {
+        "vueltas_pct": 100.0,
+        "tiempo_mediano_s": 110.0,
+        "tiempo_p90_s": 110.1,
+        "incidentes_ep": 0.0,
+        "recompensa_media": 154.89,
+        "progreso_pct": 100.0
+      }
+    }
+  },
+  {
+    "nombre": "qlearning-moto-v1",
+    "tipo": "qlearning",
+    "vehiculo": "moto",
+    "etiqueta_git": "moto-v1",
+    "level_id": "N2",
+    "decision": "rechazado",
+    "hipotesis": "Moto v1: la receta tabular del carro (DAgger con el maestro de moto + Q-learning, misma discretización de 117 600 estados) completa al menos 70 % de las vueltas en seco y 50 % con lluvia sin ver la inclinación como parte del estado",
+    "environment_version": "moto-0.1",
+    "git_commit": "05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
+    "model_sha256": "f2690f330b7f162016a1faeed81dda96b23cff33a2b822d209c29b8a05c8d66d",
+    "resultados": {
+      "seco": {
+        "vueltas_pct": 0.0,
+        "tiempo_mediano_s": null,
+        "tiempo_p90_s": null,
+        "incidentes_ep": 2.01,
+        "recompensa_media": 16.22,
+        "progreso_pct": 64.4
+      },
+      "mojado": {
+        "vueltas_pct": 96.0,
+        "tiempo_mediano_s": 112.4,
+        "tiempo_p90_s": 113.0,
+        "incidentes_ep": 0.11,
+        "recompensa_media": 138.9,
+        "progreso_pct": 98.2
+      }
+    }
   }
 ]

@@ -1,0 +1,97 @@
+{
+  "nombre": "qlearning-moto-v1",
+  "tipo": "qlearning",
+  "vehiculo": "moto",
+  "etiqueta_git": "moto-v1",
+  "run_id": "5ebe1d877b294bd2a23308caff4c6f0d",
+  "level_id": "N2",
+  "decision": "rechazado",
+  "hipotesis": "Moto v1: la receta tabular del carro (DAgger con el maestro de moto + Q-learning, misma discretización de 117 600 estados) completa al menos 70 % de las vueltas en seco y 50 % con lluvia sin ver la inclinación como parte del estado",
+  "environment_version": "moto-0.1",
+  "ambiente_huella": "8a81897abfb7",
+  "git_commit": "05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
+  "git_estado": "etiqueta moto-v1",
+  "config_sha256": "20af310ebdadf52067ba1292be94f926502f24ce40f29823181ea4097d61cddb",
+  "model_uri": "dvc://models/moto/qlearning/q_table.npz@05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
+  "model_md5_dvc": "08418d740c12edbcb4e25cfd8d528ebd",
+  "model_sha256": "f2690f330b7f162016a1faeed81dda96b23cff33a2b822d209c29b8a05c8d66d",
+  "mlflow_modelo": "rally-moto-qlearning",
+  "mlflow_version": 1,
+  "normalization_uri": "git://src/rally/moto.py@05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
+  "normalizacion": "Sin VecNormalize ni estadísticas aprendidas: el ambiente entrega las observaciones ya escaladas con divisores fijos (orden y divisores en contrato.orden)",
+  "runtime_ref": "requirements.txt y pyproject.toml en 05383cc3a02cf2fb8b4b35a4d946f2d1566b0ad8",
+  "evaluation_suite_id": "ficha-100-semillas-0-99",
+  "seed": 0,
+  "parent_run_id": null,
+  "parent_run_nota": "Sin run padre: se entrenó desde cero (imitación y refuerzo en el mismo run), sin heredar pesos",
+  "origen": "desde cero con imitación",
+  "presupuesto": {
+    "episodios": 880,
+    "pasos": 530596,
+    "segundos": 920.4
+  },
+  "contrato": {
+    "observaciones": 26,
+    "orden": [
+      "v/32 m/s",
+      "ω/2 rad/s",
+      "sin φ",
+      "cos φ",
+      "d/(w/2)",
+      "eψ/π rad",
+      "rayo -90°/40 m",
+      "rayo -60°/40 m",
+      "rayo -30°/40 m",
+      "rayo 0°/40 m",
+      "rayo 30°/40 m",
+      "rayo 60°/40 m",
+      "rayo 90°/40 m",
+      "curvatura a 10 m·R",
+      "curvatura a 25 m·R",
+      "curvatura a 50 m·R",
+      "agarre usado",
+      "derrape",
+      "μ estimado/1.2",
+      "lluvia",
+      "ancho/12 m",
+      "a_max/6 m/s²",
+      "r_max/40 m",
+      "velocidad segura/32 m/s",
+      "inclinación/60°",
+      "riesgo de caída (pasos patinando/3)"
+    ],
+    "acciones": [
+      "u_acel [-1, 1]",
+      "u_incl [-1, 1] (inclinación pedida/60°)"
+    ],
+    "clipping": "[-1, 1]",
+    "paso_s": 0.1
+  },
+  "resultados": {
+    "seco": {
+      "vueltas_pct": 0.0,
+      "tiempo_mediano_s": null,
+      "tiempo_p90_s": null,
+      "incidentes_ep": 2.01,
+      "recompensa_media": 16.22,
+      "progreso_pct": 64.4
+    },
+    "mojado": {
+      "vueltas_pct": 96.0,
+      "tiempo_mediano_s": 112.4,
+      "tiempo_p90_s": 113.0,
+      "incidentes_ep": 0.11,
+      "recompensa_media": 138.9,
+      "progreso_pct": 98.2
+    }
+  },
+  "pistas_entrenamiento": [
+    "monaco"
+  ],
+  "entrenamiento_plataforma": {
+    "maquina": "entorno en la nube de Claude, 2 CPU, 7 GB",
+    "sistema": "Linux",
+    "python": "3.13",
+    "nota": "presupuesto reducido (params.yaml, sección moto)"
+  }
+}

@@ -54,16 +54,19 @@ class RedNumpy:
 
 
 def _observaciones_de_prueba(n_obs, n_aleatorias, semilla):
-    """Observaciones reales (vueltas del piloto maestro en seco y con lluvia) y aleatorias en [-1.5, 1.5]."""
-    from rally import policies
-    from rally.env import AutonomousRallyEnv
+    """Observaciones reales (vueltas del piloto maestro en seco y con lluvia) y aleatorias en [-1.5, 1.5].
+
+    Una red de 26 entradas es de la moto: sus observaciones reales salen del ambiente de la moto.
+    """
+    from rally import policies, vehiculos
     from rally.historicos import adaptar
 
+    vehiculo = "moto" if n_obs == vehiculos.n_obs("moto") else "carro"
     reales = []
     for mu in (0.9, 0.5):
-        env = AutonomousRallyEnv(mu=mu)
+        env = vehiculos.crear_env(vehiculo, mu=mu)
         obs, info = env.reset(seed=semilla)
-        piloto = policies.crear("maestro", semilla)
+        piloto = policies.crear("maestro", semilla, vehiculo)
         for _ in range(3000):
             reales.append(adaptar(obs, n_obs))
             obs, _, term, trunc, info = env.step(piloto(obs, info))

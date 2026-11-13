@@ -1,6 +1,8 @@
 {
   "episodios_por_condicion": 100,
   "base": "experto",
+  "vehiculo": "carro",
+  "ambiente_version": "0.4-monaco-configurable",
   "resultados": {
     "experto": {
       "seco": {

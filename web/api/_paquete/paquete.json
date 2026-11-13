@@ -1,9 +1,9 @@
 {
-  "commit": "829481f7dfefe53acc44ea411239a391d052a369",
-  "fecha": "2026-11-10T21:42:16-0500",
+  "commit": "02bd995e14eea30b127ea38b642aad9ab64f576b",
+  "fecha": "2026-11-13T14:53:43-0500",
   "destino": "vercel",
-  "huella_src": "d1c2447dfc5c203c0e39db172fe80d10944b8dc3b5577a224fe23b51177e59fe",
-  "huella_manifests": "7c0f040e503a30076b34fe15cddaac5bd6a61e612236e97dd68bcaeb8cbd9007",
+  "huella_src": "3b167845215cd0e184913cc124354a4e6ab4555bcdf66703ab1fff157ac2754f",
+  "huella_manifests": "16cb4b845ab07f260fda4ce2a384a2dc3f07826431db41c69b81899b0804b11c",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
@@ -140,6 +140,39 @@
     "qlearning-modelo-qlearning-v8-s2": {
       "fuente_sha256": "3934927eb4c7fd5f342a515e16ff2307db7686f0f4ee0c2f0ab82a518287da0e",
       "npz_sha256": "737e5c0277f0582a8d1ec9a309eaf7c1a25eb913c9708c2e4e2213b041d009e2",
+      "motor": "tabla"
+    },
+    "ppo-modelo-v6-pistas-s1": {
+      "fuente_sha256": "1f68d191777373d5811c205ce23650558dd0cf2ac55d6fd50156be20c1c94edf",
+      "npz_sha256": "eeed0ea3397127360c29be8718d151ae97aa09db37e8ae16d0282f56e839204e",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 5.960464477539062e-07,
+      "motor": "numpy"
+    },
+    "ppo-moto-v1": {
+      "fuente_sha256": "d66ae9adb10812259f05b5d2af19a7fbba4f9532f9f372b7e0483c6378f56ee1",
+      "npz_sha256": "14c1e40d955a75ff6f1fd72dfd80e4ecb321fbd2c50975cfab9e0784e2c18b37",
+      "n_obs": 26,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6868,
+      "max_diferencia": 4.76837158203125e-07,
+      "motor": "numpy"
+    },
+    "qlearning-moto-v1": {
+      "fuente_sha256": "f2690f330b7f162016a1faeed81dda96b23cff33a2b822d209c29b8a05c8d66d",
+      "npz_sha256": "297a3a80fbd26a03ccfde98c7db13e4b14831029c9b8c97f9626ba51d561d80b",
       "motor": "tabla"
     }
   }

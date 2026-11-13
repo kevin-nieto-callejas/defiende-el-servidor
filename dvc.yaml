@@ -112,3 +112,131 @@ stages:
     metrics:
       - metrics/generalizacion.json:
           cache: false
+
+  # ---------------------------------------------------------------- moto MotoGP
+  # Mismas etapas con la moto (docs/ambiente-moto.md). Leen la sección `moto:` de params.yaml
+  # encima de la del carro y escriben en data/processed/moto/, models/moto/ y metrics/moto/.
+  moto-datos:
+    cmd: rally pipeline datos --vehiculo moto
+    deps:
+      - src/rally/env.py
+      - src/rally/moto.py
+      - src/rally/track.py
+      - src/rally/policies.py
+      - src/rally/pipeline.py
+      - src/rally/vehiculos.py
+    params:
+      - ambiente
+      - datos
+      - moto.ambiente
+      - evaluacion.episodios
+      - evaluacion.semilla_inicial
+      - evaluacion.mu_seco
+      - evaluacion.mu_mojado
+    outs:
+      - data/processed/moto/demos.npz
+      - data/processed/moto/escenarios.json
+    metrics:
+      - metrics/moto/datos.json:
+          cache: false
+
+  moto-qlearning:
+    cmd: rally pipeline qlearning --vehiculo moto
+    deps:
+      - data/processed/moto/demos.npz
+      - src/rally/env.py
+      - src/rally/moto.py
+      - src/rally/track.py
+      - src/rally/policies.py
+      - src/rally/pipeline.py
+      - src/rally/agentes/qlearning.py
+      - src/rally/agentes/discreto.py
+    params:
+      - ambiente
+      - qlearning
+      - moto.ambiente
+      - moto.qlearning
+    outs:
+      - models/moto/qlearning
+
+  moto-ppo:
+    cmd: rally pipeline ppo --vehiculo moto
+    deps:
+      - data/processed/moto/demos.npz
+      - src/rally/env.py
+      - src/rally/moto.py
+      - src/rally/track.py
+      - src/rally/pipeline.py
+      - src/rally/policies.py
+      - src/rally/agentes/ppo.py
+    params:
+      - ambiente
+      - ppo
+      - moto.ambiente
+      - moto.ppo
+      - evaluacion.mu_seco
+      - evaluacion.mu_mojado
+      - evaluacion.semilla_eval_rapida
+    outs:
+      - models/moto/ppo
+
+  moto-evaluar:
+    cmd: rally pipeline evaluar --vehiculo moto
+    deps:
+      - data/processed/moto/escenarios.json
+      - models/moto/qlearning
+      - models/moto/ppo
+      - src/rally/env.py
+      - src/rally/moto.py
+      - src/rally/track.py
+      - src/rally/policies.py
+      - src/rally/pipeline.py
+      - src/rally/agentes/ppo.py
+      - src/rally/agentes/qlearning.py
+      - src/rally/agentes/discreto.py
+    params:
+      - ambiente
+      - moto.ambiente
+      - evaluacion
+    metrics:
+      - metrics/moto/evaluacion.json:
+          cache: false
+
+  moto-registrar:
+    cmd: rally pipeline registrar --vehiculo moto
+    deps:
+      - metrics/moto/evaluacion.json
+      - models/moto/qlearning
+      - models/moto/ppo
+      - src/rally/pipeline.py
+      - src/rally/agentes/seguimiento.py
+    params:
+      - evaluacion
+    metrics:
+      - metrics/moto/registro.json:
+          cache: false
+
+  moto-generalizacion:
+    cmd: rally pipeline generalizacion --vehiculo moto
+    deps:
+      - models/moto/qlearning
+      - models/moto/ppo
+      - src/rally/env.py
+      - src/rally/moto.py
+      - src/rally/track.py
+      - src/rally/policies.py
+      - src/rally/pipeline.py
+      - src/rally/generalizacion.py
+      - src/rally/agentes/ppo.py
+      - src/rally/agentes/qlearning.py
+      - src/rally/agentes/discreto.py
+    params:
+      - ambiente
+      - moto.ambiente
+      - generalizacion
+      - moto.generalizacion
+      - evaluacion.mu_seco
+      - evaluacion.mu_mojado
+    metrics:
+      - metrics/moto/generalizacion.json:
+          cache: false

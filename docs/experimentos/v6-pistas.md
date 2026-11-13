@@ -166,16 +166,128 @@ La lectura completa es más fina que "entrenar en más pistas generaliza":
    final (su mejor punto es el paso 3 000 000) y es 11 % más rápida que el control en la Sierra (68.8 contra
    77.3 s en seco, 88.0 contra 99.4 s con lluvia), sin perder vueltas en ninguna pista.
 
+## Selección oficial: la v6 no se promueve (10 de noviembre)
+
+Kevin corrió el protocolo oficial con la v6 en `models/ppo` (`dvc repro -s evaluar` y `-s generalizacion`, en
+Linux) y después `rally seleccionar`. En la ficha dio 100 % en seco (69.8 s) y 100 % con lluvia, igual que en el
+Mac. Pero en las 19 pruebas extremas promedió **79.2 %** (mínimo 85 %), y su peor prueba, diluvio, dio **0 %**
+(mínimo 50 %); también cayó en límite de lluvia (14 %), pista angosta en seco (5 %) y sensores cortos con lluvia
+(0 %). No pasa la selección, y el recomendado sigue siendo `ppo-modelo-v5-s1`.
+
+Eso abrió una pregunta: ¿la v6 cae en los extremos por practicar en tres pistas, por haberse entrenado en el Mac
+o por su semilla?
+
+## Segunda semilla y pruebas extremas (`metrics/semillas-v6.json`, `metrics/generalizacion-v6-control.json`)
+
+Entrenamos la v6 y el control con la **semilla 1** en GitHub Actions (`.github/workflows/semillas-v6.yml`, run
+`42948616971`, Ubuntu con el `requirements.txt` del proyecto), con la misma configuración. Los modelos están en
+DVC (`models/semillas-v6.dvc`; v6-s1 `1f68d191…`, control-s1 `9c00b8b1…`) y las corridas, en MLflow de
+DagsHub (`ppo-v6-s1` y `ppo-control-s1`). Los evaluamos en las pistas de la fase A, **sin la Sierra**, que ya
+se usó una vez, y corrimos las 21 pruebas de `rally seleccionar` con los cuatro modelos
+(`scripts/analisis/generalizacion_modelos.py`, mismas semillas y mismo ruido que la etapa `generalizacion`; con
+la v6 semilla 0 da 78.9 %, cerca del 79.2 % de Kevin en Linux).
+
+**Fase A, semilla 1** (vueltas en 100 semillas, seco / lluvia):
+
+| Modelo | Mónaco | Bosque | Puerto | Puerto r9.5 |
+|---|---|---|---|---|
+| v6, semilla 1 | 100 / 100 · 80.4 / 104.8 s | 100 / 100 | 100 / 100 | 100 / 100 |
+| Control, semilla 1 | 100 / 100 · 81.5 / 104.7 s | **0 / 0** | 100 / **0** | 100 / **0** |
+
+**Pruebas extremas** (promedio de las 19 calificadas y peor prueba):
+
+| Modelo | Dónde se entrenó | Mejor punto del entrenamiento | Promedio | Peor prueba |
+|---|---|---|---|---|
+| v6, semilla 0 | Mac | paso 3 000 000 | **78.9 %** | diluvio, 0 % |
+| v6, semilla 1 | GitHub Actions | paso 200 004 | **100 %** | ninguna por debajo de 100 % |
+| Control, semilla 0 | Mac | paso 400 008 | 98.0 % | sensores largos con lluvia, 62 % |
+| Control, semilla 1 | GitHub Actions | paso 0 | 94.7 % | sensores cortos con lluvia, 0 % |
+
+Lo que enseña:
+
+1. **Practicar en tres pistas da un resultado estable; practicar solo en Mónaco, no.** Las dos semillas de la v6
+   completan las cuatro pistas de la fase A en seco y con lluvia. El control cambia mucho de una semilla a otra:
+   la semilla 0 completa el Puerto y choca con lluvia en el Bosque (30 %); la semilla 1 no termina nunca el
+   Bosque y no completa el Puerto con lluvia. Que el control semilla 0 completara la Sierra fue, en parte,
+   suerte de la semilla.
+2. **La caída de la v6 en los extremos no se debe a las tres pistas ni al Mac.** La v6 semilla 1 aguanta las 19
+   pruebas al 100 %, y el control semilla 0, entrenado en el mismo Mac que la v6 semilla 0, promedia 98 %.
+3. **Lo que distingue a la v6 semilla 0 es cuánto afinó con PPO.** Es la única cuyo mejor punto fue el final
+   (paso 3 000 000); en los otros tres, el mejor punto quedó cerca de la red recién imitada del maestro (paso
+   400 008 o antes). También es la más rápida (69.8 s en Mónaco, contra 79.6 a 81.5 s de los otros tres). Nuestra hipótesis es que
+   afinar mucho con PPO cambia robustez en condiciones extremas por velocidad. Con dos semillas no lo podemos
+   separar del azar de la semilla, y no lo comprobamos.
+4. **La v6 semilla 1 cumpliría los criterios de `configs/seleccion.yaml`** según estas mediciones: 100 % en seco
+   y con lluvia, 80.4 s en seco (máximo 81.3 s), 100 % en extremos (mínimo 85 %) y peor prueba 100 % (mínimo
+   50 %). La decisión sigue siendo del flujo oficial de selección, que debe correrla con su propio protocolo.
+   Ojo: la v6 semilla 1 **no tiene prueba en una pista que nunca vio**. Para ella, el Bosque y el Puerto son de
+   entrenamiento, y la Sierra ya se usó; su capacidad de manejar pistas nuevas se apoya en el resultado de la
+   semilla 0 en la Sierra y en que la misma configuración se comporta igual en las dos semillas.
+
+## Veredicto de selección de la v6 semilla 1 (12 de noviembre)
+
+Aplicamos `seleccion.decidir`, la función de `rally seleccionar`, con los criterios de `configs/seleccion.yaml`
+(fijados el 1 de noviembre) y contra el recomendado actual, `ppo-modelo-v5-s1`. Los insumos son las mediciones
+de Linux de las secciones anteriores: la ficha en Mónaco (semillas 0 a 99) y las 21 pruebas extremas, con la
+red exportada a numpy (diferencia con PyTorch menor a 1e-6). Los veredictos quedaron en
+`manifests/decisiones.json` con `seleccion.anotar`. **No se promovió nada.**
+
+| Candidato | Seco | Lluvia | Tiempo seco | Extremos | Peor prueba | Veredicto |
+|---|---|---|---|---|---|---|
+| `ppo-modelo-v6-pistas-s1` | 100 % | 100 % | 80.4 s (máx. 81.3) | 100 % (mín. 85) | 100 % (mín. 50) | **aceptado**, 7 de 7 criterios |
+| `ppo-control-monaco-s1` | 100 % | 100 % | 81.5 s | 94.7 % | sensores cortos con lluvia, 0 % | rechazado |
+
+La v6 semilla 1 es el primer modelo que **maneja en pistas nuevas y aguanta las condiciones extremas** a la vez.
+Para promoverla falta lo que solo puede hacer quien tiene el entorno de despliegue:
+
+1. Correr el test reservado (`rally test-final`), una sola vez, como se hizo con la v5-s1. Su semilla está solo
+   en el `.env` de Kevin.
+2. Registrarla en el catálogo (manifiesto y etiqueta) y agregar su red numpy al paquete de Vercel. La exportación
+   ya existe en `models/semillas-v6/v6-s1/modelo.npz`, hecha en Linux.
+3. Si pasa, promoverla con `rally seleccionar --promover` o con el flujo de Prefect, publicar Vercel desde el
+   fork y abrir el pull request en Hugging Face.
+
+Límite que hay que decir: la v6 semilla 1 no tiene prueba en una pista que nunca vio (ver el punto 4 de la
+sección anterior).
+
+### Test reservado de la v6 semilla 1: regla fijada antes de correrlo (12 de noviembre)
+
+La semilla del test de la v5-s1 está solo en el `.env` de Kevin, así que para la v6 semilla 1 usamos una semilla
+nueva: se generó al azar, se guardó en el `.env` de Miguel sin mostrarse y nadie la vio antes del test. Se
+publica solo su SHA-256. El test corre una vez (`scripts/analisis/test_final_npz.py`, mismo procedimiento que
+`rally test-final`: 100 semillas, seco, lluvia y las 19 pruebas extremas) con la red en numpy, en el Mac.
+
+**Regla, escrita antes de ver el resultado:** el test reservado debe cumplir los mismos umbrales de
+`configs/seleccion.yaml` (seco y lluvia de al menos 98 %, tiempo en seco de 81.3 s o menos, promedio de extremos
+de al menos 85 % y ninguna prueba por debajo de 50 %). Si los cumple, la v6 semilla 1 se promueve a recomendada;
+si no, queda como candidata y el recomendado sigue siendo `ppo-modelo-v5-s1`.
+
+## Test reservado y promoción de la v6 semilla 1 (12 de noviembre)
+
+El test corrió una sola vez, con 100 semillas secretas (SHA-256 `541487e6…`) y la red en numpy en el Mac:
+
+| Seco | Lluvia | Pruebas extremas | Peor prueba |
+|---|---|---|---|
+| 100 % · 80.4 s | 100 % · 104.8 s | 100 % (19 de 19 en 100 %) | 100 % |
+
+Cumple los cinco umbrales de la regla fijada en `5ed48de`, así que **la v6 semilla 1 se promovió a recomendada**
+con `seleccion.promover`. Quedó como la entrada más reciente de `manifests/historial.json`; el rollback a la v5-s1
+sigue disponible con `rally seleccionar --rollback "motivo"`. Su manifiesto pasa a `aceptado` y guarda el resumen
+del test. El test corrió en el Mac, mientras que la v5-s1 tuvo el suyo en Linux; las diferencias de plataforma que
+medimos fueron de 2 a 4 puntos en pruebas límite, y aquí ninguna prueba bajó de 100 %. Los 16 769 segundos que
+registra el archivo incluyen horas en que el Mac estuvo suspendido por batería.
+
 ## Errores que aceptamos y límites
 
-- **Una semilla por modelo.** La v5 y la v5-s1 muestran que la semilla puede cambiar el resultado en una
-  pista nueva. Para afirmar que la v6 generaliza mejor en general hacen falta más semillas del control y de la
-  v6 (`rally semillas`), y no lo hicimos por tiempo de cómputo (unas 3 horas por modelo en el Mac).
+- **Dos semillas por modelo.** La segunda semilla confirmó que la v6 es estable en las pistas de la fase A y que
+  el control no lo es, pero con dos semillas no podemos separar el efecto de afinar con PPO del azar de la
+  semilla. La semilla 1 se entrenó en Linux (GitHub Actions) y la semilla 0 en el Mac.
 - **Cuatro pistas, todas del mismo generador.** Rectas y arcos de radio constante, con escape y muro igual de
   anchos; la Sierra es nueva pero de la misma familia. No probamos curvas de radio variable, pendientes ni
   pistas mucho más largas.
-- **La regla de elección no miró las pruebas extremas** (ruido, ancho, alcance de sensores) de la ficha. La
-  v6 entra al catálogo como **candidata**; promoverla es del flujo de selección (`configs/seleccion.yaml`).
+- **La regla de elección no miró las pruebas extremas** (ruido, ancho, alcance de sensores) de la ficha, y por
+  eso la v6 semilla 0 ganó la fase A y después no pasó la selección oficial. Una próxima regla de elección debería
+  incluir las pruebas extremas desde el principio.
 - **Plataforma.** El control y la v6 se entrenaron en macOS (Intel) con PyTorch 2.2.2 y numpy 1.26; las v5,
   en WSL con PyTorch 2.15. La huella del ambiente cambia entre plataformas (`d56c0fcd9d9d` en macOS,
   `61fa0dd41b7c` en Linux) porque la geometría difiere en el último bit; las demostraciones del experto dan

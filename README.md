@@ -17,6 +17,44 @@ vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/
 | Manifiestos de cada versión | [manifests/](manifests/) |
 | Criterios de selección | [configs/seleccion.yaml](configs/seleccion.yaml) |
 
+## Moto MotoGP
+
+El mismo proyecto corre también con una **moto MotoGP** (`src/rally/moto.py`, Gymnasium
+`AutonomousRallyMoto-v0`). La moto gira inclinándose: la inclinación tarda en llegar (80 °/s) y, si
+pide más agarre del que hay, patina y **se cae**; el carro, en cambio, subvira y sigue. La ficha está en
+[docs/ambiente-moto.md](docs/ambiente-moto.md).
+
+La moto aprende todo lo que aprende el carro, con sus propias versiones:
+
+| | Carro | Moto |
+|---|---|---|
+| Pilotos de referencia | experto, prudente, maestro, aleatoria | los mismos, con pure pursuit de inclinación |
+| Agentes | Q-learning y PPO | Q-learning y PPO (`ppo-moto-v1`, `qlearning-moto-v1`) |
+| Etapas DVC | `datos` … `generalizacion` | `moto-datos` … `moto-generalizacion` |
+| Parámetros | `params.yaml` | sección `moto:` de `params.yaml` (hereda lo demás) |
+| Modelos y métricas | `models/`, `metrics/` | `models/moto/`, `metrics/moto/` |
+| MLflow | `autonomous-rally-monaco` | `autonomous-rally-motogp` |
+| Selección | `configs/seleccion.yaml`, `manifests/` | sección `moto:` de `configs/seleccion.yaml`, `manifests/moto/` |
+
+Todos los comandos aceptan `--vehiculo moto`:
+
+```bash
+rally ver --vehiculo moto --piloto maestro --lluvia
+rally evaluar --vehiculo moto --pilotos experto ppo
+rally transiciones --vehiculo moto
+dvc repro moto-registrar moto-generalizacion          # o: rally pipeline <etapa> --vehiculo moto
+rally seleccionar ppo-moto-v1 --tipo ppo --vehiculo moto --anotar
+rally semillas ppo 1 2 --vehiculo moto
+rally publicar --repo usuario/autonomous-rally-moto-ppo --vehiculo moto
+```
+
+Los experimentos de la moto se entrenaron en otro equipo: `scripts/operacion/mlflow_moto.py exportar | subir` los
+lleva a DagsHub sin copiar `mlflow.db` (sus rutas y su esquema dependen del equipo y de la versión de MLflow).
+
+En la web, el selector **Vehículo** (o `?vehiculo=moto`) cambia entre el carro y la moto. La API recibe
+`vehiculo=moto` en `/api/pista`, `/api/episodio`, `/api/evaluar` y `/api/modelos`; un modelo de un vehículo
+pedido en el otro responde 409, porque su contrato de observaciones es otro (24 contra 26).
+
 ## Arquitectura
 
 ```
@@ -39,7 +77,7 @@ contra PyTorch: la diferencia máxima permitida es 1e-5 en las acciones. El ambi
 El contenedor de `deploy/api/` sigue disponible para un host con Docker y usa PyTorch.
 
 ```
-src/rally/      ambiente, pista, pilotos, agentes, pipeline, API y selección
+src/rally/      ambiente, pista, pilotos, agentes, pipeline, API y selección (moto.py: la moto; vehiculos.py: registro)
 src/rally/static/  visor 3D (lo comparten `rally web` y la web de Vercel)
 web/            aplicación Vite + TypeScript: catálogo, evaluación y comparación
 web/api/        función de Vercel con la API; `_paquete/` lo arma deploy/api/empaquetar.py
@@ -122,11 +160,12 @@ son pilotos de referencia.
 | `modelo-v4` | DAgger corrige los errores | 100 % / 100 %, pero falla en extremos | Aceptado |
 | `modelo-qlearning-v6` | Imitación tabular | 60 % / 15 % | Reemplazado |
 | `modelo-v5` (semilla 0) | Conocer el carro y practicar todos los deslizadores con ruido | 100 % / 100 %, 75.9 s y 92.0 s; 98.5 % en extremos | Candidato |
-| **`ppo-modelo-v5-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 68.6 s y 89.3 s; 100 % en extremos | **Recomendado** |
+| `ppo-modelo-v5-s1` | Misma configuración, semilla 1 | 100 % / 100 %, 68.6 s y 89.3 s; 100 % en extremos; 0 % en Puerto y Sierra | Recomendado hasta el 12 de noviembre |
 | `modelo-qlearning-v7` | Ver el margen de frenada y medir el pedal en m/s² | 87 % / 81 %; 64.8 % en extremos | Reemplazado |
 | `modelo-qlearning-v8` (semilla 0) | Practicar con carros lentos y ruido | 99 % / 100 %; 85.0 % en extremos | Candidato |
 | **`qlearning-modelo-qlearning-v8-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 81.0 s y 106.9 s; 85.9 % en extremos | **Elegido de su agente** |
-| `ppo-modelo-v6-pistas` | Practicar en tres pistas (Mónaco, Bosque y Puerto) evita memorizar Mónaco | 100 % / 100 %, 69.8 s y 86.6 s; **100 % / 100 % en la Sierra, que nunca vio** (v5-s1: 0 %) | Candidato |
+| `ppo-modelo-v6-pistas` | Practicar en tres pistas (Mónaco, Bosque y Puerto) evita memorizar Mónaco | 100 % / 100 %, 69.8 s y 86.6 s; 100 % / 100 % en la Sierra, que nunca vio (v5-s1: 0 %); 79.2 % en extremos | Rechazado |
+| **`ppo-modelo-v6-pistas-s1`** | Misma configuración, semilla 1 (entrenada en GitHub Actions) | **100 % / 100 %**, 80.4 s y 104.8 s; **100 % en extremos**; completa Mónaco, Bosque y Puerto | **Recomendado** |
 
 Resultados: seco / lluvia con 100 vueltas por condición. Las semillas 1 y 2 están en `finalistas/`, versionadas con
 DVC. Los detalles, las pruebas de extremos y los límites están en la ficha.
@@ -139,6 +178,8 @@ límites en [docs/experimentos/v6-pistas.md](docs/experimentos/v6-pistas.md).
 **Test reservado** (`rally test-final`, una sola corrida, semillas fuera del repositorio):
 PPO semilla 1 dio 100 % / 100 % y 99.9 % en extremos; Q-learning semilla 1, 99 % / 99 % y 84.8 %. Resultado en
 [metrics/test-final.json](metrics/test-final.json).
+La v6 semilla 1 tiene su propio test reservado, con una semilla nueva que nadie vio y una sola corrida: 100 % /
+100 % y 100 % en las 19 pruebas extremas ([metrics/test-final-v6-s1.json](metrics/test-final-v6-s1.json)).
 
 La evidencia del flujo de Prefect y del rollback de v5 a v4 y de vuelta está en
 [docs/evidencia/flujo/](docs/evidencia/flujo/) y [manifests/historial.json](manifests/historial.json).
