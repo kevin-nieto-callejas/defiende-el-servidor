@@ -4,6 +4,9 @@ Proyecto final de MLOps, Universidad Externado de Colombia (2026-II). Un agente 
 completa un circuito inspirado en Mónaco pasando los checkpoints en orden, con seco, lluvia y perturbaciones.
 Todo experimento se puede consultar, reproducir y restaurar.
 
+**¿Revisas la entrega?** La [guía para el revisor](docs/entregas/README.md) dice dónde está cada cosa que piden el
+enunciado y la guía de entrega final, con el modelo recomendado y uno histórico listos para comparar.
+
 **¿Llegas nuevo al proyecto?** Lee el [resumen general](docs/RESUMEN-GENERAL.md): qué se pidió, qué se hizo, cómo
 vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/guias/empezar.md).
 
@@ -16,6 +19,8 @@ vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/
 | Modelo publicado | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo |
 | Manifiestos de cada versión | [manifests/](manifests/) |
 | Criterios de selección | [configs/seleccion.yaml](configs/seleccion.yaml) |
+| Informe y presentación | [docs/entregas/](docs/entregas/) |
+| Licencias de los recursos | [docs/LICENCIAS.md](docs/LICENCIAS.md) |
 
 ## Moto MotoGP
 
