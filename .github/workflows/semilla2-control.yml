@@ -1,0 +1,121 @@
+# Tercera semilla del control de la v6 (solo Mónaco), para que los dos lados del contraste v6 vs control tengan
+# tres semillas. Mismo procedimiento que semilla2-v6.yml. Solo se lanza a mano.
+name: Semilla 2 del control (solo Mónaco)
+
+on:
+  workflow_dispatch:
+
+env:
+  MLFLOW_DISABLE_AGENT_HINT: "1"
+
+jobs:
+  entrenar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Instalar el entorno del entrenamiento
+        run: pip install -r requirements.txt && pip install -e .
+      - name: Demostraciones (etapa datos, determinista)
+        run: rally pipeline datos
+      - name: Entrenar el control (solo Mónaco) con la semilla 2
+        run: python scripts/analisis/entrenar_semilla.py --pistas monaco --semilla 2
+      - name: Exportar a numpy (comparado con PyTorch)
+        run: |
+          python - <<'EOF'
+          import json
+          from rally.agentes.red_numpy import exportar
+          d = "models/semillas-v6/control-s2"
+          r = exportar(f"{d}/modelo.zip", f"{d}/modelo.npz")
+          json.dump(r, open(f"{d}/exportacion.json", "w"), indent=2)
+          print(r)
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: control-s2
+          path: |
+            models/semillas-v6/control-s2
+            mlflow.db
+            mlruns
+          retention-days: 90
+
+  fase-a:
+    needs: entrenar
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Instalar el entorno
+        run: pip install -r requirements.txt && pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          name: control-s2
+          path: artefactos/control-s2
+      - name: Fase A con la semilla 2 (sin la Sierra)
+        run: |
+          python scripts/analisis/sobreajuste_pistas.py \
+            --modelo control-monaco-s2=artefactos/control-s2/models/semillas-v6/control-s2/modelo.npz:monaco \
+            --episodios 100 --salida metrics/semillas-control-s2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metricas-fase-a-control-s2
+          path: metrics/semillas-control-s2.json
+
+  extremos:
+    needs: entrenar
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Instalar el entorno
+        run: pip install -r requirements.txt && pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          name: control-s2
+          path: artefactos/control-s2
+      - name: 21 pruebas de generalización (las de rally seleccionar)
+        run: |
+          python scripts/analisis/generalizacion_modelos.py \
+            --modelo control-s2=artefactos/control-s2/models/semillas-v6/control-s2/modelo.npz \
+            --salida metrics/generalizacion-control-s2.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metricas-extremos-control-s2
+          path: metrics/generalizacion-control-s2.json
+
+  guardar:
+    needs: [entrenar, fase-a, extremos]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefactos
+      - name: Subir métricas a la rama
+        run: |
+          mkdir -p metrics docs/experimentos/semillas-v6
+          cp artefactos/metricas-fase-a-control-s2/semillas-control-s2.json metrics/ 2>/dev/null || true
+          cp artefactos/metricas-extremos-control-s2/generalizacion-control-s2.json metrics/ 2>/dev/null || true
+          cp artefactos/control-s2/models/semillas-v6/control-s2/info.json docs/experimentos/semillas-v6/control-s2-info.json 2>/dev/null || true
+          cp artefactos/control-s2/models/semillas-v6/control-s2/exportacion.json docs/experimentos/semillas-v6/control-s2-exportacion.json 2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add metrics docs/experimentos/semillas-v6
+          git diff --cached --quiet && { echo "Sin resultados nuevos"; exit 0; }
+          git commit -m "Resultados de la semilla 2 del control (run ${{ github.run_id }})"
+          git push
