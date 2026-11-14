@@ -12,6 +12,9 @@
 #catalogo td { padding: 6px; border-top: 1px solid var(--linea); vertical-align: top; }
 #catalogo small { color: var(--tenue); }
 #catalogo tr.recomendada td { background: rgba(46, 229, 157, .08); }
+#catalogo tr.cat-detalle td { border-top: 0; padding-top: 0; }
+#catalogo td a { color: var(--cian); }
+#catalogo .cat-sub { margin: 16px 0 4px; font-size: 13px; text-transform: uppercase; }
 .acciones-cat { white-space: nowrap; }
 .acciones-cat button { margin-right: 4px; }
 .cat-pie { margin-top: 12px; }
@@ -26,6 +29,9 @@
   #catalogo th:nth-child(4), #catalogo td:nth-child(4), #catalogo th:nth-child(5), #catalogo td:nth-child(5) { display: none; }
   /* En celular los botones Cargar y Evaluar quedaban fuera de la tabla: se apilan y sale la columna Nivel */
   #catalogo th:nth-child(2), #catalogo td:nth-child(2) { display: none; }
+  #catalogo th:nth-child(8), #catalogo td:nth-child(8) { display: none; }
+  /* En la tabla de interrumpidos lo importante es el diagnóstico (columna 4): no se oculta */
+  #catalogo .cat-int th:nth-child(4), #catalogo .cat-int td:nth-child(4) { display: table-cell; }
   .acciones-cat { white-space: normal; }
   .acciones-cat button { display: block; width: 100%; margin: 0 0 4px; padding: 5px 6px; }
   #col-der { display: none; }

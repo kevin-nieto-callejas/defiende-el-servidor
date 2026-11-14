@@ -1,0 +1,146 @@
+[
+  {
+    "run_id": "10c74b76b0104fb89dfcd4d56f52cac6",
+    "nombre": "ppo",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-10-29 02:48 UTC",
+    "ambiente_version": "0.2-monaco-agarre",
+    "git_commit": "07cc10d1525f1d3566d038f4494e29fef60ecfcc",
+    "semilla": "0",
+    "hipotesis": null,
+    "diagnostico": "Interrumpido: el PC se apagó; el run siguiente reanudó desde el punto de guardado",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 9,
+    "dagshub": {
+      "experimento": "0",
+      "run": "8d37377abebf425ca8d42929e7501cd3"
+    }
+  },
+  {
+    "run_id": "bd5cb000db6a46079ccb578cf7cba17f",
+    "nombre": "ppo",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-10-29 03:10 UTC",
+    "ambiente_version": "0.2-monaco-agarre",
+    "git_commit": "e94656e5a941baf441534a5aee102cc15585b811",
+    "semilla": "0",
+    "hipotesis": null,
+    "diagnostico": "Interrumpido: el PC se apagó; el run siguiente reanudó desde el punto de guardado",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 9,
+    "dagshub": {
+      "experimento": "0",
+      "run": "44f5810b9eb44109a6919236629f50cf"
+    }
+  },
+  {
+    "run_id": "a739f9cab8f24fe381006fd6f103c374",
+    "nombre": "ppo",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-10-29 03:54 UTC",
+    "ambiente_version": "0.2-monaco-agarre",
+    "git_commit": "d7763e1f17f909361004b906e4c3cc677d5816df",
+    "semilla": "0",
+    "hipotesis": null,
+    "diagnostico": "Interrumpido: el PC se apagó; el run siguiente reanudó desde el punto de guardado",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 9,
+    "dagshub": {
+      "experimento": "0",
+      "run": "ad9d1684a7114c64bff18d78ca052194"
+    }
+  },
+  {
+    "run_id": "8a8a947b88d54a3bb384812d3f511453",
+    "nombre": "ppo",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-10-29 13:17 UTC",
+    "ambiente_version": "0.3-monaco-lluvia",
+    "git_commit": "c55ddbc214a9deefec29b2a46dfab6693865de0f",
+    "semilla": "0",
+    "hipotesis": null,
+    "diagnostico": "Interrumpido: el PC se apagó; el run siguiente reanudó desde el punto de guardado",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 9,
+    "dagshub": {
+      "experimento": "0",
+      "run": "13aece888eae49e7ae3e88dcaa59025e"
+    }
+  },
+  {
+    "run_id": "854964e0ecb747848c00fdcb7680391a",
+    "nombre": "ppo",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-10-29 13:46 UTC",
+    "ambiente_version": "0.3-monaco-lluvia",
+    "git_commit": "86b1604c938a3b209ca83b3a6392ac54bb64a7b2",
+    "semilla": "0",
+    "hipotesis": null,
+    "diagnostico": "Interrumpido: el PC se apagó; el run siguiente reanudó desde el punto de guardado",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 9,
+    "dagshub": {
+      "experimento": "0",
+      "run": "d72a0596708e4a8eac23008687c9d941"
+    }
+  },
+  {
+    "run_id": "b594a0f119b743d2876e0beb3fcc6287",
+    "nombre": "ppo-semilla-2",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-11-02 00:25 UTC",
+    "ambiente_version": "0.4-monaco-configurable",
+    "git_commit": "710e0a53c601ba58d0965da5fcbd0f3d4e6fcfe2",
+    "semilla": "2",
+    "hipotesis": "Si la red conoce la configuración del carro y practica todos los deslizadores con ruido, completa los extremos sin perder más de 5 % de tiempo frente a la v4",
+    "diagnostico": "Interrumpido: el PC se apagó por calor el 2026-11-01 a las 19:50",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 13,
+    "dagshub": {
+      "experimento": "0",
+      "run": "637ed6c0c19240eea8af1b10536979e6"
+    }
+  },
+  {
+    "run_id": "aad35ed66b7840f1b58437afdf1ee79c",
+    "nombre": "qlearning-semilla-1",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-11-02 00:28 UTC",
+    "ambiente_version": "0.4-monaco-configurable",
+    "git_commit": "710e0a53c601ba58d0965da5fcbd0f3d4e6fcfe2",
+    "semilla": "1",
+    "hipotesis": "Si la tabla practica con carros lentos y sensores con ruido, sube en esas pruebas (24 % y 0 % en la v7) sin perder más de 2 puntos en seco y lluvia",
+    "diagnostico": "Interrumpido: el PC se apagó por calor el 2026-11-01 a las 19:50",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 0,
+    "dagshub": {
+      "experimento": "0",
+      "run": "987f8f3f28064dd8974c5775488ffa73"
+    }
+  },
+  {
+    "run_id": "19f5b54355294772852bf5e8c0e8e010",
+    "nombre": "ppo",
+    "experimento": "autonomous-rally-monaco",
+    "estado": "KILLED",
+    "inicio": "2026-11-06 22:40 UTC",
+    "ambiente_version": "0.4-monaco-configurable",
+    "git_commit": "21a4240998660c673b682b6b8f4e9e947b2b8036",
+    "semilla": "0",
+    "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",
+    "diagnostico": "Interrumpido: el Mac se apagó por batería en el paso 400008; continúa en la corrida reanudada del 2026-11-07",
+    "checkpoint": "sin checkpoint disponible",
+    "metricas_registradas": 20,
+    "dagshub": {
+      "experimento": "0",
+      "run": "17443824993845af997282156c96fbc2"
+    }
+  }
+]

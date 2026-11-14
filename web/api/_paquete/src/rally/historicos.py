@@ -45,6 +45,15 @@ def catalogo():
     return [{**f, "vehiculo": vehiculo(f), "ejecutable": ejecutable(f)} for f in filas]
 
 
+def interrumpidos(vehiculo=None):
+    """Runs que no terminaron (KILLED o FAILED en MLflow): se muestran «sin checkpoint disponible»."""
+    ruta = SALIDA / "interrumpidos.json"
+    filas = json.loads(ruta.read_text(encoding="utf-8")) if ruta.exists() else []
+    if vehiculo:
+        filas = [f for f in filas if ("motogp" in f.get("experimento", "")) == (vehiculo == "moto")]
+    return filas
+
+
 def manifiesto(nombre):
     ruta = SALIDA / f"{Path(nombre).name}.json"
     if not ruta.exists():

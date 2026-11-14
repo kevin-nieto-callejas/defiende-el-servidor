@@ -2,7 +2,7 @@
   "nombre": "ppo-modelo-v6-pistas-s2",
   "tipo": "ppo",
   "etiqueta_git": "modelo-v6-pistas-s2",
-  "run_id": "c1976722e2d14656b821bc52d0f36972",
+  "run_id": "a08f9476d7844d31a58d82367d5fabad",
   "level_id": "N3",
   "decision": "aceptado, sin promover",
   "hipotesis": "v6: Si la red practica en tres pistas (Mónaco, Bosque y Puerto) en vez de solo Mónaco, completa al menos 80 % de las vueltas en la Sierra, que nunca ve, sin perder más de 5 puntos ni más de 5 % de tiempo en Mónaco frente al control entrenado solo en Mónaco con la misma configuración",

@@ -1,5 +1,5 @@
 import * as api from "./api";
-import type { Evaluacion, Vehiculo, Version } from "./api";
+import type { Evaluacion, Interrumpido, Vehiculo, Version } from "./api";
 import { COMMIT_WEB, MLFLOW_URL } from "./config";
 
 const pct = (v?: { vueltas_pct: number }) => (v ? `${v.vueltas_pct}%` : "—");
@@ -38,13 +38,43 @@ function fila(v: Version, recomendado: string | null): string {
     ? `<button data-cargar="${esc(v.nombre)}">Cargar</button><button data-evaluar="${esc(v.nombre)}">Evaluar</button>
        <input type="checkbox" data-comparar="${esc(v.nombre)}" aria-label="Comparar ${esc(v.nombre)}">`
     : `<span title="Discretización antigua: se conserva como evidencia">solo evidencia</span>`;
-  return `<tr class="${v.nombre === recomendado ? "recomendada" : ""}" title="${esc(v.hipotesis ?? "")}">
-    <td><b>${esc(v.etiqueta_git)}</b><br><small>${esc(v.tipo)}</small></td>
+  const clase = v.nombre === recomendado ? "recomendada" : "";
+  const run = v.run_id
+    ? (v.mlflow_url ? `<a href="${esc(v.mlflow_url)}" target="_blank" rel="noopener">run ${corto(v.run_id)} ↗</a>` : `run ${corto(v.run_id)}`)
+    : "sin run";
+  const registro = v.mlflow_version ? ` · registro v${v.mlflow_version}` : "";
+  return `<tr class="${clase}">
+    <td><b>${esc(v.etiqueta_git)}</b><br><small>${esc(v.tipo)} · semilla ${v.seed ?? "—"}</small></td>
     <td>${esc(v.level_id ?? "—")}</td><td>${esc(v.decision ?? "—")}</td>
     <td>${esc(v.environment_version)}</td>
     <td class="mono">${corto(v.git_commit)}<br><small>sha ${corto(v.model_sha256)}</small></td>
     <td class="mono">${pct(r.seco)}</td><td class="mono">${pct(r.mojado)}</td>
-    <td class="acciones-cat">${acciones}</td></tr>`;
+    <td class="mono">${entrenamiento(v)}</td>
+    <td class="acciones-cat">${acciones}</td></tr>
+    <tr class="cat-detalle ${clase}"><td colspan="9"><small><b>Hipótesis:</b> ${esc(v.hipotesis ?? "sin hipótesis registrada")}
+      · <b>Origen:</b> ${esc(v.origen ?? "—")} · ${run}${registro}</small></td></tr>`;
+}
+
+/** Presupuesto efectivo del entrenamiento: pasos (PPO) o episodios (Q-learning) y tiempo de reloj. */
+function entrenamiento(v: Version): string {
+  const p = v.presupuesto;
+  if (!p) return "—";
+  const cuanto = p.pasos ? `${(p.pasos / 1e6).toLocaleString("es-CO")} M pasos` : p.episodios ? `${p.episodios} episodios` : "—";
+  const tiempo = p.segundos ? `${Math.round(p.segundos / 60)} min` : "tiempo en MLflow";
+  return `${cuanto}<br><small>${tiempo}</small>`;
+}
+
+/** Intentos que no terminaron: se conservan con su diagnóstico, como pide el enunciado. */
+function interrumpidos(filas: Interrumpido[]): string {
+  if (!filas.length) return "";
+  const url = (i: Interrumpido) =>
+    `https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/${i.dagshub.experimento}/runs/${i.dagshub.run}`;
+  return `<h3 class="cat-sub">Intentos interrumpidos (${filas.length}) · sin checkpoint disponible</h3>
+    <table class="cat-int"><thead><tr><th>Run</th><th>Inicio</th><th>Ambiente</th><th>Diagnóstico</th></tr></thead><tbody>
+    ${filas.map((i) => `<tr><td><a href="${esc(url(i))}" target="_blank" rel="noopener">${esc(i.nombre)} ${corto(i.run_id)} ↗</a>
+      <br><small>${esc(i.estado)}${i.semilla ? ` · semilla ${esc(i.semilla)}` : ""}</small></td>
+      <td>${esc(i.inicio ?? "—")}</td><td>${esc(i.ambiente_version ?? "—")}</td>
+      <td>${esc(i.diagnostico)}<br><small>${esc(i.checkpoint)}</small></td></tr>`).join("")}</tbody></table>`;
 }
 
 function resumen(nombre: string, e: Evaluacion): string {
@@ -108,8 +138,9 @@ async function abrir(panel: HTMLElement) {
       · ${s.episodios} episodios, ${s.errores} errores, ${s.latencia_paso_ms ?? "—"} ms por paso
       · <a href="${MLFLOW_URL}" target="_blank" rel="noopener">Abrir MLflow</a>`;
     cuerpo.innerHTML = `<table><thead><tr><th>Versión</th><th>Nivel</th><th>Decisión</th><th>Ambiente</th><th>Commit</th>
-      <th>Seco</th><th>Lluvia</th><th></th></tr></thead>
-      <tbody>${modelos.map((v) => fila(v, rec)).join("") || `<tr><td colspan="8">Todavía no hay versiones entrenadas de la ${esc(TITULO[vehiculo])}.</td></tr>`}</tbody></table>`;
+      <th>Seco</th><th>Lluvia</th><th>Entrenamiento</th><th></th></tr></thead>
+      <tbody>${modelos.map((v) => fila(v, rec)).join("") || `<tr><td colspan="9">Todavía no hay versiones entrenadas de la ${esc(TITULO[vehiculo])}.</td></tr>`}</tbody></table>
+      ${interrumpidos(cat.interrumpidos ?? [])}`;
   } catch (e) {
     cuerpo.textContent = `Error del servicio: ${(e as Error).message}`;
   }
