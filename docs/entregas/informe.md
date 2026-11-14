@@ -173,6 +173,32 @@ que existiera la semilla 2, y cambiarla ahora sería elegir con los resultados a
 semilla 2 queda versionada (DVC, MLflow en DagsHub, manifiesto y catálogo) como evidencia de que el resultado se repite:
 **dos de tres semillas de la v6 pasan.**
 
+## Presupuesto utilizado y curvas
+
+Todo se entrenó en CPU, sin GPU ni servicios pagos. Los tiempos son de reloj y salen de MLflow y de los `info.json`
+de cada modelo; el manifiesto de cada versión guarda su `presupuesto`.
+
+| Finalista | Semilla 0 | Semilla 1 | Semilla 2 | Máquina |
+|---|---|---|---|---|
+| PPO v5 (3 M pasos) | 3 821 episodios, 89 min | 3 829 episodios, 4.3 h* | 3 868 episodios, 67 min (+31 min interrumpida) | PC de Kevin, Linux |
+| Q-learning v8 (600 episodios de refuerzo) | 54 min | 2.3 h* (+28 min interrumpida) | 47 min | PC de Kevin, Linux |
+| PPO v6 (3 M pasos) | 3 697 episodios, 94 min + ~3.5 h antes del corte** | 3 369 episodios, 62 min | 3 794 episodios, 73 min | Mac de Miguel (s0); GitHub Actions, 4 vCPU (s1 y s2) |
+| Control de la v6 (3 M pasos) | Mac de Miguel** | 3 855 episodios, 64 min | en curso | Mac (s0); GitHub Actions (s1 y s2) |
+
+\* Con varios entrenamientos a la vez en el mismo equipo. \*\* El Mac se suspendió por batería y el entrenamiento siguió
+desde su punto de guardado. En total, unas **25 horas de CPU**: un PPO de 3 millones de pasos tarda de 1 a 1.5 horas
+en 4 núcleos. GitHub Actions, Vercel, DagsHub y Hugging Face se usaron en sus planes gratuitos.
+
+**Curva de entrenamiento y curva de evaluación, por separado.** Durante el entrenamiento la política explora (acciones
+con ruido); la evaluación usa el modelo congelado, sin exploración, cada 200 000 pasos. Las dos curvas de la
+recomendada están en MLflow (`episodio_vueltas_pct` y `eval_*_vueltas_pct`):
+
+![Curvas de entrenamiento y evaluación de la v6 semilla 1](curvas-v6-s1.png)
+
+En seco y con lluvia la evaluación da 100 % en los 15 puntos. En las condiciones exigentes (la curva naranja), el
+mejor punto es el primero (paso 200 004) y después se queda en 88.9 %, aunque el entrenamiento siga cerca de 95 %.
+Por eso el modelo guardado es el del paso 200 004: el entrenador conserva el mejor punto de la evaluación, no el último.
+
 ## MLOps
 
 | Requisito | Cómo se cumple |

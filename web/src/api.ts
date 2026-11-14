@@ -17,12 +17,33 @@ export interface Version {
   model_sha256: string;
   ejecutable: boolean;
   resultados: { seco?: Resultado; mojado?: Resultado } | null;
+  run_id?: string | null;
+  seed?: number | null;
+  presupuesto?: { pasos?: number; episodios?: number; segundos?: number | null } | null;
+  origen?: string | null;
+  mlflow_version?: number | null;
+  mlflow_url?: string | null;
+}
+
+/** Run que no terminó (KILLED o FAILED en MLflow): se conserva con su diagnóstico, sin pesos. */
+export interface Interrumpido {
+  run_id: string;
+  nombre: string;
+  experimento: string;
+  estado: string;
+  inicio: string | null;
+  ambiente_version: string | null;
+  semilla: string | null;
+  diagnostico: string;
+  checkpoint: string;
+  dagshub: { experimento: string; run: string };
 }
 
 export interface Catalogo {
   recomendado: { modelo: string | null; motivo?: string };
   recomendados?: Partial<Record<Vehiculo, { modelo: string | null }>>;
   modelos: Version[];
+  interrumpidos?: Interrumpido[];
 }
 
 export interface Salud {

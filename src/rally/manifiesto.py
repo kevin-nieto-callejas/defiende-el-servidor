@@ -63,6 +63,7 @@ SEMILLAS_V6 = {
         "git_commit": "a193a45805a863c199eddcca7b1cbcb54b86042a",
         "resultados": ("metrics/semillas-v6.json", "v6-pistas-s1"),
         "test_reservado": "metrics/test-final-v6-s1.json",
+        "mlflow_modelo": "rally-ppo", "mlflow_version": 7,   # registrada el 13-nov-2026 con el alias @champion
         "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 42948616971",
                        "python": "3.14", "torch": "2.15.0+cpu", "stable_baselines3": "2.9.2"},
     },
@@ -70,7 +71,7 @@ SEMILLAS_V6 = {
     # recomendada ya pasó el test reservado y la Sierra no se vuelve a usar para elegir entre semillas.
     "ppo-modelo-v6-pistas-s2": {
         "carpeta": Path("models/semillas-v6/v6-s2"), "seed": 2, "decision": "aceptado, sin promover",
-        "run_id": "c1976722e2d14656b821bc52d0f36972",   # en DagsHub, con la etiqueta origen_run_id
+        "run_id": "a08f9476d7844d31a58d82367d5fabad",   # de Actions; en DagsHub es c1976722…, con origen_run_id
         "git_commit": "9e06adcd51828b3ad5d265aa342c338f6b4eb8de",
         "resultados": ("metrics/semillas-v6-s2.json", "v6-pistas-s2"),
         "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 43612369048",
@@ -198,7 +199,8 @@ def manifiesto_semilla_v6(nombre):
             "normalization_uri": f"git://src/rally/env.py@{c['git_commit']}",
             "parent_run_nota": _padre(info),
             "model_uri": f"dvc://{pesos}@{etiqueta}", "model_md5_dvc": hashlib.md5(datos).hexdigest(),
-            "model_sha256": hashlib.sha256(datos).hexdigest(), "mlflow_modelo": None, "mlflow_version": None,
+            "model_sha256": hashlib.sha256(datos).hexdigest(),
+            "mlflow_modelo": c.get("mlflow_modelo"), "mlflow_version": c.get("mlflow_version"),
             "presupuesto": {k: v for k, v in info.items() if k in ("pasos", "episodios", "segundos")},
             "pistas_entrenamiento": info.get("pistas_entrenamiento"),
             "entrenamiento_plataforma": c["plataforma"],
@@ -300,10 +302,24 @@ def manifiesto_moto(tipo, rev="moto-v1"):
     }
 
 
+DAGSHUB_RUN = "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/{experimento}/runs/{run}"
+
+
+def _mlflow_url(run_id):
+    """Enlace al run en MLflow de DagsHub (manifests/enlaces_mlflow.json, de scripts/operacion/enlaces_dagshub.py)."""
+    ruta = SALIDA / "enlaces_mlflow.json"
+    enlace = json.loads(ruta.read_text(encoding="utf-8")).get(run_id) if ruta.exists() and run_id else None
+    return DAGSHUB_RUN.format(**enlace) if enlace else None
+
+
 def _fila(m):
-    return {k: m.get(k) for k in ("nombre", "tipo", "vehiculo", "etiqueta_git", "level_id", "decision", "hipotesis",
-                                  "environment_version", "git_commit", "model_sha256", "resultados")
+    """Fila del catálogo de la web: lo que el docente ve de cada versión sin abrir el manifiesto."""
+    fila = {k: m.get(k) for k in ("nombre", "tipo", "vehiculo", "etiqueta_git", "level_id", "decision", "hipotesis",
+                                  "environment_version", "git_commit", "model_sha256", "resultados",
+                                  "run_id", "seed", "presupuesto", "origen", "mlflow_version")
             if k != "vehiculo" or m.get("vehiculo")}
+    fila["mlflow_url"] = _mlflow_url(m.get("run_id"))
+    return fila
 
 
 def generar_moto(catalogo=None, revisiones=None):
@@ -350,8 +366,7 @@ def generar(revisiones=None, vehiculo=None):
     def agregar(m):
         ruta = SALIDA / f"{m['nombre']}.json"
         ruta.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
-        catalogo.append({k: m[k] for k in ("nombre", "tipo", "etiqueta_git", "level_id", "decision", "hipotesis",
-                                           "environment_version", "git_commit", "model_sha256", "resultados")})
+        catalogo.append(_fila(m))
         print(f"  {ruta}  {m['model_sha256'][:12]}")
 
     for rev in revisiones:

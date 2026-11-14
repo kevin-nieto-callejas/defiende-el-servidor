@@ -173,10 +173,12 @@ def modelos(vehiculo: str | None = None):
     """Catálogo: todo (por defecto) o solo las versiones de un vehículo."""
     if vehiculo is None:
         return {"recomendado": recomendado(), "modelos": historicos.catalogo(), "referencias": list(MODOS),
-                "recomendados": {v: recomendado(v) for v in vehiculos.VEHICULOS}}
+                "recomendados": {v: recomendado(v) for v in vehiculos.VEHICULOS},
+                "interrumpidos": historicos.interrumpidos()}
     vehiculo = _vehiculo(vehiculo)
     return {"recomendado": recomendado(vehiculo), "vehiculo": vehiculo, "referencias": list(MODOS),
-            "modelos": [f for f in historicos.catalogo() if f["vehiculo"] == vehiculo]}
+            "modelos": [f for f in historicos.catalogo() if f["vehiculo"] == vehiculo],
+            "interrumpidos": historicos.interrumpidos(vehiculo)}
 
 
 @app.get("/api/modelos/{nombre}")

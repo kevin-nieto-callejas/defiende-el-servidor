@@ -26,7 +26,17 @@
         "recompensa_media": -35.03,
         "progreso_pct": 32.7
       }
-    }
+    },
+    "run_id": "229fa9e278624f38b85e573e00c70042",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 3000000,
+      "episodios": 2104,
+      "segundos": 948.7
+    },
+    "origen": "desde cero",
+    "mlflow_version": 3,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/190b74061da64d659d4777d142418772"
   },
   {
     "nombre": "qlearning-experimento-v3",
@@ -55,7 +65,16 @@
         "recompensa_media": -47.03,
         "progreso_pct": 11.7
       }
-    }
+    },
+    "run_id": "6e1009a21bfb4a3eaffe56b7df909c68",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 1500,
+      "segundos": 205.4
+    },
+    "origen": "desde cero",
+    "mlflow_version": 4,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/da633704cc5e49c080d91d3c6c385f79"
   },
   {
     "nombre": "qlearning-modelo-qlearning-v6",
@@ -84,7 +103,16 @@
         "recompensa_media": 29.45,
         "progreso_pct": 75.0
       }
-    }
+    },
+    "run_id": "14eb699c59124d1a893adb5d5e000fee",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 960,
+      "segundos": 872.1
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 6,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/a400995544e1498b97109232a7a977e8"
   },
   {
     "nombre": "qlearning-modelo-qlearning-v7",
@@ -113,7 +141,16 @@
         "recompensa_media": 117.12,
         "progreso_pct": 91.8
       }
-    }
+    },
+    "run_id": "0db7b9b220a7492a889ff063312bd328",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 1240,
+      "segundos": 1804.8
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 7,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/45cf2e4e46194adda0f59fc1cdc3dd7d"
   },
   {
     "nombre": "qlearning-modelo-qlearning-v8",
@@ -142,7 +179,16 @@
         "recompensa_media": 145.47,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "d7fa27b99e4041a0b39458e39e76bc6e",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 1400,
+      "segundos": 3258.6
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 8,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/488b55b86c1a4004843b58df421fae3e"
   },
   {
     "nombre": "ppo-modelo-v1",
@@ -171,7 +217,17 @@
         "recompensa_media": 10.61,
         "progreso_pct": 57.6
       }
-    }
+    },
+    "run_id": "288cbd82085f4eeaa76383b61664a9f1",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 1000000,
+      "episodios": 1297,
+      "segundos": 1196.1
+    },
+    "origen": "desde cero",
+    "mlflow_version": 1,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/7181550efe014c43a147d723f8c5c94d"
   },
   {
     "nombre": "qlearning-modelo-v1",
@@ -200,7 +256,16 @@
         "recompensa_media": -47.2,
         "progreso_pct": 11.9
       }
-    }
+    },
+    "run_id": "f81252b4a5c04cf3be0868d4eb4116e5",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 1500,
+      "segundos": 314.7
+    },
+    "origen": "desde cero",
+    "mlflow_version": 1,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/1f48d3a4d43643a18254ad638c3d25d7"
   },
   {
     "nombre": "ppo-modelo-v2",
@@ -229,7 +294,17 @@
         "recompensa_media": -44.3,
         "progreso_pct": 11.6
       }
-    }
+    },
+    "run_id": "883ba34ac38c4ea7bac71b1fd1ed28f5",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 3000000,
+      "episodios": 3716,
+      "segundos": 2076.5
+    },
+    "origen": "desde cero",
+    "mlflow_version": 2,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/3aac7de76ebb46b4aee18384f0dfad7d"
   },
   {
     "nombre": "qlearning-modelo-v2",
@@ -258,7 +333,16 @@
         "recompensa_media": -47.03,
         "progreso_pct": 11.7
       }
-    }
+    },
+    "run_id": "c556c7f79fda464bb30fcc13b15c8d8b",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 1500,
+      "segundos": 459.5
+    },
+    "origen": "desde cero",
+    "mlflow_version": 2,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/f20f8f94d509406c94645705f4d15b96"
   },
   {
     "nombre": "ppo-modelo-v4",
@@ -287,7 +371,17 @@
         "recompensa_media": 157.54,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "881772cccb024f6793d776f6da977dc7",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 2000000,
+      "episodios": 2298,
+      "segundos": 1738.9
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 4,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/00ca8256fb174765bbe23cdb67795303"
   },
   {
     "nombre": "qlearning-modelo-v4",
@@ -316,7 +410,16 @@
         "recompensa_media": -47.03,
         "progreso_pct": 11.7
       }
-    }
+    },
+    "run_id": "0eaedea3e6674f7e860cba5802cff0e4",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 1500,
+      "segundos": 229.4
+    },
+    "origen": "desde cero",
+    "mlflow_version": 5,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/3a944046d10d43e183af4ea12c1ad2d7"
   },
   {
     "nombre": "ppo-modelo-v5",
@@ -345,7 +448,17 @@
         "recompensa_media": 157.46,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "eed70c9b08c248b490fb51f921f4f611",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 3000000,
+      "episodios": 3821,
+      "segundos": 5329.6
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 5,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/c2100af8f6334a87ba8c67f282cd3e09"
   },
   {
     "nombre": "ppo-modelo-v6-pistas",
@@ -374,7 +487,17 @@
         "recompensa_media": 161.03,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "a09ed36cd1bb46229665c93f659c87ea",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 3000000,
+      "episodios": 3697,
+      "segundos": 5646.4
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 1,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/a609c51be95a4176b4a7c4b28525b275"
   },
   {
     "nombre": "ppo-modelo-v5-s1",
@@ -403,7 +526,13 @@
         "recompensa_media": 158.84,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "8635b75241cb471ca5aa5ee142e4bcf5",
+    "seed": 1,
+    "presupuesto": {},
+    "origen": "desde cero con imitación",
+    "mlflow_version": null,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/f3f3a8d6ed9c4ced9973b84a16b9b395"
   },
   {
     "nombre": "ppo-modelo-v5-s2",
@@ -432,7 +561,13 @@
         "recompensa_media": 162.88,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "4353c23977bf4fafa504afdd0a949c7f",
+    "seed": 2,
+    "presupuesto": {},
+    "origen": "desde cero con imitación",
+    "mlflow_version": null,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/38ebcda5307844beb0787d639080d416"
   },
   {
     "nombre": "qlearning-modelo-qlearning-v8-s1",
@@ -461,7 +596,13 @@
         "recompensa_media": 146.37,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "84616c1015564b5c88d44bd4ad032ef8",
+    "seed": 1,
+    "presupuesto": {},
+    "origen": "desde cero con imitación",
+    "mlflow_version": null,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/e34d914fe6a34f6482504bac9074426d"
   },
   {
     "nombre": "qlearning-modelo-qlearning-v8-s2",
@@ -490,7 +631,13 @@
         "recompensa_media": 141.24,
         "progreso_pct": 98.6
       }
-    }
+    },
+    "run_id": "0fac87c25da24a9f9a1a5bf71a9a246c",
+    "seed": 2,
+    "presupuesto": {},
+    "origen": "desde cero con imitación",
+    "mlflow_version": null,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/0edd6e14bd794e629bd1de70d0a20313"
   },
   {
     "nombre": "ppo-modelo-v6-pistas-s1",
@@ -513,7 +660,17 @@
         "tiempo_mediano_s": 104.8,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "65771e5dc18146f9ac59caaf44214212",
+    "seed": 1,
+    "presupuesto": {
+      "pasos": 3000000,
+      "episodios": 3369,
+      "segundos": 3724.8
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 7,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/fd93bd33ad3c41f9872e8319203fccdf"
   },
   {
     "nombre": "ppo-modelo-v6-pistas-s2",
@@ -536,7 +693,17 @@
         "tiempo_mediano_s": 103.6,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "a08f9476d7844d31a58d82367d5fabad",
+    "seed": 2,
+    "presupuesto": {
+      "pasos": 3000000,
+      "episodios": 3794,
+      "segundos": 4374.5
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": null,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/0/runs/c1976722e2d14656b821bc52d0f36972"
   },
   {
     "nombre": "ppo-moto-v1",
@@ -566,7 +733,17 @@
         "recompensa_media": 154.89,
         "progreso_pct": 100.0
       }
-    }
+    },
+    "run_id": "a3ea25d0160442cea4f916a792073a82",
+    "seed": 0,
+    "presupuesto": {
+      "pasos": 1000000,
+      "episodios": 1529,
+      "segundos": 3430.3
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 1,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/1/runs/cf6210edfc034066a1a444f38957725f"
   },
   {
     "nombre": "qlearning-moto-v1",
@@ -596,6 +773,16 @@
         "recompensa_media": 138.9,
         "progreso_pct": 98.2
       }
-    }
+    },
+    "run_id": "5ebe1d877b294bd2a23308caff4c6f0d",
+    "seed": 0,
+    "presupuesto": {
+      "episodios": 880,
+      "pasos": 530596,
+      "segundos": 920.4
+    },
+    "origen": "desde cero con imitación",
+    "mlflow_version": 1,
+    "mlflow_url": "https://dagshub.com/kevin-nieto-callejas/autonomous-rally.mlflow/#/experiments/1/runs/7d9e675344f94ac8be3177927672eabd"
   }
 ]

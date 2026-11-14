@@ -1,0 +1,86 @@
+{
+  "0db7b9b220a7492a889ff063312bd328": {
+    "experimento": "0",
+    "run": "45cf2e4e46194adda0f59fc1cdc3dd7d"
+  },
+  "0eaedea3e6674f7e860cba5802cff0e4": {
+    "experimento": "0",
+    "run": "3a944046d10d43e183af4ea12c1ad2d7"
+  },
+  "0fac87c25da24a9f9a1a5bf71a9a246c": {
+    "experimento": "0",
+    "run": "0edd6e14bd794e629bd1de70d0a20313"
+  },
+  "14eb699c59124d1a893adb5d5e000fee": {
+    "experimento": "0",
+    "run": "a400995544e1498b97109232a7a977e8"
+  },
+  "229fa9e278624f38b85e573e00c70042": {
+    "experimento": "0",
+    "run": "190b74061da64d659d4777d142418772"
+  },
+  "288cbd82085f4eeaa76383b61664a9f1": {
+    "experimento": "0",
+    "run": "7181550efe014c43a147d723f8c5c94d"
+  },
+  "4353c23977bf4fafa504afdd0a949c7f": {
+    "experimento": "0",
+    "run": "38ebcda5307844beb0787d639080d416"
+  },
+  "5ebe1d877b294bd2a23308caff4c6f0d": {
+    "experimento": "1",
+    "run": "7d9e675344f94ac8be3177927672eabd"
+  },
+  "65771e5dc18146f9ac59caaf44214212": {
+    "experimento": "0",
+    "run": "fd93bd33ad3c41f9872e8319203fccdf"
+  },
+  "6e1009a21bfb4a3eaffe56b7df909c68": {
+    "experimento": "0",
+    "run": "da633704cc5e49c080d91d3c6c385f79"
+  },
+  "84616c1015564b5c88d44bd4ad032ef8": {
+    "experimento": "0",
+    "run": "e34d914fe6a34f6482504bac9074426d"
+  },
+  "8635b75241cb471ca5aa5ee142e4bcf5": {
+    "experimento": "0",
+    "run": "f3f3a8d6ed9c4ced9973b84a16b9b395"
+  },
+  "881772cccb024f6793d776f6da977dc7": {
+    "experimento": "0",
+    "run": "00ca8256fb174765bbe23cdb67795303"
+  },
+  "883ba34ac38c4ea7bac71b1fd1ed28f5": {
+    "experimento": "0",
+    "run": "3aac7de76ebb46b4aee18384f0dfad7d"
+  },
+  "a08f9476d7844d31a58d82367d5fabad": {
+    "experimento": "0",
+    "run": "c1976722e2d14656b821bc52d0f36972"
+  },
+  "a09ed36cd1bb46229665c93f659c87ea": {
+    "experimento": "0",
+    "run": "a609c51be95a4176b4a7c4b28525b275"
+  },
+  "a3ea25d0160442cea4f916a792073a82": {
+    "experimento": "1",
+    "run": "cf6210edfc034066a1a444f38957725f"
+  },
+  "c556c7f79fda464bb30fcc13b15c8d8b": {
+    "experimento": "0",
+    "run": "f20f8f94d509406c94645705f4d15b96"
+  },
+  "d7fa27b99e4041a0b39458e39e76bc6e": {
+    "experimento": "0",
+    "run": "488b55b86c1a4004843b58df421fae3e"
+  },
+  "eed70c9b08c248b490fb51f921f4f611": {
+    "experimento": "0",
+    "run": "c2100af8f6334a87ba8c67f282cd3e09"
+  },
+  "f81252b4a5c04cf3be0868d4eb4116e5": {
+    "experimento": "0",
+    "run": "1f48d3a4d43643a18254ad638c3d25d7"
+  }
+}
