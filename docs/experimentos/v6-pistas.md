@@ -200,6 +200,7 @@ la v6 semilla 0 da 78.9 %, cerca del 79.2 % de Kevin en Linux).
 |---|---|---|---|---|
 | v6, semilla 0 | Mac | paso 3 000 000 | **78.9 %** | diluvio, 0 % |
 | v6, semilla 1 | GitHub Actions | paso 200 004 | **100 %** | ninguna por debajo de 100 % |
+| v6, semilla 2 (14 nov) | GitHub Actions | paso 200 004 | **100 %** | ninguna por debajo de 100 % |
 | Control, semilla 0 | Mac | paso 400 008 | 98.0 % | sensores largos con lluvia, 62 % |
 | Control, semilla 1 | GitHub Actions | paso 0 | 94.7 % | sensores cortos con lluvia, 0 % |
 
@@ -279,9 +280,10 @@ registra el archivo incluyen horas en que el Mac estuvo suspendido por batería.
 
 ## Errores que aceptamos y límites
 
-- **Dos semillas por modelo.** La segunda semilla confirmó que la v6 es estable en las pistas de la fase A y que
-  el control no lo es, pero con dos semillas no podemos separar el efecto de afinar con PPO del azar de la
-  semilla. La semilla 1 se entrenó en Linux (GitHub Actions) y la semilla 0 en el Mac.
+- **Tres semillas de la v6 y dos del control.** La segunda y la tercera semilla confirmaron que la v6 es estable en
+  las pistas de la fase A y que el control no lo es. Las dos semillas que se quedaron cerca de la red imitada (1 y 2)
+  dan 100 % en extremos y la que afinó hasta el final (0) no; con tres semillas eso es consistente con la hipótesis,
+  pero no la separa del azar. Las semillas 1 y 2 se entrenaron en Linux (GitHub Actions) y la semilla 0 en el Mac.
 - **Cuatro pistas, todas del mismo generador.** Rectas y arcos de radio constante, con escape y muro igual de
   anchos; la Sierra es nueva pero de la misma familia. No probamos curvas de radio variable, pendientes ni
   pistas mucho más largas.
@@ -292,3 +294,30 @@ registra el archivo incluyen horas en que el Mac estuvo suspendido por batería.
   en WSL con PyTorch 2.15. La huella del ambiente cambia entre plataformas (`d56c0fcd9d9d` en macOS,
   `61fa0dd41b7c` en Linux) porque la geometría difiere en el último bit; las demostraciones del experto dan
   las mismas 20 904 acciones en las dos (observaciones con diferencia menor a 1e-11).
+
+## Tercera semilla de la v6 (14 de noviembre)
+
+La rúbrica pide tres semillas de entrenamiento para los finalistas. Entrenamos la v6 con la **semilla 2** en GitHub
+Actions (`.github/workflows/semilla2-v6.yml`, run 43612369048; 73 minutos de entrenamiento), con la misma
+configuración, y la medimos con el mismo protocolo: fase A sin la Sierra (`metrics/semillas-v6-s2.json`) y las 21
+pruebas extremas (`metrics/generalizacion-v6-s2.json`).
+
+| Pista (100 semillas) | Seco | Lluvia |
+|---|---|---|
+| Mónaco | 100 %, 78.2 s | 100 %, 103.6 s |
+| Bosque | 100 %, 67.6 s | 100 %, 86.8 s |
+| Puerto | 100 %, 90.1 s | 100 %, 120.6 s |
+| Puerto r9.5 | 100 %, 90.2 s | 100 %, 120.6 s |
+
+Extremos: 100 % en las 19 pruebas calificadas. Mejor punto: paso 200 004, igual que la semilla 1. La red exportada a
+numpy difiere de PyTorch en 1.5e-6 como máximo.
+
+**Veredicto** (`seleccion.decidir` contra la recomendada, `ppo-modelo-v6-pistas-s1`, anotado en
+`manifests/decisiones.json`): **aceptada, 7 de 7**. **No se promueve.** La semilla 1 se eligió y pasó su test
+reservado antes de que existiera la semilla 2; cambiar de recomendada ahora sería elegir viendo los resultados y
+presentar un modelo sin test reservado. La semilla 2 queda como evidencia de que la v6 se repite: **dos de tres
+semillas pasan.**
+
+Versionado: pesos en `models/semillas-v6.dvc` (en DagsHub; SHA-256 del zip `1ee7b051…`, igual al que reportó
+Actions), corrida copiada a MLflow de DagsHub (`c1976722…`, con `origen_run_id` `a08f9476…`), etiqueta de git
+`modelo-v6-pistas-s2`, manifiesto `manifests/ppo-modelo-v6-pistas-s2.json` y fila en el catálogo de la web.
