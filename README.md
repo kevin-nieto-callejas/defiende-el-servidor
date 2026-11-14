@@ -166,6 +166,7 @@ son pilotos de referencia.
 | **`qlearning-modelo-qlearning-v8-s1`** | Misma configuración, semilla 1 | **100 % / 100 %**, 81.0 s y 106.9 s; 85.9 % en extremos | **Elegido de su agente** |
 | `ppo-modelo-v6-pistas` | Practicar en tres pistas (Mónaco, Bosque y Puerto) evita memorizar Mónaco | 100 % / 100 %, 69.8 s y 86.6 s; 100 % / 100 % en la Sierra, que nunca vio (v5-s1: 0 %); 79.2 % en extremos | Rechazado |
 | **`ppo-modelo-v6-pistas-s1`** | Misma configuración, semilla 1 (entrenada en GitHub Actions) | **100 % / 100 %**, 80.4 s y 104.8 s; **100 % en extremos**; completa Mónaco, Bosque y Puerto | **Recomendado** |
+| `ppo-modelo-v6-pistas-s2` | Misma configuración, semilla 2 (GitHub Actions, 14 nov) | 100 % / 100 %, 78.2 s y 103.6 s; 100 % en extremos; completa Mónaco, Bosque y Puerto | Aceptado, sin promover (llegó después del test reservado de la s1) |
 
 Resultados: seco / lluvia con 100 vueltas por condición. Las semillas 1 y 2 están en `finalistas/`, versionadas con
 DVC. Los detalles, las pruebas de extremos y los límites están en la ficha.

@@ -231,7 +231,7 @@ cómo desplegar y reproducir la solución. Usamos asistentes de código y verifi
 ## Siguiente hipótesis razonable
 
 La hipótesis de entrenar en varias pistas para manejar una que nunca vio ya se probó con la v6 y se cumplió.
-La v6 semilla 1 mostró además que no hace falta sacrificar los extremos. La siguiente: una tercera semilla de la v6
-y una quinta pista reservada (de otra familia, con curvas de radio variable) dirían si la v6 semilla 1 también
-generaliza y si afinar mucho con PPO cambia robustez por velocidad. Se mediría con los mismos criterios, sin
-cambiarlos.
+Las semillas 1 y 2 mostraron además que no hace falta sacrificar los extremos. La siguiente: una quinta pista
+reservada (de otra familia, con curvas de radio variable) diría si la v6 semilla 1 también generaliza, y entrenar
+la v6 con y sin afinar hasta el final diría si afinar mucho con PPO cambia robustez por velocidad. Se mediría con
+los mismos criterios, sin cambiarlos.
