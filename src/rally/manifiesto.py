@@ -66,6 +66,16 @@ SEMILLAS_V6 = {
         "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 42948616971",
                        "python": "3.14", "torch": "2.15.0+cpu", "stable_baselines3": "2.9.2"},
     },
+    # Tercera semilla (.github/workflows/semilla2-v6.yml). Cumple los criterios, pero no se promueve: la
+    # recomendada ya pasó el test reservado y la Sierra no se vuelve a usar para elegir entre semillas.
+    "ppo-modelo-v6-pistas-s2": {
+        "carpeta": Path("models/semillas-v6/v6-s2"), "seed": 2, "decision": "aceptado, sin promover",
+        "run_id": "c1976722e2d14656b821bc52d0f36972",   # en DagsHub, con la etiqueta origen_run_id
+        "git_commit": "9e06adcd51828b3ad5d265aa342c338f6b4eb8de",
+        "resultados": ("metrics/semillas-v6-s2.json", "v6-pistas-s2"),
+        "plataforma": {"maquina": "GitHub Actions ubuntu-latest (4 vCPU), run 43612369048",
+                       "python": "3.14", "torch": "2.15.0+cpu", "stable_baselines3": "2.9.2"},
+    },
 }
 
 
