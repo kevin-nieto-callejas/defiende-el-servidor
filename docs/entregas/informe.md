@@ -152,17 +152,26 @@ Sierra, ya usada).
 |---|---|---|---|---|---|---|
 | v6 semilla 0 (Mac) | 100 / 100 %, 69.8 s | 100 / 100 % | 100 / 100 % | 79.2 % | diluvio 0 % | rechazada |
 | **v6 semilla 1** (Actions) | **100 / 100 %, 80.4 s** | **100 / 100 %** | **100 / 100 %** | **100 %** | **100 %** | **aceptada, 7 de 7** |
+| v6 semilla 2 (Actions, 14 nov) | 100 / 100 %, 78.2 s | 100 / 100 % | 100 / 100 % | 100 % | 100 % | aceptada, 7 de 7; no se promueve |
 | Control semilla 1 (Actions) | 100 / 100 %, 81.5 s | **0 / 0 %** | 100 / **0 %** | 94.7 % | sensores cortos con lluvia 0 % | rechazada |
 
 1. **Practicar en tres pistas da un resultado estable entre semillas; practicar solo en Mónaco, no:** el control semilla 1
    no completa el Bosque.
 2. **La caída de la v6 semilla 0 no viene de las pistas ni del Mac:** la semilla 1 da 100 % en extremos, y el control
    semilla 0, entrenado en el mismo Mac, da 98 %.
-3. **Lo que distingue a la semilla 0** es que afinó con PPO hasta el final y es 10.6 s más rápida. La hipótesis es que
-   afinar mucho cambia robustez por velocidad; con dos semillas no está comprobado.
+3. **Lo que distingue a la semilla 0** es que afinó con PPO hasta el final y es 10.6 s más rápida. Las semillas 1 y 2
+   se quedaron con su punto del paso 200 004 y las dos dan 100 % en extremos. La hipótesis es que afinar mucho cambia
+   robustez por velocidad; tres semillas son consistentes con ella, pero no la comprueban.
 
 La v6 semilla 1 pasó los criterios del 1 de noviembre sin tocarlos, pasó su test reservado y se promovió. El
 historial conserva la v5 semilla 1 para el rollback.
+
+**Tercera semilla (14 de noviembre).** Para cumplir las tres semillas del finalista, entrenamos la v6 con la semilla 2
+en GitHub Actions (run 43612369048), con la misma configuración y las mismas pruebas. Pasa los 7 criterios y es 2.2 s
+más rápida que la semilla 1 en Mónaco. **No la promovemos:** la semilla 1 se eligió y pasó el test reservado antes de
+que existiera la semilla 2, y cambiarla ahora sería elegir con los resultados a la vista y sin test reservado. La
+semilla 2 queda versionada (DVC, MLflow en DagsHub, manifiesto y catálogo) como evidencia de que el resultado se repite:
+**dos de tres semillas de la v6 pasan.**
 
 ## MLOps
 
@@ -182,8 +191,9 @@ historial conserva la v5 semilla 1 para el rollback.
   entrenamiento, y la Sierra ya se usó con la semilla 0. Sabemos que la v6 semilla 0 generaliza, no la semilla 1.
 - **Robustez a cambio de velocidad:** la recomendada es 11.8 s más lenta en seco que la v5 semilla 1 y casi igual
   al maestro (80.8 s). Los criterios no premian el tiempo por debajo del máximo.
-- **Dos semillas de la v6, de las cuales una pasa:** no es la regla de tres semillas de la v5. Cuatro pistas de la
-  misma familia (rectas y arcos de radio constante).
+- **Tres semillas de la v6, de las cuales pasan dos:** la que falla es la única que afinó con PPO hasta el final;
+  tres semillas no bastan para probar que esa sea la causa. La semilla 2 tampoco tiene prueba en una pista nueva.
+  Cuatro pistas de la misma familia (rectas y arcos de radio constante).
 - **En la URL pública, PPO corre en numpy.** Se verificó contra PyTorch (diferencia máxima 1e-5 en las acciones),
   pero no es la misma biblioteca del entrenamiento. El contenedor sí usa PyTorch.
 - **El monitoreo de la API publicada es por instancia:** Vercel puede tener varias instancias y reiniciarlas; cada

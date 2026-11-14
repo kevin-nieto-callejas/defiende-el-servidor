@@ -1,9 +1,9 @@
 {
-  "commit": "02bd995e14eea30b127ea38b642aad9ab64f576b",
-  "fecha": "2026-11-13T14:53:43-0500",
+  "commit": "5c05aeb50a1a28e06ab5cbc4d3eeb20178c115ba",
+  "fecha": "2026-11-14T13:02:47-0500",
   "destino": "vercel",
-  "huella_src": "3b167845215cd0e184913cc124354a4e6ab4555bcdf66703ab1fff157ac2754f",
-  "huella_manifests": "16cb4b845ab07f260fda4ce2a384a2dc3f07826431db41c69b81899b0804b11c",
+  "huella_src": "a1858d018609d15a956cfdee297530231c85ceb2d50c0adc45fa03155b6058c1",
+  "huella_manifests": "c02e51179df43daf09fc6e9f4aaf5a4f8405b7d64bea47fe60d1d8ccd248494b",
   "modelos": {
     "ppo-experimento-v3": {
       "fuente_sha256": "5e193b33d8925a2ba23e34a559c0fe98bdb006b4409cfeb49877be6b51331c8b",
@@ -154,6 +154,20 @@
       "activacion": "Tanh",
       "observaciones_probadas": 6846,
       "max_diferencia": 5.960464477539062e-07,
+      "motor": "numpy"
+    },
+    "ppo-modelo-v6-pistas-s2": {
+      "fuente_sha256": "1ee7b051c867fa9575296bceb23da517439abc125a196d145787edcccbb0104c",
+      "npz_sha256": "1ea38b08acf66b32627e2e2711448fb8868ad2760470962ff13e96b047aa4253",
+      "n_obs": 24,
+      "capas": [
+        256,
+        256,
+        2
+      ],
+      "activacion": "Tanh",
+      "observaciones_probadas": 6846,
+      "max_diferencia": 1.0728836059570312e-06,
       "motor": "numpy"
     },
     "ppo-moto-v1": {

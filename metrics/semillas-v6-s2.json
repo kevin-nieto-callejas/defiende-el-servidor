@@ -1,0 +1,288 @@
+{
+  "pregunta": "¿Los modelos manejan en pistas que nunca vieron al entrenar?",
+  "ambiente_version": "0.4-monaco-configurable",
+  "prueba_reservada": false,
+  "fecha": "2026-11-14T17:21:00+0000",
+  "protocolo": {
+    "episodios": 100,
+    "semillas": [
+      0,
+      99
+    ],
+    "condiciones": {
+      "seco": 0.9,
+      "mojado": 0.5
+    },
+    "ambiente": {
+      "track_width": 8.0,
+      "mu": 0.9,
+      "a_max": 4.0,
+      "r_max": 20.0
+    }
+  },
+  "pistas": {
+    "monaco": {
+      "largo_m": 1048.6,
+      "curvas": 18,
+      "radio_min_m": 9.5,
+      "sentido": "antihorario",
+      "reservada": false,
+      "descripcion": "Circuito urbano inspirado en Mónaco: horquilla, túnel y chicanas"
+    },
+    "bosque": {
+      "largo_m": 1141.6,
+      "curvas": 9,
+      "radio_min_m": 14.0,
+      "sentido": "horario",
+      "reservada": false,
+      "descripcion": "Circuito rápido de curvas largas, en sentido horario"
+    },
+    "puerto": {
+      "largo_m": 1129.8,
+      "curvas": 15,
+      "radio_min_m": 8.5,
+      "sentido": "antihorario",
+      "reservada": false,
+      "descripcion": "Circuito portuario técnico: chicanes y horquillas cerradas"
+    },
+    "puerto_r95": {
+      "largo_m": 1129.1,
+      "curvas": 15,
+      "radio_min_m": 9.5,
+      "sentido": "antihorario",
+      "reservada": false,
+      "descripcion": "Control: el Puerto sin curvas más cerradas que Mónaco"
+    }
+  },
+  "modelos": {
+    "v6-pistas-s2": {
+      "archivo": "artefactos/v6-s2/models/semillas-v6/v6-s2/modelo.npz",
+      "motor": "numpy",
+      "model_sha256": "1ee7b051c867fa9575296bceb23da517439abc125a196d145787edcccbb0104c",
+      "npz_sha256": "965dff8d10cb12ac86567f16ebaeaf037f59b3c33b6059d3c5a6c97d30cccea0",
+      "max_diferencia_con_pytorch": 1.5497207641601562e-06,
+      "pistas_entrenamiento": [
+        "monaco",
+        "bosque",
+        "puerto"
+      ]
+    }
+  },
+  "resultados": {
+    "experto": {
+      "monaco": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 77.4,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 0.0,
+          "tiempo_mediano_s": null,
+          "progreso_medio_pct": 12.1,
+          "fallos_por_causa": {
+            "choque": 100
+          },
+          "fallos_antes_de": {
+            "Beau Rivage": 100
+          }
+        }
+      },
+      "bosque": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 66.9,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 0.0,
+          "tiempo_mediano_s": null,
+          "progreso_medio_pct": 20.0,
+          "fallos_por_causa": {
+            "choque": 100
+          },
+          "fallos_antes_de": {
+            "Curva Larga": 100
+          }
+        }
+      },
+      "puerto": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 89.2,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 0.0,
+          "tiempo_mediano_s": null,
+          "progreso_medio_pct": 20.9,
+          "fallos_por_causa": {
+            "choque": 100
+          },
+          "fallos_antes_de": {
+            "Aduana salida": 100
+          }
+        }
+      },
+      "puerto_r95": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 88.8,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 0.0,
+          "tiempo_mediano_s": null,
+          "progreso_medio_pct": 20.9,
+          "fallos_por_causa": {
+            "choque": 100
+          },
+          "fallos_antes_de": {
+            "Aduana salida": 100
+          }
+        }
+      }
+    },
+    "maestro": {
+      "monaco": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 80.8,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 103.8,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      },
+      "bosque": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 69.2,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 86.3,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      },
+      "puerto": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 92.9,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 119.3,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      },
+      "puerto_r95": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 92.4,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 118.9,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      }
+    },
+    "v6-pistas-s2": {
+      "monaco": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 78.2,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 103.6,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      },
+      "bosque": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 67.6,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 86.8,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      },
+      "puerto": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 90.1,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 120.6,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      },
+      "puerto_r95": {
+        "seco": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 90.2,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        },
+        "mojado": {
+          "vueltas_pct": 100.0,
+          "tiempo_mediano_s": 120.6,
+          "progreso_medio_pct": 100.0,
+          "fallos_por_causa": {},
+          "fallos_antes_de": {}
+        }
+      }
+    }
+  },
+  "segundos": 768.0
+}

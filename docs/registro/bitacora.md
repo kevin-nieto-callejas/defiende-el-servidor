@@ -263,3 +263,16 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Allison subió `models/moto/qlearning` con `dvc push -r dagshub`. Comprobado desde otro computador: `dvc pull`
   baja la tabla, su SHA-256 es `f2690f33…`, el mismo del manifiesto `qlearning-moto-v1.json`, y `dvc status` de
   la moto queda al día. Todos los modelos del catálogo se pueden recuperar desde DagsHub.
+
+## 14 nov 2026 — tercera semilla de la v6
+
+- La rúbrica pide tres semillas para los finalistas y la v6 tenía dos. Entrenamos la semilla 2 en GitHub Actions
+  (`.github/workflows/semilla2-v6.yml`, run 43612369048): 1 h 30 en total, con la fase A y las pruebas extremas.
+- Mónaco 100 / 100 % (78.2 s), Bosque y Puerto 100 / 100 %, extremos 100 %. `seleccion.decidir` la acepta, 7 de 7.
+- **No se promueve:** la v6-s1 se eligió y pasó su test reservado antes; cambiarla sería elegir con los resultados
+  a la vista. La v6 queda con dos de tres semillas aprobadas.
+- Pesos verificados por SHA-256 y subidos a DagsHub con DVC; corrida copiada a MLflow de DagsHub; etiqueta
+  `modelo-v6-pistas-s2`; manifiesto, catálogo (21 filas) y paquete de la web. 110 pruebas pasan.
+- Encontrado de paso: `rally manifiesto --vehiculo carro` reescribe el catálogo sin las filas de la moto. Hay que
+  correrlo sin `--vehiculo`.
+

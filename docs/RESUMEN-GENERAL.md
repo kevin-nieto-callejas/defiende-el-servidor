@@ -104,7 +104,7 @@ con el ambiente compatible con ese modelo**.
 | Incidente, degradación e intervención | Listo: lluvia μ 0.9 → 0.5 | Sección 7.5 y el [informe](entregas/informe.md) |
 | Versionar código, datos y modelos | Listo: Git, DVC y etiquetas | `dvc.yaml`, `dvc.lock`, `git tag` |
 | Registro de experimentos | Listo: MLflow local y DagsHub | Sección 8.3 |
-| Manifiesto por versión con SHA-256 | Listo: 17 manifiestos | [manifests/](../manifests/) |
+| Manifiesto por versión con SHA-256 | Listo: 21 manifiestos en el catálogo | [manifests/](../manifests/) |
 | Recuperar modelos viejos con su ambiente | Listo: adaptadores validados | Sección 8.5 |
 | Hipótesis antes de entrenar | Listo desde la familia 0.4; v1 a v4 marcadas como escritas después | `params.yaml`, MLflow |
 | Criterios de selección fijos | Listo | [configs/seleccion.yaml](../configs/seleccion.yaml) |
@@ -332,6 +332,7 @@ El detalle de cada decisión está en la [bitácora](registro/bitacora.md) y en 
 | 11 nov | Moto MotoGP de Allison (PR #7): segundo vehículo, con sus dos agentes, su API y su selección |
 | 12 nov | Segunda semilla de la v6 en GitHub Actions (PR #8, Miguel): **pasa 7 de 7 criterios y su test reservado; se promueve** |
 | 13 nov | PR #9 une la v6-s1 y la moto. Vercel, Hugging Face y el `@champion` de MLflow pasan a la v6-s1. Sonido en el visor y la lluvia ya no cae dentro del túnel |
+| 14 nov | Tercera semilla de la v6 (semilla 2) en GitHub Actions: **pasa 7 de 7, pero no se promueve**; la v6 queda con dos de tres semillas aprobadas |
 
 ### 6.1 Los aprendizajes que hay que contar
 
@@ -502,18 +503,28 @@ midieron en las pistas de entrenamiento (sin la Sierra, ya usada):
 |---|---|---|---|---|---|---|
 | v6 semilla 0 (Mac) | 100 / 100 %, 69.8 s | 100 / 100 % | 100 / 100 % | 79.2 % | diluvio 0 % | rechazada |
 | **v6 semilla 1** (Actions) | **100 / 100 %, 80.4 s** | **100 / 100 %** | **100 / 100 %** | **100 %** | **100 %** | **aceptada, 7 de 7** |
+| v6 semilla 2 (Actions, 14 nov) | 100 / 100 %, 78.2 s | 100 / 100 % | 100 / 100 % | 100 % | 100 % | aceptada, 7 de 7; no se promueve |
 | Control semilla 1 (Actions) | 100 / 100 %, 81.5 s | **0 / 0 %** | 100 / **0 %** | 94.7 % | sensores cortos con lluvia 0 % | rechazada |
 
 - Practicar en tres pistas da un resultado estable entre semillas; solo en Mónaco, no.
 - La caída de la semilla 0 no venía de las pistas ni del Mac: la semilla 1 da 100 % en extremos y el control
   semilla 0, entrenado en el mismo Mac, 98 %.
-- La semilla 0 es la única que afinó con PPO hasta el final y la más rápida. La hipótesis es que afinar mucho cambia
-  robustez por velocidad; con dos semillas no está comprobado.
+- La semilla 0 es la única que afinó con PPO hasta el final y la más rápida. Las semillas 1 y 2 se quedaron con su
+  punto del paso 200 004 y las dos dan 100 % en extremos. La hipótesis es que afinar mucho cambia robustez por
+  velocidad; tres semillas son consistentes con ella, pero no la comprueban.
 
 La v6 semilla 1 tuvo su **test reservado** con semillas nuevas, fuera del repositorio, y una regla escrita antes
 (commit `5ed48de`): 100 % en seco (80.4 s), 100 % con lluvia (104.8 s) y 100 % en las 19 pruebas extremas.
 Se promovió con `seleccion.promover` y el historial conserva la v5-s1 para rollback. Ambos veredictos están en
 `manifests/decisiones.json`. **Límite:** la semilla 1 no tiene prueba en una pista que nunca vio.
+
+**Tercera semilla (14 de noviembre).** La rúbrica pide tres semillas para los finalistas, así que se entrenó la v6 con
+la semilla 2 en GitHub Actions (`.github/workflows/semilla2-v6.yml`, run 43612369048), con la misma configuración y
+las mismas pruebas: Mónaco 100 / 100 % (78.2 s), Bosque y Puerto 100 / 100 %, extremos 100 %. **Pasa 7 de 7, pero no
+se promueve:** la semilla 1 se eligió y pasó el test reservado antes de que existiera la semilla 2; cambiarla ahora
+sería elegir viendo los resultados y sin test reservado. Queda versionada: pesos en `models/semillas-v6.dvc`
+(DagsHub), corrida en MLflow de DagsHub (`c1976722…`), etiqueta `modelo-v6-pistas-s2`, manifiesto, catálogo y web.
+**Resultado: dos de tres semillas de la v6 pasan.**
 
 **Demo para la sustentación:** https://autonomous-rally.vercel.app/?pista=puerto con `ppo-modelo-v5-s1` (en seco se
 sale a los 28.4 s y con lluvia choca) y después con `ppo-modelo-v6-pistas-s1`, la recomendada, que completa.
@@ -647,7 +658,7 @@ Además: `catalogo.json` (lista para la web), `recomendado.json` (el que sirve l
 promoción y rollback con fecha y motivo) y `decisiones.json` (cada veredicto de selección, aceptado o rechazado,
 criterio por criterio). Una prueba automática revisa que todos los manifiestos tengan los 12 campos del enunciado.
 
-Los 20 manifiestos del catálogo: PPO v1, v2, v3, v4, v5, v5-s1, v5-s2, v6-pistas y v6-pistas-s1; Q-learning v1,
+Los 21 manifiestos del catálogo: PPO v1, v2, v3, v4, v5, v5-s1, v5-s2, v6-pistas, v6-pistas-s1 y v6-pistas-s2; Q-learning v1,
 v2, v3, v4, v6, v7, v8, v8-s1 y v8-s2; y la moto, ppo-moto-v1 y qlearning-moto-v1. El de la v6 dice en qué máquina se entrenó (el Mac de Miguel), porque la huella del ambiente cambia
 en el último bit entre macOS y Linux con el mismo código.
 
@@ -972,8 +983,8 @@ docente.
   premian el tiempo por debajo del máximo (81.3 s).
 - **La v5-s1, la anterior, memorizó Mónaco:** 0 % en el Puerto y en la Sierra. Hay que contarlo como el hallazgo que
   llevó a la v6.
-- **Las cuatro pistas son de la misma familia:** rectas y arcos de radio constante. La v6 tiene dos semillas (una
-  pasa y otra no) y su control también.
+- **Las cuatro pistas son de la misma familia:** rectas y arcos de radio constante. La v6 tiene tres semillas (pasan
+  dos) y su control, dos.
 - **Las 19 pruebas extremas cambian una condición a la vez.** Combinadas, el modelo falla: con diluvio y
   aceleración 6 completó 1 de 3 vueltas, y con todos los deslizadores al extremo (pista de 6 m, μ 0.4, aceleración
   6 y sensores de 10 m), 0 de 3. Medido el 3 de noviembre en la API local. Si el docente prueba eso en la web, va a
@@ -1002,8 +1013,13 @@ local apunta a `models/semillas-v6/v6-s1` y su run está en DagsHub. El de Q-lea
 Los criterios son los mismos del 1 de noviembre, sin tocarlos: 85 % de promedio en las pruebas extremas y ninguna
 bajo 50 %. La semilla 0 dio 79.2 % y 0 % en diluvio; la semilla 1, 100 % y 100 %. Los dos veredictos están en
 `manifests/decisiones.json`. Además, la semilla 1 pasó un test reservado nuevo, de una sola corrida, con la regla
-escrita antes. Lo honesto: de dos semillas pasó una, y la semilla 1 no tiene prueba en una pista nueva. Detalle en
-la sección 7.7.
+escrita antes. Lo honesto: de tres semillas pasaron dos (la 1 y la 2), y ninguna de las dos tiene prueba en una
+pista nueva. Detalle en la sección 7.7.
+
+**La semilla 2 es más rápida que la 1 y también pasa. ¿Por qué no la presentan?**
+Porque llegó después: la semilla 1 ya se había elegido y había pasado su test reservado, que se corre una sola vez.
+Cambiar a la semilla 2 sería escoger con los resultados a la vista y presentar un modelo sin test reservado. La semilla
+2 sirve para otra cosa: muestra que el resultado de la v6 se repite.
 
 **¿Por qué la Sierra no aparece en el selector de pista?**
 Es la prueba reservada del experimento v6: se usó una sola vez, el 8 de noviembre. Si se pudiera correr a voluntad,
