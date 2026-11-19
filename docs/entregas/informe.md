@@ -1,7 +1,7 @@
 # Informe: Autonomous Rally
 
 Proyecto final de MLOps · Universidad Externado de Colombia · Docente: Julián Zuluaga
-Equipo: _______ · Integrantes: Kevin Nieto, Miguel Melo y Allison Loango · Versión de borrador: 13 nov 2026
+Equipo: Telemetría · Integrantes: Kevin Nieto, Miguel Melo y Allison Loango · Versión de borrador: 13 nov 2026
 
 ## Resumen
 
@@ -247,12 +247,17 @@ observaciones). La física del carro no cambió: misma huella en 100 000 pasos y
 ## Pendiente antes de la entrega
 
 - Intercambio de la ficha con otro equipo.
-- Nombre del equipo y contribuciones.
 
 ## Contribuciones
 
-_Por completar por el equipo._ Cada integrante debe poder explicar el contrato del ambiente, el versionamiento y
-cómo desplegar y reproducir la solución. Usamos asistentes de código y verificamos lo generado con pruebas y métricas.
+| Integrante | Qué hizo |
+|---|---|
+| Kevin Nieto | Ambiente de Mónaco y su física, visor 3D. Q-learning y PPO de la v1 a la v5 (DAgger, semillas, test reservado). MLflow, DVC y DagsHub, flujo de Prefect, manifiestos, selección y rollback. Publicación en Hugging Face y Vercel, guía para el revisor y release final. |
+| Miguel Melo | Repositorio oficial y su estructura inicial. Experimento v6: pistas Bosque, Puerto y Sierra, reglas fijadas antes de ver resultados, semillas entrenadas en GitHub Actions, test reservado y promoción de la v6 semilla 1. Selector de pista en la web y la API. |
+| Allison Loango | Moto MotoGP: ambiente, pilotos, PPO y Q-learning, API y web. API publicada como función de Vercel con PPO en numpy y verificación en CI. Presentación y guion de la sustentación. |
+
+Cada integrante puede explicar el contrato del ambiente, el versionamiento y cómo desplegar y reproducir la solución.
+Usamos asistentes de código y verificamos lo generado con pruebas y métricas.
 
 ## Siguiente hipótesis razonable
 

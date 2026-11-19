@@ -1,6 +1,6 @@
 # Ambiente v0.1 — Autonomous Rally · Circuito Mónaco
 
-> Equipo: _______ · Versión del ambiente **0.4** (circuito Mónaco, 24 observaciones, configuración visible para el agente) · 1 nov 2026
+> Equipo: Telemetría · Versión del ambiente **0.4** (circuito Mónaco, 24 observaciones, configuración visible para el agente) · 1 nov 2026
 > Mapa: [mapa-ambiente-v0.1.svg](mapa-ambiente-v0.1.svg), generado desde el código con `rally mapa --svg`.
 > Ficha original del curso: [ficha-autonomous-rally.png](ficha-autonomous-rally.png)
 

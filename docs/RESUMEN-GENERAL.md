@@ -67,7 +67,7 @@ Autonomous Rally.
 | Curso | MLOps, Universidad Externado de Colombia, 2026-II |
 | Docente | Julián Zuluaga |
 | Integrantes | Kevin Nieto, Miguel Melo y Allison Loango |
-| Nombre del equipo | Por completar en la ficha, el informe y la portada de la presentación |
+| Nombre del equipo | Telemetría |
 | Repositorio oficial | https://github.com/melo11miguel/defiende-el-servidor (de Miguel) |
 | Fork para Vercel | `kevin-nieto-callejas/defiende-el-servidor`, rama `ambiente-v0.4` |
 | Cuentas externas | DagsHub y Hugging Face están a nombre de Kevin; Vercel también. Miguel y Allison son colaboradores de DagsHub con permiso Write |
@@ -91,7 +91,7 @@ con el ambiente compatible con ese modelo**.
 | Diseño experimental y análisis | 25 % | Casi completo | Nada técnico; ensayar la explicación, incluida la v6 |
 | Pipeline, despliegue, monitoreo y rollback | 20 % | Completo | Nada técnico: `dvc status` limpio y el flujo de Prefect probado también con un rechazo |
 | Ambiente y agente | 10 % | Completo | Intercambiar la ficha con otro equipo |
-| Defensa, informe y presentación | 15 % | Material listo | Nombres, contribuciones y ensayo |
+| Defensa, informe y presentación | 15 % | Material listo | Ensayo |
 
 ### 3.2 Requisito por requisito
 
@@ -956,7 +956,6 @@ Todo se entrenó en el portátil de Kevin, con WSL Ubuntu en Windows.
 | Tarea | Responsable | Prioridad | Depende de |
 |---|---|---|---|
 | Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento, despliegue y la v6 | Todos | Alta | — |
-| Nombre del equipo y contribuciones en ficha, informe y presentación | Equipo | Alta | — |
 | Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
 | Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
 | Agregar el veredicto de selección a [experimentos/v6-pistas.md](experimentos/v6-pistas.md) | Miguel | Media | — |

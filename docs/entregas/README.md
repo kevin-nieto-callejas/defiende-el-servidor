@@ -45,7 +45,8 @@ En la web: **Catálogo** → buscar el modelo → **Cargar** o **Evaluar**. Para
 | Prueba de rollback | [docs/evidencia/flujo/rollback.json](../evidencia/flujo/rollback.json) y [manifests/historial.json](../../manifests/historial.json) |
 | Selección con criterios fijados antes | [configs/seleccion.yaml](../../configs/seleccion.yaml) y [manifests/decisiones.json](../../manifests/decisiones.json) |
 | Test reservado (semillas fuera del repositorio) | [metrics/test-final.json](../../metrics/test-final.json), [metrics/test-final-v6-s1.json](../../metrics/test-final-v6-s1.json) |
-| Informe: decisiones, resultados, límites y contribuciones | [informe.md](informe.md) |
+| Informe: decisiones, resultados, límites y contribuciones de cada integrante | [informe.md](informe.md) (sección Contribuciones) |
+| Segundo vehículo (moto MotoGP, 26 observaciones): ambiente, modelos y manifiestos propios | [README.md](../../README.md), [informe.md](informe.md) y `manifests/moto/`; en la web y la API con `?vehiculo=moto` / `--vehiculo moto` |
 | Presupuesto utilizado y curvas de entrenamiento y evaluación | [informe.md, sección Presupuesto](informe.md#presupuesto-utilizado-y-curvas) |
 | Licencias de los recursos | [docs/LICENCIAS.md](../LICENCIAS.md) |
 
