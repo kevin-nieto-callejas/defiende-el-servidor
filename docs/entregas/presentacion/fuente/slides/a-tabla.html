@@ -1,0 +1,20 @@
+<section id="a-tabla" class="gray" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Anexo · Q-learning</p>
+<h2>Las 117 600 situaciones y las 54 acciones</h2>
+</div>
+<table class="t26 compact">
+<tr><th style="width:36%">Variable que mira la tabla</th><th>Bordes de los rangos</th><th style="width:10%">Rangos</th></tr>
+<tr><td>Desvío del centro (÷ medio ancho)</td><td>−0.6, −0.3, −0.1, 0.1, 0.3, 0.6</td><td>7</td></tr>
+<tr><td>Error de rumbo (fracción de π rad)</td><td>±0.08, ±0.04, ±0.015</td><td>7</td></tr>
+<tr><td>Velocidad (÷ 25 m/s)</td><td>5, 7.5, 10, 12.5, 15, 18 y 21.25 m/s</td><td>8</td></tr>
+<tr><td>Curvatura a 25 m y a 10 m</td><td>−0.4, −0.12, 0.12, 0.4 (cada una)</td><td>5 y 5</td></tr>
+<tr><td>Lluvia</td><td>apagada o encendida</td><td>2</td></tr>
+<tr><td>Margen: velocidad menos velocidad segura</td><td>−5, −2, −0.5, 0.5 y 2 m/s</td><td>6</td></tr>
+</table>
+<div class="row" style="gap:32px">
+<div class="card grow"><h3>54 acciones</h3><p class="small">Pedal: −1, −0.4, 0, 0.25, 0.6 y 1; dirección: de −1 a 1 en 9 pasos. Acelerar se mide en m/s² (4 a fondo): sirve con cualquier carro.</p></div>
+<div class="card grow"><h3>Estado sin experiencia</h3><p class="small">En un empate gana la acción neutra (pedal 0.25, dirección recta), nunca «frenar y girar a fondo».</p></div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div>
+</section>

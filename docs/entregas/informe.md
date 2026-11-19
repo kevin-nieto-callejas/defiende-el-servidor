@@ -1,7 +1,7 @@
 # Informe: Autonomous Rally
 
-Proyecto final de MLOps · Universidad Externado de Colombia · Docente: Julián Zuluaga
-Equipo: Telemetría · Integrantes: Kevin Nieto, Miguel Melo y Allison Loango · Versión de borrador: 13 nov 2026
+Proyecto final de MLOps · Universidad Externado de Colombia · Docente: Julián Zuluaga  
+Equipo: Telemetría · Integrantes: Kevin Nieto, Miguel Melo y Allison Loango · Versión final: 18 nov 2026
 
 ## Resumen
 

@@ -1,0 +1,18 @@
+<section id="ppo" class="dark" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Modelo 2 · PPO</p>
+<h2>Una red de 72 706 pesos: primero imita, luego mejora</h2>
+</div>
+<div class="row" style="gap:20px;align-items:stretch">
+<div class="card grow" style="padding:24px 32px;gap:4px"><p class="num" style="font-size:72px">24</p><p class="small">números de entrada</p></div>
+<div class="card grow" style="padding:24px 32px;gap:4px"><p class="num" style="font-size:72px">256</p><p class="small">neuronas, tanh</p></div>
+<div class="card grow" style="padding:24px 32px;gap:4px"><p class="num" style="font-size:72px">256</p><p class="small">neuronas, tanh</p></div>
+<div class="card grow" style="padding:24px 32px;gap:4px"><p class="num" style="font-size:72px">2</p><p class="small">salidas: pedal y dirección</p></div>
+</div>
+<div class="row grow" style="gap:24px">
+<div class="card grow" style="gap:10px"><h3>1 · Imitar (DAgger)</h3><p class="small">20 iteraciones de 16 vueltas. Maneja la red; el maestro etiqueta cada estado que ella visita. Al principio maneja el maestro (β de 1 a 0.5, luego baja a 0) y la red aprende sus propios errores.</p></div>
+<div class="card grow" style="gap:10px"><h3>2 · Mejorar (PPO)</h3><p class="small">12 simulaciones en paralelo, 3 millones de pasos. Tasa de aprendizaje baja (0.0001) para no deshacer lo imitado. Cada 200 000 pasos se evalúa y se guarda el mejor punto.</p></div>
+<div class="card grow" style="gap:10px"><h3>3 · Practicar con azar</h3><p class="small">Cada episodio sortea la adherencia (la mitad con lluvia), el ancho, la aceleración, el alcance de sensores, el ruido y, desde la v6, la pista: Mónaco, Bosque o Puerto.</p></div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div>
+</section>

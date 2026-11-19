@@ -1,0 +1,18 @@
+<section id="evolucion" class="gray" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">PPO · cada versión con su hipótesis</p>
+<h2>De la v1 a la recomendada: qué aprendió cada una</h2>
+</div>
+<table>
+<tr><th style="width:11%">Versión</th><th style="width:33%">Qué cambió</th><th>Qué aprendió el modelo</th><th style="width:10%">Seco</th><th style="width:11%">Lluvia</th></tr>
+<tr><td><b>v1</b></td><td>Solo seco, 16 entradas</td><td>Maneja en seco; con lluvia se sale</td><td class="ok">100 %</td><td class="bad">0 %</td></tr>
+<tr><td><b>v2</b></td><td>+ sensor de agarre</td><td>Más rápido en seco, igual con lluvia</td><td class="ok">100 %</td><td class="bad">0 %</td></tr>
+<tr><td><b>v3</b></td><td>+ lluvia, imita vueltas perfectas</td><td>Copia: al primer error choca</td><td class="bad">0 %</td><td class="bad">0 %</td></tr>
+<tr><td><b>v4</b></td><td>DAgger</td><td>Corrige sus propios errores</td><td class="ok">100 %</td><td class="ok">100 %</td></tr>
+<tr><td><b>v5</b></td><td>+ su carro y ruido (24 entradas)</td><td>Aguanta carros lentos y ruido</td><td class="ok">100 %</td><td class="ok">100 %</td></tr>
+<tr><td><b>v6</b></td><td>Tres pistas de práctica</td><td>Maneja en una pista que nunca vio</td><td class="ok">100 %</td><td class="ok">100 %</td></tr>
+<tr class="hl"><td><b>v6-s1</b></td><td>La misma v6, otra semilla</td><td>Pasa la selección: recomendada</td><td class="ok">100 %</td><td class="ok">100 %</td></tr>
+</table>
+<p class="small mute">Q-learning siguió la misma ruta: 0 % en v1 a v4, 60 y 15 % en v6, 87 y 81 % en v7, 100 y 100 % en v8.</p>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div>
+</section>

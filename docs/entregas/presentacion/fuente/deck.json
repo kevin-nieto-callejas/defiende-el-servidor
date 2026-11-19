@@ -1,0 +1,75 @@
+{
+ "v": 5,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-18T23:40:00Z"
+ },
+ "lists": "css",
+ "format": {
+  "v": 1,
+  "shared": [
+   "project/deck.css"
+  ]
+ },
+ "title": "Autonomous Rally · Telemetría · Exposición final",
+ "order": [
+  "portada",
+  "mision",
+  "ve",
+  "decide",
+  "pilotos",
+  "qlearning",
+  "ppo",
+  "evolucion",
+  "incidente",
+  "semillas",
+  "seleccion",
+  "ciclo",
+  "demo",
+  "moto-fisica",
+  "moto-agentes",
+  "cierre",
+  "equipo",
+  "anexo",
+  "a-pursuit",
+  "a-tabla",
+  "a-ppo",
+  "a-extremos",
+  "a-reservado",
+  "a-moto",
+  "a-comandos"
+ ],
+ "sections": {
+  "s1": {
+   "description": "Problema, misión y ambiente: qué ve, qué decide y cómo gana el agente",
+   "start": "portada"
+  },
+  "s2": {
+   "description": "Cómo funciona cada modelo, su evolución y la decisión de cuál recomendar",
+   "start": "qlearning"
+  },
+  "s3": {
+   "description": "Versionamiento, demostración y segundo vehículo (moto)",
+   "start": "ciclo"
+  },
+  "s4": {
+   "description": "Límites y aprendizajes",
+   "start": "cierre"
+  },
+  "s5": {
+   "description": "Anexo de respaldo para preguntas",
+   "start": "anexo"
+  }
+ },
+ "faces": {
+  "oswald": {
+   "family": "Oswald",
+   "href": "https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap"
+  },
+  "public-sans": {
+   "family": "Public Sans",
+   "href": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap"
+  }
+ },
+ "designSystems": []
+}

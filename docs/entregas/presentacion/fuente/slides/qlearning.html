@@ -1,0 +1,22 @@
+<section id="qlearning" class="light" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Modelo 1 · Q-learning</p>
+<h2>Una tabla: 117 600 situaciones × 54 acciones</h2>
+</div>
+<div class="row grow" style="gap:40px">
+<div class="col" style="width:1060px;gap:20px">
+<div class="card" style="padding:24px 36px;gap:6px"><h3>1 · Redondea lo que ve</h3><p class="small">7 variables en rangos: desvío 7, rumbo 7, velocidad 8, curvatura a 10 y 25 m 5 y 5, lluvia 2, margen sobre la velocidad segura 6.</p></div>
+<div class="card" style="padding:24px 36px;gap:6px"><h3>2 · Elige entre 54 acciones</h3><p class="small">6 niveles de pedal × 9 de dirección. La tabla guarda cuánto vale cada acción en cada situación.</p></div>
+<div class="card" style="padding:24px 36px;gap:6px"><h3>3 · Aprende en dos fases</h3><p class="small"><b>Imita:</b> 50 iteraciones de 16 vueltas; el maestro vota la mejor acción en cada situación. <b>Corrige:</b> 600 episodios con Q ← Q + 0.1·[r + 0.98·máx Q′ − Q].</p></div>
+</div>
+<div class="col grow" style="gap:20px">
+<div class="card grow">
+<h3>Qué hace bien</h3>
+<p class="small">Semilla 1: 100 % en seco (81.0 s) y con lluvia (106.9 s). Maneja, pero más lento que el PPO de la v5 (68.6 s y 89.3 s).</p>
+<h3 style="margin-top:12px">Dónde falla</h3>
+<p class="small">Con 3 % de ruido en los sensores completa 14 % y 11 % de las vueltas: las celdas son más finas que el ruido. Tampoco ve los 7 rayos ni el ancho de la pista.</p>
+</div>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div>
+</section>

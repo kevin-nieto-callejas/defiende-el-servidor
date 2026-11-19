@@ -117,8 +117,8 @@ con el ambiente compatible con ese modelo**.
 | Web pública en Vercel | Lista; detecta la API y, si no responde, entra en replay diciendo por qué. Tiene selector de pista (Mónaco, Bosque y Puerto) | https://autonomous-rally.vercel.app |
 | API pública | **Publicada**: función de Vercel en la misma URL, gratis, con los modelos reales. Probada desde la URL: lluvia, deslizadores, semillas y evaluar | `web/api/`, `deploy/api/empaquetar.py` |
 | Contenedor | GitHub Actions lo construye y prueba sus rutas en cada push | `deploy/api/Dockerfile`, `.github/workflows/verificar.yml` |
-| Informe | Borrador completo | [entregas/informe.md](entregas/informe.md) |
-| Presentación | Lista, 14 diapositivas, sin ensayar | [entregas/presentacion/](entregas/presentacion/) |
+| Informe | Versión final, también en [PDF](entregas/informe.pdf) | [entregas/informe.md](entregas/informe.md) |
+| Presentación | Lista: 17 diapositivas y 8 de anexo, con versión interactiva. Sin ensayar | [entregas/presentacion/](entregas/presentacion/) |
 
 **Son exactamente dos agentes:** Q-learning con tabla y PPO con red neuronal. Experto, prudente, maestro y aleatorio
 son pilotos de referencia escritos con reglas; sirven para comparar y para enseñar, pero no son agentes entregados.

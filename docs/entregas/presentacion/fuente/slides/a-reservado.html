@@ -1,0 +1,18 @@
+<section id="a-reservado" class="gray" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Anexo · test reservado</p>
+<h2>La medida honesta: semillas que nadie vio</h2>
+</div>
+<table>
+<tr><th style="width:30%">Modelo</th><th style="width:19%">Seco</th><th style="width:19%">Lluvia</th><th style="width:14%">Extremos</th><th>Peores pruebas</th></tr>
+<tr><td>PPO v5 s1</td><td>100 %, 68.6 s</td><td>100 %, 89.3 s</td><td>99.9 %</td><td>Diluvio 98 %</td></tr>
+<tr><td>Q-learning v8 s1</td><td>99 %, 81.0 s</td><td>99 %, 106.9 s</td><td>84.8 %</td><td>Ruido 14 y 11 %</td></tr>
+<tr class="hl"><td>PPO v6 s1</td><td class="ok">100 %, 80.4 s</td><td class="ok">100 %, 104.8 s</td><td class="ok">100 %</td><td>Ninguna bajo 100 %</td></tr>
+</table>
+<div class="row" style="gap:32px">
+<div class="card grow"><h3>Cómo se protege</h3><p class="small">100 semillas guardadas fuera del repositorio; solo se publica su SHA-256. Una sola corrida, con el modelo ya elegido.</p></div>
+<div class="card grow"><h3>La regla va antes</h3><p class="small">La regla de la v6 s1 quedó en git (commit 5ed48de) antes de correr el test, con semillas nuevas porque las anteriores ya se habían usado.</p></div>
+</div>
+<p class="small mute">Casi igual a lo medido al seleccionar: no hay señales de que elegir la semilla haya inflado los números.</p>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div>
+</section>

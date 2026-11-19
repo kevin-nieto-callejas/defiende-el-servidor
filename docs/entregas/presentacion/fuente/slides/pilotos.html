@@ -1,0 +1,24 @@
+<section id="pilotos" class="dark" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Las líneas base</p>
+<h2>Cuatro pilotos de referencia que no aprenden</h2>
+</div>
+<table>
+<tr><th style="width:15%">Piloto</th><th>Cómo decide</th><th style="width:17%">Seco</th><th style="width:22%">Lluvia</th></tr>
+<tr><td><b>Aleatorio</b></td><td>Acciones al azar</td><td class="bad">0 %</td><td class="bad">0 %</td></tr>
+<tr><td><b>Experto</b></td><td>Pure pursuit que supone piso seco (μ 0.9)</td><td class="ok">100 %, 77.4 s</td><td class="bad">0 %: se sale</td></tr>
+<tr><td><b>Prudente</b></td><td>Pure pursuit que supone lluvia (μ 0.5)</td><td class="ok">100 %, 96.7 s</td><td class="ok">100 %, 96.8 s</td></tr>
+<tr class="hl"><td><b>Maestro</b></td><td>Mira la señal de lluvia: μ 0.8 en seco y 0.45 con lluvia, con control de tracción</td><td class="ok">100 %, 80.8 s</td><td class="ok">100 %, 103.8 s</td></tr>
+</table>
+<div class="row" style="gap:32px">
+<div class="card grow">
+<h3>Pure pursuit</h3>
+<p class="small">Mira un punto de la línea central 5 a 14 m adelante y gira hacia él. Frena para llegar a cada curva a una velocidad que el agarre supuesto aguante.</p>
+</div>
+<div class="card grow">
+<h3>El maestro es el profesor</h3>
+<p class="small">Los dos agentes aprenden imitándolo. El prudente es seguro pero 24.9 % más lento que el experto: no pasa el criterio de tiempo.</p>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div>
+</section>

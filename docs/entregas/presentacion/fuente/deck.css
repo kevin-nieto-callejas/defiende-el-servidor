@@ -1,0 +1,66 @@
+/* Autonomous Rally · Telemetría. Estilo de carreras: negro, crema, rojo y amarillo; titulares Oswald, texto Public Sans. */
+
+section {
+  padding: 128px 128px 160px;
+  font-family: 'Public Sans', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+section.light { background: #F3F1EA; color: #14161B; }
+section.gray  { background: #E9E6DC; color: #14161B; }
+section.dark  { background: #14161B; color: #F3F1EA; }
+
+section h1 { font-family: 'Oswald', Arial, sans-serif; text-transform: uppercase; font-size: 150px; font-weight: 700; line-height: 1.02; }
+section h2 { font-family: 'Oswald', Arial, sans-serif; text-transform: uppercase; font-size: 72px; font-weight: 700; line-height: 1.05; }
+section h3 { font-size: 34px; font-weight: 700; line-height: 1.2; }
+.kicker { font-size: 28px; font-weight: 600; color: #B80500; }
+section.dark .kicker { color: #FFD23F; }
+.lead { font-size: 40px; line-height: 1.3; }
+.text { font-size: 30px; line-height: 1.35; }
+.small { font-size: 26px; line-height: 1.35; }
+.mute { color: #585B63; }
+section.dark .mute { color: #C7C9CC; }
+.accent { color: #B80500; }
+section.dark .accent { color: #FF6B66; }
+.ok { color: #0B7A4B; font-weight: 700; }
+section.dark .ok { color: #2EE59D; }
+.bad { color: #B80500; font-weight: 700; }
+section.dark .bad { color: #FF6B66; }
+
+/* Tablas */
+section table { width: 100%; border-collapse: collapse; font-size: 26px; line-height: 1.25; }
+section table.t26 { font-size: 24px; }
+section th { text-align: left; font-weight: 700; color: #B80500; padding: 12px 16px; border-bottom: 3px solid #B80500; }
+section td { padding: 11px 16px; border-bottom: 1px solid #C9C6BC; vertical-align: top; }
+section.dark th { color: #FFD23F; border-bottom: 3px solid #FFD23F; }
+section.dark td { border-bottom: 1px solid #4A4D55; }
+section table.compact td { padding: 9px 16px; }
+section tr.hl td { background: #E6E3D9; font-weight: 700; }
+section.dark tr.hl td { background: #2A2D35; }
+section.gray tr.hl td { background: #F3F1EA; }
+
+/* Tarjetas y números grandes */
+.card { background: #E6E3D9; padding: 28px 34px; display: flex; flex-direction: column; gap: 14px; }
+section.gray .card { background: #F3F1EA; }
+section.dark .card { background: #2A2D35; }
+.card h3 { margin: 0; }
+.num { font-family: 'Oswald', Arial, sans-serif; font-size: 110px; font-weight: 700; line-height: 1.05; color: #B80500; }
+section.dark .num { color: #FF6B66; }
+.num.bad { color: #B80500; }
+section.dark .num.bad { color: #FF6B66; }
+
+.row { display: flex; gap: 32px; }
+.col { display: flex; flex-direction: column; gap: 24px; }
+.grow { flex: 1; }
+
+ul.l, ol.l { font-size: 32px; line-height: 1.4; padding-left: 36px; }
+ul.l li, ol.l li { margin-bottom: 12px; }
+code, .code { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 26px; }
+
+/* Pie: nombre del equipo y quién habla */
+.foot { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; justify-content: space-between; font-size: 24px; color: #585B63; }
+section.dark .foot { color: #C7C9CC; }
+
+/* Bandera a cuadros en la portada y el anexo */
+#portada::before, #anexo::before { content: ""; position: absolute; left: 0; top: 0; width: 1920px; height: 64px; background: conic-gradient(#14161B 25%, #F3F1EA 0 50%, #14161B 0 75%, #F3F1EA 0) 0 0 / 64px 64px; }

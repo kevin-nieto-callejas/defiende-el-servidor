@@ -1,0 +1,23 @@
+<section id="a-moto" class="dark" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Anexo · moto</p>
+<h2>Cómo se comporta la moto y qué sigue</h2>
+</div>
+<div class="row grow" style="gap:40px">
+<div class="col" style="width:780px;gap:20px">
+<table class="t26">
+<tr><th>Transición de la ficha</th><th style="width:20%">Recompensa</th><th style="width:16%">Fin</th></tr>
+<tr><td>M1 · Arranque a fondo en la salida</td><td>−0.095</td><td>—</td></tr>
+<tr><td>M2 · A 15 m/s pide 60° y solo llega a 8°</td><td>−0.101</td><td>—</td></tr>
+<tr><td>M3 · 40° con lluvia, tercer paso patinando</td><td class="bad">−49.901</td><td class="bad">caída</td></tr>
+<tr><td>M4 · Parada, pide inclinarse</td><td>−0.25</td><td>—</td></tr>
+</table>
+<p class="small mute">Un modelo del carro pedido en la moto, o al revés, responde 409 en la API: 24 y 26 entradas son contratos distintos.</p>
+</div>
+<div class="col grow" style="gap:20px">
+<div class="card"><h3>PPO: el refuerzo ganó velocidad y perdió robustez</h3><p class="small">El mejor punto fue la red recién imitada. Con refuerzo el tiempo en seco bajó de 77.6 a 72.6 s, pero los extremos cayeron a 61–89 % y la lluvia llegó a 47 %. Siguiente: tasa de aprendizaje menor o recorte reducido.</p></div>
+<div class="card"><h3>Experto con lluvia</h3><p class="small">Se cae en los primeros pasos: su control de tracción supone seco y deja pasar 5 m/s² sobre un piso que aguanta 4.9.</p></div>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div>
+</section>

@@ -1,0 +1,32 @@
+<section id="semillas" class="light" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Dos preguntas antes de recomendar</p>
+<h2>¿Una semilla basta? ¿Maneja o memorizó Mónaco?</h2>
+</div>
+<div class="row grow" style="gap:48px">
+<div class="col" style="width:800px;gap:20px">
+<h3>Tres semillas por agente</h3>
+<table class="t26">
+<tr><th style="width:36%">Modelo</th><th>Seco</th><th style="width:25%">Extremos</th></tr>
+<tr><td>PPO s0</td><td>100 %, 75.9 s</td><td>98.5 %</td></tr>
+<tr class="hl"><td>PPO s1</td><td>100 %, 68.6 s</td><td>100 %</td></tr>
+<tr><td>PPO s2</td><td>100 %, 69.9 s</td><td>99.8 %</td></tr>
+<tr><td>Q-learning s0</td><td>99 %, 81.1 s</td><td>85.0 %</td></tr>
+<tr class="hl"><td>Q-learning s1</td><td>100 %, 81.0 s</td><td>85.9 %</td></tr>
+<tr><td>Q-learning s2</td><td>95 %, 80.7 s</td><td>81.9 %</td></tr>
+</table>
+<p class="small mute">La semilla 0, elegida primero, fue la más lenta y la menos robusta de PPO.</p>
+</div>
+<div class="col grow" style="gap:20px">
+<h3>Tres pistas de práctica y una reservada</h3>
+<table class="t26">
+<tr><th style="width:34%">Seco / lluvia</th><th>Bosque</th><th>Puerto</th><th>Sierra, reservada</th></tr>
+<tr><td>Maestro</td><td>100 / 100 %</td><td>100 / 100 %</td><td>100 / 100 %</td></tr>
+<tr><td>PPO v5 s1</td><td>100 / 100 %</td><td class="bad">0 / 0 %</td><td class="bad">0 / 0 %</td></tr>
+<tr class="hl"><td>PPO v6, tres pistas</td><td>100 / 100 %</td><td>100 / 100 %</td><td>100 / 100 %</td></tr>
+</table>
+<p class="small mute">La v5 memorizó Mónaco. La v6 completa la Sierra, una pista que nunca vio, en 68.8 s con piso seco. La Sierra se corrió una sola vez, con la regla escrita antes.</p>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div>
+</section>

@@ -1,0 +1,34 @@
+<section id="decide" class="light" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">El contrato del ambiente · 2 de 2</p>
+<h2>Qué decide y cómo gana</h2>
+</div>
+<div class="row grow" style="gap:48px">
+<div class="col" style="width:720px">
+<div class="card">
+<h3>Decide 2 mandos, 10 veces por segundo</h3>
+<p class="small"><b>Pedal</b> de −1 a 1: acelera hasta 4 m/s² o frena hasta 8 m/s².</p>
+<p class="small"><b>Dirección</b> de −1 a 1: hasta 30° de volante.</p>
+<p class="small mute">Si pide más agarre del que hay, el carro subvira: gira menos de lo pedido y sigue.</p>
+</div>
+<div class="card">
+<h3>Cómo termina un episodio</h3>
+<p class="small"><span class="ok">Éxito:</span> pasa la meta. <span class="bad">Fallo (−50):</span> choque, salirse 1 s o quedarse quieto 10 s. <b>Truncado:</b> 180 s.</p>
+</div>
+</div>
+<div class="col grow">
+<table>
+<tr><th>Recompensa por paso (0.1 s)</th><th style="width:20%">Valor</th></tr>
+<tr><td>Avance real sobre la pista</td><td class="ok">+0.1 por m</td></tr>
+<tr><td>Cada checkpoint</td><td class="ok">+10</td></tr>
+<tr><td>Vuelta completa</td><td class="ok">+50</td></tr>
+<tr><td>Tiempo que pasa</td><td>−0.05</td></tr>
+<tr><td>Cambios bruscos de dirección / pedal</td><td>−0.2 / −0.05</td></tr>
+<tr><td>Cada paso fuera de la pista</td><td class="bad">−1</td></tr>
+<tr><td>Choque, salida o quedarse quieto</td><td class="bad">−50</td></tr>
+</table>
+<p class="small mute">Quedarse quieto cuesta lo mismo que chocar: si no, el agente aprende a detenerse antes de las curvas difíciles.</p>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div>
+</section>

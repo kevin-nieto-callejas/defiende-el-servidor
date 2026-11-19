@@ -1,0 +1,639 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Autonomous Rally · Telemetría</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Public+Sans:wght@400;600;700&display=swap">
+<style>
+/* Concepto: diapositivas 1920×1080 en estilo de carreras (negro, crema, rojo, amarillo), con escenas 3D e interacciones. */
+:root{
+  --ink:#14161B; --paper:#F3F1EA; --paper2:#E6E3D9; --red:#B80500; --red-hi:#FF6B66;
+  --yellow:#FFD23F; --slate:#2A2D35; --line:#4A4D55; --mute:#C7C9CC; --mute-ink:#585B63;
+  --green:#2EE59D; --green-ink:#0B7A4B;
+  --display:'Oswald','Arial Narrow',Arial,sans-serif; --body:'Public Sans',Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:#0B0C0F;color:var(--paper);font-family:var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px}
+#app{height:100%;display:flex;flex-direction:column;gap:10px}
+#view{flex:1;min-height:0;position:relative;overflow:hidden}
+#stage{width:1920px;height:1080px;position:absolute;left:50%;top:50%;transform-origin:center;transform:translate(-50%,-50%);background:var(--ink);overflow:hidden}
+#bar{display:flex;align-items:center;justify-content:center;gap:16px;font:600 16px var(--body);color:var(--mute)}
+#bar button{font:700 16px var(--body);color:var(--paper);background:var(--slate);border:1px solid var(--line);padding:8px 18px;cursor:pointer;min-height:40px}
+#bar button:hover{background:var(--red);border-color:var(--red)}
+#bar button:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+#prog{height:4px;background:var(--slate);width:min(420px,40vw)}#prog i{display:block;height:100%;background:var(--red);width:0;transition:width .25s}
+#bar .hint{display:none}
+@media(min-width:900px){#bar .hint{display:inline}}
+
+.slide{position:absolute;inset:0;display:none;flex-direction:column;gap:30px;padding:104px 128px 150px;overflow:hidden}
+.slide.on{display:flex}
+.dk{background:var(--ink);color:var(--paper)} .cr{background:var(--paper);color:var(--ink)} .rd{background:var(--red);color:var(--paper)}
+.k{font-size:28px;font-weight:600;margin:0}
+.dk .k{color:var(--yellow)} .cr .k{color:var(--red)} .rd .k{color:var(--paper)}
+h1,h2{font-family:var(--display);font-weight:700;text-transform:uppercase;margin:0;text-wrap:balance}
+h1{font-size:156px;line-height:1.02}
+h2{font-size:72px;line-height:1.05}
+h3{font-size:32px;font-weight:700;margin:0;line-height:1.2}
+p{margin:0}
+.t{font-size:30px;line-height:1.38} .s{font-size:26px;line-height:1.38} .m{font-size:24px;line-height:1.35}
+.dk .mu,.rd .mu{color:var(--mute)} .cr .mu{color:var(--mute-ink)}
+.hd{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;gap:32px} .col{display:flex;flex-direction:column;gap:20px} .g{flex:1;min-width:0}
+.foot{position:absolute;left:128px;right:128px;bottom:54px;display:flex;justify-content:space-between;font-size:24px}
+.dk .foot,.rd .foot{color:var(--mute)} .cr .foot{color:var(--mute-ink)}
+
+table{width:100%;border-collapse:collapse;font-size:26px;line-height:1.25}
+th{text-align:left;font-weight:700;padding:11px 14px;border-bottom:3px solid currentColor}
+td{padding:11px 14px;border-bottom:1px solid rgba(128,128,128,.45);vertical-align:top}
+.dk th{color:var(--yellow)} .cr th{color:var(--red)} .rd th{color:var(--ink)}
+table.lg{font-size:30px}
+table.lg td{padding:15px 14px}
+.compact td{padding:8px 14px}
+.hl td{font-weight:700} .dk .hl td{background:var(--slate)} .cr .hl td{background:var(--paper2)}
+.ok{color:var(--green-ink);font-weight:700} .dk .ok{color:var(--green)}
+.bad{color:var(--red);font-weight:700} .dk .bad{color:var(--red-hi)}
+.big{font-family:var(--display);font-weight:700;line-height:1.02;color:var(--red)} .dk .big{color:var(--red-hi)}
+.card{padding:26px 30px;display:flex;flex-direction:column;gap:12px}
+.dk .card{background:var(--slate)} .cr .card{background:var(--paper2)} .rd .card{background:#9A0400}
+.card.light{background:var(--paper);color:var(--ink)}
+code,.code{font-family:'SF Mono',Menlo,Consolas,monospace;font-size:24px}
+.strip{position:absolute;left:0;top:0;width:100%;height:96px;background:conic-gradient(var(--ink) 25%,var(--paper) 0 50%,var(--ink) 0 75%,var(--paper) 0) 0 0/96px 96px}
+.strip.b{top:auto;bottom:0;height:32px;background-size:32px 32px}
+.c3d{display:block;touch-action:none;cursor:grab} .c3d:active{cursor:grabbing}
+.cv-wrap{position:relative}
+.cv-tag{position:absolute;left:16px;bottom:12px;font-size:24px;color:var(--mute);pointer-events:none}
+.cr .cv-tag{color:var(--mute-ink)}
+.nov{display:none;position:absolute;inset:0;align-items:center;justify-content:center;font-size:26px;color:var(--mute);text-align:center;padding:24px}
+.no3d .nov{display:flex}
+
+.btn,.chip{font:700 24px var(--body);text-transform:uppercase;letter-spacing:.04em;cursor:pointer;background:transparent;color:inherit;border:2px solid currentColor;padding:10px 22px;min-height:48px}
+.dk .btn.on,.dk .chip.on{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.cr .btn.on,.cr .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cr .dk .btn.on,.cr .dk .chip.on{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.card.light .btn.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.nc{text-transform:none}
+.btn.go{background:var(--red);color:var(--paper);border-color:var(--red)}
+.tabs{display:flex;gap:12px;flex-wrap:wrap}
+input[type=range]{width:100%;height:36px;accent-color:var(--red);cursor:pointer}
+.dk input[type=range]{accent-color:var(--yellow)}
+.lab{display:flex;justify-content:space-between;font-size:24px;font-weight:600}
+.meter{height:20px;background:rgba(128,128,128,.35);position:relative} .meter i{position:absolute;left:0;top:0;bottom:0;background:var(--red);transition:width .2s,background .2s}
+.dk .meter i{background:var(--yellow)}
+.flag{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--red);color:var(--paper);font:700 40px var(--display);text-transform:uppercase;padding:6px 22px;display:none;letter-spacing:.04em}
+.flag.on{display:block}
+tr.pick{cursor:pointer} tr.pick td:first-child::before{content:"▶ ";color:var(--red)} .dk tr.pick td:first-child::before{color:var(--yellow)}
+tr.pick.sel td{background:var(--paper2);font-weight:700} .dk tr.pick.sel td{background:var(--slate)}
+.bars{display:flex;flex-direction:column;gap:22px}
+.bar-r{display:grid;grid-template-columns:230px 1fr 190px;align-items:center;gap:16px;font-size:26px;font-weight:600}
+.bar-r .tr{height:50px;background:rgba(20,22,27,.14);position:relative} .bar-r .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);width:0;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bar-r.lo .tr i{background:var(--red)}
+.cell-bar{display:inline-block;height:12px;background:var(--red);vertical-align:middle;margin-left:10px} .dk .cell-bar{background:var(--yellow)}
+.acts{display:grid;grid-template-columns:repeat(9,1fr);gap:4px}
+.acts i{height:22px;background:rgba(243,241,234,.16)} .acts i.on{background:var(--red)}
+.pill{display:inline-block;background:var(--ink);color:var(--paper);padding:3px 12px;font-weight:700}
+.cr .pill.r{background:var(--red)}
+.step{display:flex;gap:14px;align-items:baseline;font-size:26px;line-height:1.35}
+.step b{font-family:var(--display);font-size:34px;color:var(--yellow)} .cr .step b{color:var(--red)}
+.done{opacity:.55;text-decoration:line-through}
+.chk{cursor:pointer;display:flex;gap:22px;align-items:center;font-size:38px;line-height:1.25;padding:26px 0;border-bottom:1px solid var(--line);user-select:none}
+.chk i{width:34px;height:34px;border:3px solid var(--yellow);flex:none;display:grid;place-items:center;font-style:normal;color:var(--ink);font-weight:700}
+.chk.done i{background:var(--yellow)} .chk.done i::after{content:"✓"}
+@media(prefers-reduced-motion:reduce){.bar-r .tr i,.meter i,#prog i{transition:none}}
+</style>
+<div id="app"><div id="view"><div id="stage"><section class="slide dk"><div class="strip"></div>
+<div class="col" style="position:absolute;left:128px;top:210px;width:900px;gap:26px">
+<p class="k">Proyecto final de MLOps · Universidad Externado de Colombia</p>
+<h1>Autonomous<br>Rally</h1>
+<p style="font-size:36px;line-height:1.3">Un agente que aprende a dar la vuelta a Mónaco con seco, con lluvia y con perturbaciones, y un ciclo donde cada resultado se puede revisar, reproducir y deshacer.</p>
+<p class="t mu">Equipo Telemetría · Kevin Nieto, Miguel Melo y Allison Loango</p>
+<p class="s mu">Docente: Julián Zuluaga</p></div>
+<div class="cv-wrap" style="position:absolute;right:60px;top:150px;width:800px;height:780px"><canvas class="c3d" id="cv-portada" style="width:100%;height:100%"></canvas><div class="nov">Vista 3D no disponible en este navegador</div><p class="cv-tag">Arrastra para girar el carro</p></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide cr"><div class="hd"><p class="k">Problema y contexto</p><h2>Una vuelta completa sin salirse</h2></div>
+<div class="row" style="gap:48px;flex:1;min-height:0">
+<div class="col" style="width:760px;gap:22px">
+<div class="row" style="align-items:baseline;gap:22px"><span class="big" style="font-size:68px;width:330px;white-space:nowrap">1 048.6 m</span><span class="s">de circuito inspirado en Mónaco, con 18 curvas</span></div>
+<div class="row" style="align-items:baseline;gap:22px"><span class="big" style="font-size:68px;width:330px;white-space:nowrap">6 + meta</span><span class="s">checkpoints que hay que pasar en orden</span></div>
+<div class="row" style="align-items:baseline;gap:22px"><span class="big" style="font-size:68px;width:330px;white-space:nowrap">180 s</span><span class="s">de límite: al agotarse, el episodio se trunca</span></div>
+<div class="card"><h3>El incidente que debe resistir</h3><p class="s">Con lluvia la adherencia baja de 0.9 a 0.5. El agente no ve ese número: solo sabe si llueve. Un piloto que supone piso seco se sale.</p></div></div>
+<div class="col g" style="gap:14px">
+<div class="tabs"><button class="btn on" data-m="dry">Piso seco</button><button class="btn" data-m="wet">Lluvia</button></div>
+<div class="cv-wrap" style="height:520px"><canvas class="c3d" id="cv-mision" style="width:100%;height:100%"></canvas><div class="flag" id="m-flag">Se sale</div><div class="nov">Vista 3D no disponible en este navegador</div></div>
+<div class="lab"><span>Adherencia del piso (μ)</span><span id="m-mu">0.9</span></div>
+<div class="meter"><i id="m-bar" style="width:90%"></i></div>
+<p class="s" id="m-txt">Experto, supone μ 0.9: el piso aguanta y completa la vuelta.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide dk"><div class="hd"><p class="k">El contrato del ambiente · 1 de 2</p><h2>Qué ve el agente: 24 números por paso</h2></div>
+<div class="row" style="gap:40px;flex:1;min-height:0">
+<div class="col" style="width:1000px;gap:14px">
+<table id="t-ve" class="compact"><tr><th style="width:250px">Grupo</th><th style="width:70px">N.º</th><th>Qué mide</th></tr>
+<tr class="pick" data-l="mov"><td>Movimiento y rumbo</td><td>6</td><td>Velocidad, giro, dirección al próximo checkpoint (seno y coseno), desvío del centro y error de rumbo</td></tr>
+<tr class="pick sel" data-l="rays"><td>Sensores</td><td>7</td><td>7 rayos de −90° a +90°, cada 30°: distancia al borde, escala fija de 40 m</td></tr>
+<tr class="pick" data-l="curv"><td>Notas del copiloto</td><td>3</td><td>Curvatura a 10, 25 y 50 m por delante</td></tr>
+<tr><td>Agarre</td><td>3</td><td>Cuánto agarre usa, si derrapa y el agarre estimado del piso</td></tr>
+<tr class="pick" data-l="clima"><td>Clima</td><td>1</td><td>Si llueve (sí o no). Nunca el valor de μ</td></tr>
+<tr><td>Su carro y la pista</td><td>3</td><td>Ancho de la pista, aceleración máxima y alcance de sus sensores</td></tr>
+<tr><td>Nota de frenada</td><td>1</td><td>Velocidad segura para llegar bien a lo que viene en los próximos 100 m</td></tr></table>
+<p class="s mu">Todo llega normalizado con divisores fijos, sin estadísticas aprendidas: la misma lectura significa siempre lo mismo.</p></div>
+<div class="g col" style="gap:10px"><div class="cv-wrap" style="height:600px"><canvas class="c3d" id="cv-ve" style="width:100%;height:100%"></canvas><div class="nov">Vista 3D no disponible en este navegador</div></div>
+<p class="s" id="ve-cap">Haz clic en una fila con ▶ para ver ese grupo en la escena. Sensores: los 7 rayos miden la distancia al borde.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide cr"><div class="hd"><p class="k">El contrato del ambiente · 2 de 2</p><h2>Qué decide y cómo gana</h2></div>
+<div class="row" style="gap:40px;flex:1;min-height:0">
+<div class="col" style="width:900px;gap:12px">
+<div class="cv-wrap" style="height:410px"><canvas class="c3d" id="cv-decide" style="width:100%;height:100%"></canvas><div class="nov">Vista 3D no disponible en este navegador</div></div>
+<div class="row" style="gap:28px"><div class="g"><div class="lab"><span>Pedal</span><span id="d-p">0.40</span></div><input type="range" id="in-p" min="-1" max="1" step="0.05" value="0.4" aria-label="Pedal"></div>
+<div class="g"><div class="lab"><span>Dirección</span><span id="d-d">0.30</span></div><input type="range" id="in-d" min="-1" max="1" step="0.05" value="0.3" aria-label="Dirección"></div></div>
+<div class="row" style="gap:20px;align-items:center"><div class="tabs"><button class="btn nc on" data-g="dry">Seco · μ 0.9</button><button class="btn nc" data-g="wet">Lluvia · μ 0.5</button></div><p class="s g" id="d-hud">0 m/s · volante 9°</p></div>
+<div><div class="lab"><span>Agarre usado</span><span id="d-use">0 %</span></div><div class="meter"><i id="d-bar" style="width:0"></i></div></div>
+<p class="s mu" id="d-warn">Mueve los mandos: el carro avanza 10 veces por segundo con tus órdenes.</p></div>
+<div class="col g" style="gap:14px">
+<table><tr><th>Recompensa por paso (0.1 s)</th><th style="width:150px">Valor</th></tr>
+<tr><td>Avance real sobre la pista</td><td>+0.1 por m</td></tr><tr><td>Cada checkpoint</td><td>+10</td></tr><tr><td>Vuelta completa</td><td>+50</td></tr>
+<tr><td>Tiempo que pasa</td><td>−0.05</td></tr><tr><td>Cambios bruscos de dirección / pedal</td><td>−0.2 / −0.05</td></tr><tr><td>Cada paso fuera de la pista</td><td>−1</td></tr>
+<tr><td>Choque, salida o quedarse quieto</td><td class="bad">−50</td></tr></table>
+<p class="m"><b>Mandos:</b> pedal de −1 a 1 (acelera hasta 4 m/s² o frena hasta 8) y dirección de −1 a 1 (hasta 30° de volante). Si pide más agarre del que hay, subvira: gira menos de lo pedido y sigue.</p>
+<p class="m"><b>Fin:</b> éxito en la meta; fallo (−50) por choque, salirse 1 s o quedarse quieto 10 s; truncado a 180 s. Quedarse quieto cuesta lo mismo que chocar, o el agente aprende a detenerse antes de las curvas difíciles.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide dk"><div class="hd"><p class="k">Las líneas base</p><h2>Cuatro pilotos de referencia que no aprenden</h2></div>
+<div class="tabs"><button class="btn on" data-c="dry">Piso seco</button><button class="btn" data-c="wet">Lluvia</button></div>
+<table id="t-pil"><tr><th style="width:190px">Piloto</th><th>Cómo decide</th><th style="width:560px">Vueltas completadas</th></tr>
+<tr><td>Aleatorio</td><td>Acciones al azar</td><td class="r" data-d="0|" data-w="0|"></td></tr>
+<tr><td>Experto</td><td>Pure pursuit que supone piso seco (μ 0.9)</td><td class="r" data-d="100|77.4 s" data-w="0|se sale"></td></tr>
+<tr><td>Prudente</td><td>Pure pursuit que supone lluvia (μ 0.5)</td><td class="r" data-d="100|96.7 s" data-w="100|96.8 s"></td></tr>
+<tr class="hl"><td>Maestro</td><td>Mira la señal de lluvia: μ 0.8 en seco y 0.45 con lluvia, con control de tracción</td><td class="r" data-d="100|80.8 s" data-w="100|103.8 s"></td></tr></table>
+<div class="row"><div class="card g"><h3>Pure pursuit</h3><p class="s">Mira un punto de la línea central 5 a 14 m adelante y gira hacia él. Frena para llegar a cada curva a una velocidad que el agarre supuesto aguante.</p></div>
+<div class="card g"><h3>El maestro es el profesor</h3><p class="s">Los dos agentes aprenden imitándolo. El prudente es seguro pero 24.9 % más lento que el experto: no pasa el criterio de tiempo.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide cr"><div class="hd"><p class="k">Modelo 1 · Q-learning</p><h2>Una tabla: 117 600 situaciones × 54 acciones</h2></div>
+<div class="row" style="gap:40px;flex:1;min-height:0">
+<div class="col" style="width:780px;gap:16px">
+<div class="step"><b>1</b><p><b style="font-family:var(--body);font-size:26px;color:inherit">Redondea lo que ve</b> en 7 variables con rangos: desvío 7, rumbo 7, velocidad 8, curvatura a 10 y 25 m 5 y 5, lluvia 2, margen sobre la velocidad segura 6.</p></div>
+<div class="step"><b>2</b><p><b style="font-family:var(--body);font-size:26px;color:inherit">Elige entre 54 acciones:</b> 6 niveles de pedal × 9 de dirección. La tabla guarda cuánto vale cada acción en cada situación.</p></div>
+<div class="step"><b>3</b><p><b style="font-family:var(--body);font-size:26px;color:inherit">Aprende en dos fases.</b> Imita: 50 iteraciones de 16 vueltas; el maestro vota la mejor acción de cada situación. Corrige: 600 episodios con Q ← Q + 0.1·[r + 0.98·máx Q′ − Q].</p></div>
+<div class="card" style="gap:8px"><p class="m"><b>Qué hace bien:</b> semilla 1 con 100 % en seco (81.0 s) y con lluvia (106.9 s). Maneja, pero más lento que el PPO de la v5 (68.6 s y 89.3 s).</p>
+<p class="m"><b>Dónde falla:</b> con 3 % de ruido en los sensores completa 14 % y 11 % de las vueltas: las celdas son más finas que el ruido. Tampoco ve los 7 rayos ni el ancho de la pista.</p></div></div>
+<div class="card g dk" style="background:var(--ink);gap:12px"><h3 style="color:var(--yellow)">Pruébalo: redondeo y acción</h3>
+<div><div class="lab"><span>Velocidad</span><span id="q-vt">12 m/s</span></div><input type="range" id="q-v" min="0" max="25" step="0.5" value="12" style="accent-color:var(--yellow)" aria-label="Velocidad"></div>
+<div><div class="lab"><span>Desvío del centro</span><span id="q-dt">0.00</span></div><input type="range" id="q-d" min="-1" max="1" step="0.05" value="0" style="accent-color:var(--yellow)" aria-label="Desvío del centro"></div>
+<div class="tabs"><button class="btn on" id="q-r0">Seco</button><button class="btn" id="q-r1">Lluvia</button></div>
+<p class="m" id="q-out"></p>
+<p class="m">54 acciones: pedal (filas) × dirección (columnas)</p>
+<div class="acts" id="q-acts"></div>
+<p class="m" style="color:var(--mute);font-size:22px">Acción marcada: ejemplo ilustrativo. La tabla real aprende qué acción vale más en cada celda.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide dk"><div class="hd"><p class="k">Modelo 2 · PPO</p><h2>Una red de 72 706 pesos: primero imita, luego mejora</h2></div>
+<div class="cv-wrap" style="height:250px"><canvas id="cv-net" style="width:100%;height:100%"></canvas></div>
+<div class="tabs"><button class="btn" id="net-go">Disparar una señal por la red</button><p class="s mu" style="align-self:center">Tanh en las dos capas ocultas; salidas: pedal y dirección.</p></div>
+<div class="row"><div class="card g"><h3>1 · Imitar (DAgger)</h3><p class="s">20 iteraciones de 16 vueltas. Maneja la red; el maestro etiqueta cada estado que ella visita. Al principio maneja el maestro (β de 1 a 0.5, luego baja a 0) y la red aprende sus propios errores.</p></div>
+<div class="card g"><h3>2 · Mejorar (PPO)</h3><p class="s">12 simulaciones en paralelo, 3 millones de pasos. Tasa de aprendizaje baja (0.0001) para no deshacer lo imitado. Cada 200 000 pasos se evalúa y se guarda el mejor punto.</p></div>
+<div class="card g"><h3>3 · Practicar con azar</h3><p class="s">Cada episodio sortea la adherencia (la mitad con lluvia), el ancho, la aceleración, el alcance de sensores, el ruido y, desde la v6, la pista: Mónaco, Bosque o Puerto.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide cr"><div class="hd"><p class="k">PPO · cada versión con su hipótesis</p><h2>De la v1 a la recomendada</h2></div>
+<table class="lg" style="font-size:27px"><tr><th style="width:110px">Versión</th><th style="width:420px">Qué cambió</th><th>Qué aprendió el modelo</th><th style="width:230px">Seco</th><th style="width:230px">Lluvia</th></tr><tr><td>v1</td><td>Solo seco, 16 entradas</td><td>Maneja en seco; con lluvia se sale</td><td>100 %<span class="cell-bar" style="width:110px"></span></td><td>0 %<span class="cell-bar" style="width:0px"></span></td></tr><tr><td>v2</td><td>+ sensor de agarre</td><td>Más rápido en seco, igual con lluvia</td><td>100 %<span class="cell-bar" style="width:110px"></span></td><td>0 %<span class="cell-bar" style="width:0px"></span></td></tr><tr><td>v3</td><td>+ lluvia, imita vueltas perfectas</td><td>Copia: al primer error choca</td><td>0 %<span class="cell-bar" style="width:0px"></span></td><td>0 %<span class="cell-bar" style="width:0px"></span></td></tr><tr><td>v4</td><td>DAgger</td><td>Corrige sus propios errores</td><td>100 %<span class="cell-bar" style="width:110px"></span></td><td>100 %<span class="cell-bar" style="width:110px"></span></td></tr><tr><td>v5</td><td>+ su carro y ruido (24 entradas)</td><td>Aguanta carros lentos y ruido</td><td>100 %<span class="cell-bar" style="width:110px"></span></td><td>100 %<span class="cell-bar" style="width:110px"></span></td></tr><tr><td>v6</td><td>Tres pistas de práctica</td><td>Maneja en una pista que nunca vio</td><td>100 %<span class="cell-bar" style="width:110px"></span></td><td>100 %<span class="cell-bar" style="width:110px"></span></td></tr><tr class="hl"><td>v6-s1</td><td>La misma v6, otra semilla</td><td>Pasa la selección: recomendada</td><td>100 %<span class="cell-bar" style="width:110px"></span></td><td>100 %<span class="cell-bar" style="width:110px"></span></td></tr></table>
+<p class="s mu">Q-learning siguió la misma ruta: 0 % en v1 a v4, 60 y 15 % en v6, 87 y 81 % en v7, 100 y 100 % en v8.</p><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide rd"><div class="row" style="gap:48px;flex:1;min-height:0">
+<div class="col" style="width:760px;gap:22px"><p class="k">Degradación encontrada por el equipo</p>
+<h2 style="font-size:64px">100 % en la evaluación, 0 % en 11 de 35 experimentos</h2>
+<p class="t">La v4 daba 100 % con los parámetros base. Al mover los deslizadores del visor chocaba (20 vueltas por combinación).</p>
+<table style="color:var(--paper)"><tr><th style="color:var(--ink)">Causa medida</th><th style="color:var(--ink);width:240px">Cambio de la v5</th></tr>
+<tr><td>Los rayos se dividían por el alcance: la misma lectura valía otra distancia</td><td>Escala fija de 40 m</td></tr>
+<tr><td>No conocía su ancho ni su aceleración</td><td>Los ve: 24 entradas</td></tr>
+<tr><td>Con μ 0.4 el pedal gastaba todo el agarre y no quedaba para girar</td><td>Control de tracción</td></tr></table></div>
+<div class="card light g" style="gap:22px"><h3>Elige una condición (100 vueltas)</h3>
+<div class="tabs" id="inc-tabs"><button class="btn on" data-i="0">Seco</button><button class="btn" data-i="1">Lluvia</button><button class="btn" data-i="2">Ruido y lluvia</button><button class="btn nc" data-i="3">Diluvio μ 0.4</button></div>
+<div class="bars" id="inc-bars" style="margin-top:20px;gap:34px">
+<div class="bar-r"><span>PPO v4</span><div class="tr"><i></i></div><span class="v"></span></div>
+<div class="bar-r"><span>PPO v5 s1</span><div class="tr"><i></i></div><span class="v"></span></div>
+<div class="bar-r"><span>Q-learning v8 s1</span><div class="tr"><i></i></div><span class="v"></span></div></div>
+<p class="s" style="color:var(--mute-ink)" id="inc-n">Vueltas completadas y tiempo medio por vuelta.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide dk"><div class="hd"><p class="k">Dos preguntas antes de recomendar</p><h2>¿Una semilla basta? ¿Maneja o memorizó Mónaco?</h2></div>
+<div class="tabs"><button class="btn on" data-p="s">Tres semillas por agente</button><button class="btn" data-p="p">Tres pistas de práctica y una reservada</button></div>
+<div id="p-s" class="col" style="gap:20px"><table class="lg"><tr><th>Modelo</th><th>Seco</th><th>Extremos</th></tr>
+<tr><td>PPO s0</td><td>100 %, 75.9 s</td><td>98.5 %</td></tr><tr><td>PPO s1</td><td>100 %, 68.6 s</td><td>100 %</td></tr><tr><td>PPO s2</td><td>100 %, 69.9 s</td><td>99.8 %</td></tr>
+<tr><td>Q-learning s0</td><td>99 %, 81.1 s</td><td>85.0 %</td></tr><tr><td>Q-learning s1</td><td>100 %, 81.0 s</td><td>85.9 %</td></tr><tr><td>Q-learning s2</td><td>95 %, 80.7 s</td><td>81.9 %</td></tr></table>
+<p class="t">La semilla 0, elegida primero, fue la más lenta y la menos robusta de PPO.</p></div>
+<div id="p-p" class="col" style="gap:20px;display:none"><table class="lg"><tr><th>Seco / lluvia</th><th>Bosque</th><th>Puerto</th><th>Sierra, reservada</th></tr>
+<tr><td>Maestro</td><td>100 / 100 %</td><td>100 / 100 %</td><td>100 / 100 %</td></tr>
+<tr><td>PPO v5 s1</td><td class="bad">0 / 0 %</td><td class="bad">0 / 0 %</td><td class="bad">0 / 0 %</td></tr>
+<tr class="hl"><td>PPO v6, tres pistas</td><td class="ok">100 / 100 %</td><td class="ok">100 / 100 %</td><td class="ok">100 / 100 %</td></tr></table>
+<p class="t">La v5 memorizó Mónaco. La v6 completa la Sierra, una pista que nunca vio, en 68.8 s con piso seco. La Sierra se corrió una sola vez, con la regla escrita antes.</p></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide cr"><div class="hd"><p class="k">Criterios fijados el 1 de noviembre, antes de ver resultados</p><h2>La v6 semilla 0 no pasó; la semilla 1 sí</h2></div>
+<table class="lg"><tr><th>Criterio</th><th style="width:170px">Mínimo</th><th style="width:300px">v6 semilla 0</th><th style="width:300px">v6 semilla 1</th></tr>
+<tr><td>Vueltas en seco y con lluvia</td><td>98 %</td><td>100 % y 100 %</td><td>100 % y 100 %</td></tr>
+<tr><td>Tiempo en seco</td><td>81.3 s</td><td>69.8 s</td><td>80.4 s</td></tr>
+<tr><td>Promedio en 19 pruebas extremas</td><td>85 %</td><td class="bad">79.2 %</td><td class="ok">100 %</td></tr>
+<tr><td>Peor prueba</td><td>50 %</td><td class="bad">0 %, diluvio</td><td class="ok">100 %</td></tr>
+<tr class="hl"><td>Decisión</td><td></td><td class="bad">Rechazada</td><td class="ok">7 de 7: promovida</td></tr></table>
+<div class="row"><div class="card g"><h3>Test reservado de la v6 semilla 1</h3><p class="t">100 semillas nuevas que no están en el repositorio, una sola corrida: 100 % en seco (80.4 s), 100 % con lluvia y 100 % en las 19 pruebas extremas.</p></div>
+<div class="card g"><h3>Qué no hicimos</h3><p class="t">No cambiamos los criterios para que la semilla 0 pasara. La semilla 2 también pasa, pero llegó después del test reservado y no se promueve.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide dk"><div class="hd"><p class="k">Versionamiento y operación</p><h2>Cada resultado se puede recuperar</h2></div>
+<div class="row" style="gap:40px;flex:1;min-height:0">
+<div class="col" style="width:880px;gap:18px"><div class="tabs" id="tools"><button class="chip on" data-t="0">Git</button><button class="chip" data-t="1">DVC</button><button class="chip" data-t="2">MLflow</button><button class="chip" data-t="3">Manifiestos</button><button class="chip" data-t="4">Prefect</button></div>
+<div class="card" style="min-height:150px"><h3 id="tool-h">Git</h3><p class="t" id="tool-p">El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1.</p></div>
+<p class="s mu">Registrar un candidato no lo promueve: promover exige pasar los criterios fijados antes.</p>
+<div class="card" style="gap:14px"><h3>Recuperar un modelo viejo</h3>
+<div class="step"><b>1</b><p>Leer su manifiesto: etiqueta, SHA-256 y ambiente.</p></div>
+<div class="step"><b>2</b><p>Traer sus pesos: <code>git checkout &lt;etiqueta&gt;</code> y <code>dvc checkout</code></p></div>
+<div class="step"><b>3</b><p>Evaluarlo con su ambiente compatible. La v4 corre con un adaptador validado.</p></div></div></div>
+<div class="card g" style="background:var(--red);gap:18px"><h3>Rollback probado</h3><p class="t">La API sirve:</p><p class="big" id="rb-v" style="font-size:150px;color:var(--paper)">v5</p>
+<p class="s" id="rb-t">Estado inicial: el modelo recomendado.</p><div class="tabs"><button class="btn" id="rb-go" style="color:var(--paper)">Siguiente paso</button></div><p class="m" style="color:var(--paper)">v5 → v4 → v5, comprobando la versión que sirve la API.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Allison</p></div></section><section class="slide dk"><div class="hd"><p class="k">Demostración en vivo</p><h2>autonomous-rally.vercel.app</h2></div>
+<div class="row" style="gap:60px;flex:1;min-height:0;align-items:flex-start">
+<div class="col g" id="demo-steps" style="gap:0">
+<div class="chk"><i></i><span>Catálogo: leer versión, ambiente, commit y SHA-256 del recomendado</span></div>
+<div class="chk"><i></i><span>Comparar la v1 con la v6-s1, en seco y con lluvia</span></div>
+<div class="chk"><i></i><span>Pista Puerto: la v5-s1 se sale y la v6-s1 completa la vuelta</span></div>
+<div class="chk"><i></i><span>Vehículo moto: el mismo visor, otro modelo y otra física</span></div></div>
+<div class="col" style="width:560px;gap:24px"><a class="btn go" style="text-decoration:none;text-align:center;font-size:30px;padding:22px 24px" href="https://autonomous-rally.vercel.app" target="_blank" rel="noopener">Abrir la demo</a>
+<p class="s mu">La web y la API corren en la misma URL. Si la API no responde, la web entra en modo replay y lo avisa.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Allison</p></div></section><section class="slide cr"><div class="hd"><p class="k">Segundo vehículo · moto MotoGP</p><h2>La misma misión con otra física</h2></div>
+<div class="row" style="gap:40px;flex:1;min-height:0">
+<div class="col" style="width:900px;gap:16px"><table><tr><th style="width:230px"></th><th>Carro</th><th>Moto</th></tr>
+<tr><td>Mando</td><td>Ángulo de volante</td><td>Inclinación pedida, hasta 60°</td></tr>
+<tr><td>Cómo gira</td><td>κ = tan δ / L</td><td>κ = g · tan φ / v²</td></tr>
+<tr><td>Respuesta</td><td>Inmediata</td><td>La inclinación cambia 80 °/s como máximo</td></tr>
+<tr><td>Pasarse del agarre</td><td>Subvira: gira menos y sigue</td><td>Patina: 3 pasos (0.3 s) = caída, −50</td></tr>
+<tr><td>Entradas</td><td>24</td><td>26: las 24 más inclinación y riesgo de caída</td></tr>
+<tr><td>Velocidad y aceleración</td><td>25 m/s, 4 m/s²</td><td>32 m/s, 5 m/s²</td></tr></table>
+<div class="card"><h3>La decisión nueva: anticipar</h3><p class="s">Llegar a 35° tarda casi medio segundo: hay que tumbarse antes de la curva y repartir el agarre entre frenar e inclinarse.</p></div></div>
+<div class="g col" style="gap:12px"><div class="cv-wrap" style="height:470px"><canvas class="c3d" id="cv-moto" style="width:100%;height:100%"></canvas><div class="nov">Vista 3D no disponible en este navegador</div></div>
+<div><div class="lab"><span>Inclinación pedida</span><span id="mo-t">0°</span></div><input type="range" id="in-lean" min="0" max="60" step="1" value="0" aria-label="Inclinación pedida"></div>
+<div class="lab"><span>Inclinación real</span><span id="mo-a">0.0°</span></div>
+<div class="tabs"><button class="btn go" id="mo-35">Pedir 35°</button><button class="btn" id="mo-0">Volver a 0°</button></div>
+<p class="s" id="mo-res">La moto sigue la orden a 80 °/s. Pide 35° y mide cuánto tarda.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Allison</p></div></section><section class="slide dk"><div class="hd"><p class="k">Moto · mismo pipeline, criterios fijados antes de entrenar</p><h2>PPO aceptado, Q-learning rechazado</h2></div>
+<table class="lg"><tr><th style="width:340px"></th><th>Seco</th><th>Lluvia</th><th>Extremos</th><th style="width:200px">Decisión</th></tr>
+<tr><td>Experto de moto</td><td>100 %, 74.7 s</td><td class="bad">0 %: se cae</td><td></td><td>Referencia</td></tr>
+<tr><td>Maestro de moto</td><td>100 %, 78.4 s</td><td>100 %, 108.4 s</td><td></td><td>Profesor</td></tr>
+<tr class="hl"><td>ppo-moto-v1</td><td class="ok">100 %, 78.2 s</td><td class="ok">100 %, 110.0 s</td><td class="ok">98.1 %</td><td class="ok">Recomendada</td></tr>
+<tr><td>qlearning-moto-v1</td><td class="bad">0 %</td><td>96 %, 112.4 s</td><td class="bad">40.4 %</td><td class="bad">Rechazada</td></tr></table>
+<div class="row"><div class="card g"><h3>PPO: dónde falla</h3><p class="t">20 iteraciones de DAgger y 1 millón de pasos. Con μ 0.75 completa 63.3 %: el sensor marca seco y entra a las curvas como en seco.</p></div>
+<div class="card g"><h3>Q-learning: por qué falla</h3><p class="t">Su tabla no ve la inclinación: en seco no sabe cuándo empezar a tumbarse. La v2 la agrega en 3 rangos: 352 800 estados.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Allison</p></div></section><section class="slide cr"><div class="hd"><p class="k">Cierre</p><h2>Lo que no demostramos y lo que aprendimos</h2></div>
+<div class="row" style="gap:36px;flex:1;min-height:0">
+<div class="card g"><h3>Límites</h3><ul class="t" style="margin:0;padding-left:30px;display:flex;flex-direction:column;gap:16px"><li>La v6-s1 no tiene prueba en una pista que nunca vio: la Sierra ya se usó.</li><li>Es 11.8 s más lenta en seco que la v5-s1: robustez a cambio de velocidad.</li><li>De tres semillas de la v6 pasan dos.</li><li>Los extremos se probaron uno por uno; todos juntos, falla.</li></ul></div>
+<div class="card g"><h3>Aprendizajes</h3><ul class="t" style="margin:0;padding-left:30px;display:flex;flex-direction:column;gap:16px"><li>Un 100 % en la evaluación base escondía choques.</li><li>Copiar vueltas perfectas no basta: DAgger corrige.</li><li>Una semilla engaña: tres cambiaron la decisión.</li><li>Manejar no es memorizar: lo reveló una pista nueva.</li></ul></div>
+<div class="col" style="width:380px;gap:20px"><div><p class="big" style="font-size:110px">~25 h</p><p class="s">de CPU en total, sin GPU</p></div><div><p class="big" style="font-size:110px">$0</p><p class="s">en planes gratuitos</p></div>
+<div class="card" style="background:var(--ink);color:var(--paper)"><h3 style="color:var(--yellow)">Siguiente hipótesis</h3><p class="s">Una quinta pista reservada, de otra familia.</p></div></div></div><div class="strip b"></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide dk"><div class="hd"><p class="k">Equipo Telemetría</p><h2>Quién hizo qué</h2></div>
+<div class="row" style="gap:36px;flex:1;min-height:0">
+<div class="card g"><h3>Kevin Nieto</h3><p class="s" style="font-size:34px;line-height:1.35">Ambiente de Mónaco y su física, visor 3D. Q-learning y PPO de la v1 a la v5. MLflow, DVC y DagsHub, Prefect, manifiestos, selección y rollback. Hugging Face, Vercel y guía para el revisor.</p></div>
+<div class="card g"><h3>Miguel Melo</h3><p class="s" style="font-size:34px;line-height:1.35">Repositorio oficial y su estructura. Experimento v6: pistas Bosque, Puerto y Sierra, reglas fijadas antes, semillas en GitHub Actions, test reservado y promoción de la v6-s1. Selector de pista en la web.</p></div>
+<div class="card g"><h3>Allison Loango</h3><p class="s" style="font-size:34px;line-height:1.35">Moto MotoGP: ambiente, pilotos, PPO y Q-learning, API y web. API publicada en Vercel con PPO en numpy y verificación en CI. Presentación y guion de la sustentación.</p></div></div>
+<p class="s mu">Usamos asistentes de código y verificamos lo generado con pruebas y métricas. Cada integrante puede explicar el ambiente, el versionamiento y el despliegue.</p>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide dk"><div class="strip"></div><div class="col" style="position:absolute;left:128px;top:300px;width:1300px;gap:26px"><h1>Anexo</h1><p style="font-size:40px;line-height:1.3">Respaldo para preguntas: pilotos, tabla de Q-learning, parámetros de PPO, pruebas extremas, test reservado, moto y comandos.</p></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide cr"><div class="hd"><p class="k">Anexo · pilotos de referencia</p><h2>Cómo decide el pure pursuit, paso a paso</h2></div>
+<table style="font-size:28px"><tr><th style="width:290px">Paso</th><th>Regla</th></tr>
+<tr><td>1 · Punto objetivo</td><td>Mira un punto de la línea central a 4 + 0.5·v metros, entre 5 y 14 m adelante</td></tr>
+<tr><td>2 · Dirección</td><td>δ = atan(2·L·sen α / distancia), con L = 2.5 m y α el ángulo al punto. Se normaliza a ±30°</td></tr>
+<tr><td>3 · Velocidad por curva</td><td>v = √(a_lat / κ) con a_lat = 0.85·μ supuesto·g. El experto permite 7.5 m/s²; el prudente, 4.2 m/s²</td></tr>
+<tr><td>4 · Frenada</td><td>Revisa los 60 m que vienen: v² ≤ v_curva² + 2·f·distancia, con f = 6·μ/0.9 m/s²</td></tr>
+<tr><td>5 · Pedal</td><td>u = 0.8·(velocidad objetivo − velocidad), recortado a [−1, 1]</td></tr>
+<tr><td>6 · Control de tracción</td><td>El pedal gasta como máximo 0.8 (seco) o 0.7 (lluvia) del agarre supuesto y deja el resto para girar</td></tr></table>
+<p class="s mu">El maestro reúne dos pilotos: con la señal de lluvia encendida usa μ 0.45 y tracción 0.7; si no, μ 0.8 y tracción 0.8. Estos pilotos leen el estado interno del simulador; los agentes no.</p><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide dk"><div class="hd"><p class="k">Anexo · Q-learning</p><h2>Las 117 600 situaciones y las 54 acciones</h2></div>
+<table style="font-size:28px"><tr><th style="width:480px">Variable que mira la tabla</th><th>Bordes de los rangos</th><th style="width:130px">Rangos</th></tr>
+<tr><td>Desvío del centro (÷ medio ancho)</td><td>−0.6, −0.3, −0.1, 0.1, 0.3, 0.6</td><td>7</td></tr>
+<tr><td>Error de rumbo (fracción de π rad)</td><td>±0.08, ±0.04, ±0.015</td><td>7</td></tr>
+<tr><td>Velocidad (÷ 25 m/s)</td><td>5, 7.5, 10, 12.5, 15, 18 y 21.25 m/s</td><td>8</td></tr>
+<tr><td>Curvatura a 25 m y a 10 m</td><td>−0.4, −0.12, 0.12, 0.4 (cada una)</td><td>5 y 5</td></tr>
+<tr><td>Lluvia</td><td>apagada o encendida</td><td>2</td></tr>
+<tr><td>Margen: velocidad menos velocidad segura</td><td>−5, −2, −0.5, 0.5 y 2 m/s</td><td>6</td></tr></table>
+<div class="row"><div class="card g"><h3>54 acciones</h3><p class="s">Pedal: −1, −0.4, 0, 0.25, 0.6 y 1; dirección: de −1 a 1 en 9 pasos. Acelerar se mide en m/s² (4 a fondo): sirve con cualquier carro.</p></div>
+<div class="card g"><h3>Estado sin experiencia</h3><p class="s">En un empate gana la acción neutra (pedal 0.25, dirección recta), nunca «frenar y girar a fondo».</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide cr"><div class="hd"><p class="k">Anexo · PPO</p><h2>Parámetros del entrenamiento</h2></div>
+<table style="font-size:28px"><tr><th style="width:190px">Parámetro</th><th style="width:600px">Valor</th><th>Para qué</th></tr>
+<tr><td>Red</td><td>24 → 256 → 256 → 2, tanh</td><td>72 706 pesos en la política; el crítico es otra red igual</td></tr>
+<tr><td>Escala</td><td>12 simulaciones, 3 M de pasos</td><td>De 1 a 1.5 h en 4 núcleos, sin GPU</td></tr>
+<tr><td>Aprendizaje</td><td>0.0001; γ 0.995; λ 0.95; recorte 0.2</td><td>Tasa baja para no deshacer lo imitado</td></tr>
+<tr><td>Exploración</td><td>Ruido inicial ≈ 0.2</td><td>En la v3 era 0.37</td></tr>
+<tr><td>DAgger</td><td>20 iteraciones × 16 vueltas, 15 épocas</td><td>Error cuadrático sobre la acción media</td></tr>
+<tr><td>Adherencia</td><td>Lluvia 0.4–0.75 (50 %); seco 0.75–1.0</td><td>Cubre todo el rango del visor</td></tr>
+<tr><td>Configuración</td><td>Ancho 6–12, aceleración 2–6, alcance 10–40; 30 % con la base</td><td>La condición base no queda menos practicada</td></tr>
+<tr><td>Evaluación</td><td>Cada 200 000 pasos, modelo congelado</td><td>Se guarda el mejor punto, no el último</td></tr></table><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide dk"><div class="hd"><p class="k">Anexo · pruebas extremas del test reservado</p><h2>Dónde falla cada agente</h2></div>
+<table><tr><th style="width:560px">Prueba (vueltas completadas)</th><th>PPO v5 s1</th><th>PPO v6 s1</th><th>Q-learning v8 s1</th></tr>
+<tr><td>Sensores con ruido 3 %, seco</td><td>100 %</td><td>100 %</td><td class="bad">14 %</td></tr>
+<tr><td>Sensores con ruido 3 %, lluvia</td><td>100 %</td><td>100 %</td><td class="bad">11 %</td></tr>
+<tr><td>Diluvio, μ 0.4</td><td>98 %</td><td>100 %</td><td>60 %</td></tr>
+<tr><td>Pista de 6 m, lluvia</td><td>100 %</td><td>100 %</td><td>67 %</td></tr>
+<tr><td>Salida torcida: 1.5 m y 15°</td><td>100 %</td><td>100 %</td><td>80 %</td></tr>
+<tr><td>Las otras 14 pruebas</td><td>100 %</td><td>100 %</td><td>96 a 100 %</td></tr>
+<tr class="hl"><td>Promedio de las 19 pruebas</td><td>99.9 %</td><td class="ok">100 %</td><td>84.8 %</td></tr></table>
+<p class="s mu">Cada prueba cambia una sola condición; 100 semillas fuera del repositorio, una sola corrida. Un cambio a la vez es el límite que reconocemos: no probamos todos los extremos combinados.</p><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide cr"><div class="hd"><p class="k">Anexo · test reservado</p><h2>La medida honesta: semillas que nadie vio</h2></div>
+<table><tr><th style="width:280px">Modelo</th><th>Seco</th><th>Lluvia</th><th style="width:170px">Extremos</th><th>Peores pruebas</th></tr>
+<tr><td>PPO v5 s1</td><td>100 %, 68.6 s</td><td>100 %, 89.3 s</td><td>99.9 %</td><td>Diluvio 98 %</td></tr>
+<tr><td>Q-learning v8 s1</td><td>99 %, 81.0 s</td><td>99 %, 106.9 s</td><td>84.8 %</td><td>Ruido 14 y 11 %</td></tr>
+<tr class="hl"><td>PPO v6 s1</td><td class="ok">100 %, 80.4 s</td><td class="ok">100 %, 104.8 s</td><td class="ok">100 %</td><td>Ninguna bajo 100 %</td></tr></table>
+<div class="row"><div class="card g"><h3>Cómo se protege</h3><p class="s">100 semillas guardadas fuera del repositorio; solo se publica su SHA-256. Una sola corrida, con el modelo ya elegido.</p></div>
+<div class="card g"><h3>La regla va antes</h3><p class="s">La regla de la v6 s1 quedó en git (commit 5ed48de) antes de correr el test, con semillas nuevas porque las anteriores ya se habían usado.</p></div></div>
+<p class="s mu">Casi igual a lo medido al seleccionar: no hay señales de que elegir la semilla haya inflado los números.</p><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide dk"><div class="hd"><p class="k">Anexo · moto</p><h2>Cómo se comporta la moto y qué sigue</h2></div>
+<div class="row" style="gap:40px"><div class="col" style="width:880px;gap:18px"><table style="font-size:28px"><tr><th>Transición de la ficha</th><th style="width:170px">Recompensa</th><th style="width:130px">Fin</th></tr>
+<tr><td>M1 · Arranque a fondo en la salida</td><td>−0.095</td><td>—</td></tr>
+<tr><td>M2 · A 15 m/s pide 60° y solo llega a 8°</td><td>−0.101</td><td>—</td></tr>
+<tr><td>M3 · 40° con lluvia, tercer paso patinando</td><td class="bad">−49.901</td><td class="bad">caída</td></tr>
+<tr><td>M4 · Parada, pide inclinarse</td><td>−0.25</td><td>—</td></tr></table>
+<p class="s mu">Un modelo del carro pedido en la moto, o al revés, responde 409 en la API: 24 y 26 entradas son contratos distintos.</p></div>
+<div class="col g" style="gap:20px"><div class="card"><h3>PPO: el refuerzo ganó velocidad y perdió robustez</h3><p class="s">El mejor punto fue la red recién imitada. Con refuerzo el tiempo en seco bajó de 77.6 a 72.6 s, pero los extremos cayeron a 61–89 % y la lluvia llegó a 47 %. Siguiente: tasa de aprendizaje menor o recorte reducido.</p></div>
+<div class="card"><h3>Experto con lluvia</h3><p class="s">Se cae en los primeros pasos: su control de tracción supone seco y deja pasar 5 m/s² sobre un piso que aguanta 4.9.</p></div></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section><section class="slide cr"><div class="hd"><p class="k">Anexo · reproducir y operar</p><h2>Los comandos que usa el equipo</h2></div><table style="font-size:28px"><tr><th style="width:430px">Tarea</th><th>Comando</th></tr><tr><td>Traer datos y modelos</td><td><code>dvc pull -r dagshub</code></td></tr><tr><td>Reproducir el pipeline</td><td><code>dvc repro</code> y <code>dvc metrics show</code></td></tr><tr><td>Evaluar carro o moto</td><td><code>rally evaluar --pilotos experto ppo</code> · con <code>--vehiculo moto</code></td></tr><tr><td>Más semillas de un finalista</td><td><code>rally semillas ppo 1 2</code></td></tr><tr><td>Aplicar criterios y promover</td><td><code>rally seleccionar ppo-moto-v1 --tipo ppo --vehiculo moto --anotar</code></td></tr><tr><td>Pipeline completo con Prefect</td><td><code>python pipelines/flujo.py --candidato ppo-modelo-v5 --tipo ppo</code></td></tr><tr><td>Rollback</td><td><code>python pipelines/flujo.py --rollback "motivo"</code></td></tr><tr><td>Recuperar un modelo antiguo</td><td><code>git checkout &lt;etiqueta&gt;</code> y <code>dvc checkout</code></td></tr><tr><td>Regenerar los manifiestos</td><td><code>rally manifiesto</code></td></tr></table><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div></section></div></div><div id="bar"><button id="prev" aria-label="Diapositiva anterior">‹</button><div id="prog"><i></i></div><span id="cnt">1 / 25</span><button id="next" aria-label="Diapositiva siguiente">›</button><span class="hint">Flechas del teclado para avanzar</span></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const slides=$$('.slide'); let cur=0;
+const hasGL=typeof THREE!=='undefined';
+const all=[]; const inits={}; const built={};
+
+/* ---------- escala y navegación ---------- */
+function fit(){const v=$('#view');const s=Math.min(v.clientWidth/1920,v.clientHeight/1080);$('#stage').style.transform='translate(-50%,-50%) scale('+s+')';}
+addEventListener('resize',fit);
+function show(i,fromHash){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,k)=>s.classList.toggle('on',k===cur));
+  $('#cnt').textContent=(cur+1)+' / '+slides.length;
+  $('#prog i').style.width=((cur+1)/slides.length*100)+'%';
+  try{ if(!fromHash) history.replaceState(null,'','#s'+(cur+1)); }catch(e){}
+  $$('canvas[id]',slides[cur]).forEach(c=>{
+    if(built[c.id])return;
+    if(!hasGL&&c.classList.contains('c3d')){c.parentNode.classList.add('no3d');built[c.id]=true;return;}
+    built[c.id]=true;
+    requestAnimationFrame(()=>{ if(inits[c.id]) { try{inits[c.id](c);}catch(e){console.error(e);c.parentNode.classList.add('no3d');} } });
+  });
+}
+$('#prev').onclick=()=>show(cur-1); $('#next').onclick=()=>show(cur+1);
+addEventListener('keydown',e=>{
+  if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName)&&(e.key==='ArrowLeft'||e.key==='ArrowRight'))return;
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(cur+1);}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(cur-1);}
+  else if(e.key==='Home')show(0); else if(e.key==='End')show(slides.length-1);
+});
+addEventListener('hashchange',()=>{const m=/^#s(\d+)$/.exec(location.hash);if(m)show(+m[1]-1,true);});
+(function swipe(){let x0=null;const v=$('#view');
+  v.addEventListener('pointerdown',e=>{x0=(e.target.closest('canvas,input,button,a,tr.pick,.chk'))?null:e.clientX;});
+  v.addEventListener('pointerup',e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>80)show(cur+(dx<0?1:-1));});
+})();
+
+/* ---------- utilidades 3D ---------- */
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.55,metalness:.15,flatShading:true},o||{}));
+function mk3d(canvas,o){
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(o.fov||40,1,.1,400);
+  if(o.up)camera.up.set(...o.up);
+  camera.position.set(...o.cam); camera.lookAt(...o.look);
+  scene.add(new THREE.AmbientLight(0xffffff,.62));
+  const d=new THREE.DirectionalLight(0xffffff,.95); d.position.set(6,14,9); scene.add(d);
+  const r=new THREE.PointLight(0xff3b30,.5,60); r.position.set(-8,4,-6); scene.add(r);
+  const api={canvas,renderer,scene,camera,update:null,slide:canvas.closest('.slide')};
+  const resize=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
+  if(window.ResizeObserver)new ResizeObserver(resize).observe(canvas); resize();
+  all.push(api); return api;
+}
+function dragYaw(canvas,fn){let on=false,x=0;
+  canvas.addEventListener('pointerdown',e=>{on=true;x=e.clientX;canvas.setPointerCapture(e.pointerId);});
+  canvas.addEventListener('pointermove',e=>{if(!on)return;fn((e.clientX-x));x=e.clientX;});
+  const end=()=>{on=false;}; canvas.addEventListener('pointerup',end); canvas.addEventListener('pointercancel',end);}
+function disc(r,c){const m=new THREE.Mesh(new THREE.CircleGeometry(r,72),M(c,{flatShading:false,roughness:.9}));m.rotation.x=-Math.PI/2;return m;}
+function ring(a,b,c,seg){const m=new THREE.Mesh(new THREE.RingGeometry(a,b,seg||96),new THREE.MeshBasicMaterial({color:c,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;return m;}
+function box(w,h,d,c,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c));m.position.set(x||0,y||0,z||0);return m;}
+function cyl(rt,rb,h,c,seg,x,y,z){const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||16),M(c));m.position.set(x||0,y||0,z||0);return m;}
+function rain(w,d,top){
+  const n=650,g=new THREE.BufferGeometry(),p=new Float32Array(n*6);
+  for(let i=0;i<n;i++){const x=(Math.random()-.5)*w,y=Math.random()*top,z=(Math.random()-.5)*d;p.set([x,y,z,x,y-.8,z],i*6);}
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  const m=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x9fc3e6,transparent:true,opacity:.6}));
+  m.visible=false; m.step=dt=>{const a=g.attributes.position.array;for(let i=0;i<n;i++){a[i*6+1]-=24*dt;a[i*6+4]-=24*dt;if(a[i*6+4]<0){a[i*6+1]+=top;a[i*6+4]+=top;}}g.attributes.position.needsUpdate=true;};
+  return m;}
+function label(txt,bg,fg){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');
+  x.fillStyle=bg;x.fillRect(0,0,256,96);x.fillStyle=fg;x.font='700 54px "Public Sans",Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(txt,128,52);
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true}));s.scale.set(2.8,1.05,1);return s;}
+
+/* ---------- carro de carreras (adelante = +X) ---------- */
+function buildCar(){
+  const g=new THREE.Group(),red=0xB80500,blk=0x14161B,yel=0xFFD23F,grey=0x2A2D35;
+  g.add(box(3.2,.5,1.3,red,-.1,.6,0));
+  const nose=new THREE.Mesh(new THREE.CylinderGeometry(.12,.58,2,4),M(red));nose.geometry.rotateY(Math.PI/4);nose.rotation.z=-Math.PI/2;nose.scale.set(1,1,1.25);nose.position.set(2.35,.52,0);g.add(nose);
+  g.add(box(1.6,.38,.5,red,-.3,.55,.85)); g.add(box(1.6,.38,.5,red,-.3,.55,-.85));
+  g.add(box(1.1,.34,.8,blk,-.2,.95,0));
+  const h=new THREE.Mesh(new THREE.SphereGeometry(.24,16,12),M(yel));h.position.set(-.15,1.18,0);g.add(h);
+  g.add(box(3.1,.03,.24,yel,.1,.87,0));
+  g.add(box(.5,.08,2.2,blk,3.15,.2,0)); g.add(box(.55,.3,.06,yel,3.15,.3,1.1)); g.add(box(.55,.3,.06,yel,3.15,.3,-1.1));
+  g.add(box(.55,.09,1.7,blk,-2,1.4,0)); g.add(box(.12,.8,.12,blk,-1.8,1.0,.45)); g.add(box(.12,.8,.12,blk,-1.8,1.0,-.45));
+  g.add(box(.7,.45,.07,yel,-2,1.4,.86)); g.add(box(.7,.45,.07,yel,-2,1.4,-.86));
+  const pivots=[],wheels=[];
+  const wheel=(r,w)=>{const t=new THREE.Group();const geo=new THREE.CylinderGeometry(r,r,w,20);geo.rotateX(Math.PI/2);t.add(new THREE.Mesh(geo,M(0x0c0d10,{flatShading:false,roughness:.9})));
+    const hub=new THREE.CylinderGeometry(r*.55,r*.55,w+.02,10);hub.rotateX(Math.PI/2);t.add(new THREE.Mesh(hub,M(yel)));wheels.push(t);return t;};
+  [[1.7,.98],[1.7,-.98]].forEach(([x,z])=>{const p=new THREE.Group();p.position.set(x,.42,z);p.add(wheel(.42,.46));g.add(p);pivots.push(p);});
+  [[-1.5,.98],[-1.5,-.98]].forEach(([x,z])=>{const w=wheel(.5,.62);w.position.set(x,.5,z);g.add(w);});
+  return {g,pivots,wheels};
+}
+/* ---------- moto (adelante = +X) ---------- */
+function buildMoto(){
+  const g=new THREE.Group(),red=0xB80500,blk=0x14161B,yel=0xFFD23F;
+  const wheel=x=>{const w=new THREE.Group();const t=new THREE.Mesh(new THREE.TorusGeometry(.34,.1,10,26),M(0x0c0d10,{flatShading:false}));w.add(t);
+    const hub=new THREE.CylinderGeometry(.22,.22,.08,12);hub.rotateX(Math.PI/2);w.add(new THREE.Mesh(hub,M(yel)));w.position.set(x,.44,0);return w;};
+  g.add(wheel(.78)); g.add(wheel(-.78));
+  const tank=new THREE.Mesh(new THREE.SphereGeometry(.4,14,10),M(red));tank.scale.set(1.2,.62,.62);tank.position.set(.15,.98,0);g.add(tank);
+  const fair=new THREE.Mesh(new THREE.CylinderGeometry(.1,.38,.9,4),M(red));fair.geometry.rotateY(Math.PI/4);fair.rotation.z=-Math.PI/2+.25;fair.position.set(.78,.98,0);fair.scale.set(1,1,.7);g.add(fair);
+  g.add(box(.85,.2,.3,red,-.5,.92,0)); g.add(box(.7,.04,.12,yel,-.5,1.03,0));
+  g.add(box(1.0,.14,.2,blk,-.42,.55,0));
+  const fork=cyl(.05,.05,.9,0x9a9da3,8,.7,.78,0);fork.rotation.z=.32;g.add(fork);
+  g.add(cyl(.04,.04,.7,0x9a9da3,8,.3,.5,0));
+  const ex=cyl(.07,.1,.9,yel,10,-.9,.62,.22);ex.rotation.z=Math.PI/2-.12;g.add(ex);
+  g.add(box(.5,.4,.32,blk,-.05,1.3,0)); const torso=g.children[g.children.length-1];torso.rotation.z=-.7;torso.position.set(.0,1.32,0);
+  const hel=new THREE.Mesh(new THREE.SphereGeometry(.2,14,10),M(yel));hel.position.set(.34,1.5,0);g.add(hel);
+  const arm=cyl(.06,.06,.6,blk,8,.5,1.22,.15);arm.rotation.z=-1.1;g.add(arm);const arm2=arm.clone();arm2.position.z=-.15;g.add(arm2);
+  const leg=cyl(.08,.08,.7,blk,8,-.1,.9,.26);leg.rotation.z=.9;g.add(leg);const leg2=leg.clone();leg2.position.z=-.26;g.add(leg2);
+  return g;
+}
+
+/* ---------- 1 · portada ---------- */
+inits['cv-portada']=c=>{
+  const a=mk3d(c,{fov:36,cam:[8.5,4,8.5],look:[0,.4,0]});
+  a.scene.add(disc(4.6,0x1d2027)); const rg=ring(4.2,4.4,0xB80500);rg.position.y=.02;a.scene.add(rg);
+  const car=buildCar();const root=new THREE.Group();root.add(car.g);a.scene.add(root);
+  let on=false;dragYaw(c,dx=>{on=true;root.rotation.y+=dx*.012;});c.addEventListener('pointerup',()=>setTimeout(()=>on=false,1500));
+  a.update=(dt,t)=>{if(!on&&!reduce)root.rotation.y+=dt*.4;car.wheels.forEach(w=>w.rotation.z-=dt*3);};
+};
+
+/* ---------- 2 · misión ---------- */
+inits['cv-mision']=c=>{
+  const a=mk3d(c,{fov:45,cam:[0,27,17],look:[0,0,0]});
+  const R=9; const asph=new THREE.Mesh(new THREE.RingGeometry(7,11,96),M(0x2A2D35,{flatShading:false,roughness:.95}));asph.rotation.x=-Math.PI/2;a.scene.add(asph);
+  [7,11].forEach(r=>{const l=ring(r-.12,r+.12,0xF3F1EA);l.position.y=.02;a.scene.add(l);});
+  const grass=disc(60,0x1b3a2a);grass.position.y=-.05;a.scene.add(grass);
+  const cv=document.createElement('canvas');cv.width=128;cv.height=32;const x=cv.getContext('2d');for(let i=0;i<8;i++)for(let j=0;j<2;j++){x.fillStyle=(i+j)%2?'#14161B':'#F3F1EA';x.fillRect(i*16,j*16,16,16);}
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(4,1),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv)}));fl.rotation.x=-Math.PI/2;fl.position.set(R,.03,0);a.scene.add(fl);
+  const car=buildCar();car.g.scale.setScalar(.62);a.scene.add(car.g);
+  const rn=rain(36,36,14);a.scene.add(rn);
+  let mode='dry',th=-1.3,phase='run',tmr=0,px=0,pz=0,yaw=0;
+  const flag=$('#m-flag'),mu=$('#m-mu'),bar=$('#m-bar'),txt=$('#m-txt');
+  function place(){car.g.position.set(px,.0,pz);car.g.rotation.y=yaw;}
+  function reset(){th=-1.3;phase='run';tmr=0;flag.classList.remove('on');}
+  function set(m){mode=m;reset();rn.visible=m==='wet';asph.material.color.set(m==='wet'?0x1c3140:0x2A2D35);
+    $$('[data-m]',a.slide).forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+    mu.textContent=m==='wet'?'0.5':'0.9';bar.style.width=m==='wet'?'50%':'90%';
+    txt.textContent=m==='wet'?'Experto, supone μ 0.9: el piso aguanta solo 0.5 y se sale en la curva.':'Experto, supone μ 0.9: el piso aguanta y completa la vuelta.';}
+  $$('[data-m]',a.slide).forEach(b=>b.onclick=()=>set(b.dataset.m));
+  a.update=(dt)=>{
+    if(mode==='wet')rn.step(dt);
+    car.wheels.forEach(w=>w.rotation.z-=dt*6);
+    const sp=.85;
+    if(phase==='run'){th+=dt*sp*(reduce?.4:1);px=R*Math.cos(th);pz=R*Math.sin(th);yaw=-th-Math.PI/2;
+      if(mode==='wet'&&th>=.9){phase='slide';}
+      if(mode==='dry'&&th>=Math.PI*2-1.3){th-=Math.PI*2;}}
+    else if(phase==='slide'){px+=-Math.sin(th)*9*dt;pz+=Math.cos(th)*9*dt;yaw+=dt*1.6;
+      if(Math.hypot(px,pz)>12.6){phase='wait';tmr=0;flag.classList.add('on');}}
+    else{tmr+=dt;if(tmr>1.4)reset();}
+    place();
+  };
+  set('dry'); place();
+};
+
+/* ---------- 3 · qué ve ---------- */
+inits['cv-ve']=c=>{
+  const a=mk3d(c,{fov:48,cam:[-4,11,9.5],look:[5,0,0]});
+  const W=4.2;
+  const road=box(46,.1,W*2,0x2A2D35,6,-.06,0);a.scene.add(road);
+  [-1,1].forEach(s=>{for(let i=0;i<23;i++){a.scene.add(box(2,.22,.38,i%2?0xF3F1EA:0xB80500,-16+i*2+1,.06,s*(W+.2)));}});
+  for(let i=0;i<14;i++)a.scene.add(box(1,.02,.14,0xFFD23F,-8+i*2.2,.02,0));
+  const car=buildCar();a.scene.add(car.g);
+  const rn=rain(30,20,12);rn.position.set(4,0,0);a.scene.add(rn);
+  const angles=[-90,-60,-30,0,30,60,90].map(d=>d*Math.PI/180);
+  const rays=new THREE.Group(),rm=[],hits=[];
+  angles.forEach(()=>{const m=cyl(.06,.06,1,0xFFD23F,8);rays.add(m);rm.push(m);const s=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8),M(0xFF6B66));rays.add(s);hits.push(s);});
+  a.scene.add(rays);
+  const curv=new THREE.Group();[[3,'10 m'],[7.5,'25 m'],[15,'50 m']].forEach(([x,t])=>{const p=cyl(.08,.08,2,0xFFD23F,8,x,1,0);curv.add(p);const l=label(t,'#FFD23F','#14161B');l.position.set(x,2.5,0);curv.add(l);});
+  curv.visible=false;a.scene.add(curv);
+  const mov=new THREE.Group();[-1.6,1.6].forEach(z=>mov.add(cyl(.12,.12,3.2,0xFFD23F,8,15,1.6,z)));mov.add(box(.2,.4,3.4,0xFFD23F,15,3.2,0));
+  const arrow=new THREE.ArrowHelper(new THREE.Vector3(1,0,0),new THREE.Vector3(),5,0xFF6B66,.7,.45);mov.add(arrow);
+  const dev=cyl(.05,.05,1,0xF3F1EA,6);mov.add(dev);mov.visible=false;a.scene.add(mov);
+  const caps={rays:'Sensores: los 7 rayos miden la distancia al borde, de −90° a +90°, con escala fija de 40 m.',mov:'Movimiento y rumbo: desvío del centro (línea blanca), error de rumbo y dirección al próximo checkpoint (flecha).',curv:'Notas del copiloto: la curvatura de la pista a 10, 25 y 50 m por delante.',clima:'Clima: el agente sabe si llueve (sí o no). Nunca recibe el valor de la adherencia.'};
+  let layer='rays';
+  function setLayer(l){layer=l;rays.visible=l==='rays';curv.visible=l==='curv';mov.visible=l==='mov';rn.visible=l==='clima';
+    $$('#t-ve tr.pick').forEach(r=>r.classList.toggle('sel',r.dataset.l===l));$('#ve-cap').textContent=caps[l];}
+  $$('#t-ve tr.pick').forEach(r=>{r.onclick=()=>setLayer(r.dataset.l);});
+  setLayer('rays');
+  const up=new THREE.Vector3(0,1,0),dir=new THREE.Vector3();
+  a.update=(dt,t)=>{
+    const tt=reduce?0:t;const z=Math.sin(tt*.7)*1.5,phi=Math.sin(tt*.5)*.28;
+    car.g.position.set(0,0,z);car.g.rotation.y=phi;car.wheels.forEach(w=>w.rotation.z-=dt*5);car.pivots.forEach(p=>p.rotation.y=-phi*.6);
+    if(layer==='clima')rn.step(dt);
+    const ox=2.3*Math.cos(phi),oz=z-2.3*Math.sin(phi);
+    angles.forEach((al,i)=>{const ang=phi+al;const dx=Math.cos(ang),dz=-Math.sin(ang);let len=9;
+      if(dz>1e-3)len=Math.min(len,(W-oz)/dz);else if(dz<-1e-3)len=Math.min(len,(-W-oz)/dz);
+      len=Math.max(.3,len);dir.set(dx,0,dz);const m=rm[i];m.scale.set(1,len,1);m.position.set(ox+dx*len/2,.7,oz+dz*len/2);m.quaternion.setFromUnitVectors(up,dir);
+      hits[i].position.set(ox+dx*len,.7,oz+dz*len);hits[i].visible=len<8.9;});
+    arrow.position.set(car.g.position.x,1.2,z);const tx=15-0,tz=-z;arrow.setDirection(new THREE.Vector3(tx,0,tz).normalize());arrow.setLength(Math.hypot(tx,tz)*.55,.7,.45);
+    dev.scale.y=Math.max(.01,Math.abs(z));dev.rotation.x=Math.PI/2;dev.position.set(0,.15,z/2);
+  };
+};
+
+/* ---------- 4 · qué decide ---------- */
+inits['cv-decide']=c=>{
+  const a=mk3d(c,{fov:40,cam:[0,72,.01],look:[0,0,0],up:[0,0,-1]});
+  const AX=46,AZ=26;
+  a.scene.add(box(AX*2,.2,AZ*2,0x2A2D35,0,-.15,0));
+  [[0,AZ+.5,AX*2+2,1],[0,-AZ-.5,AX*2+2,1]].forEach(([x,z,w,d])=>a.scene.add(box(w,.4,d,0xB80500,x,0,z)));
+  [[AX+.5,0],[-AX-.5,0]].forEach(([x,z])=>a.scene.add(box(1,.4,AZ*2+2,0xB80500,x,0,z)));
+  for(let i=-8;i<=8;i++)a.scene.add(box(.15,.02,AZ*2,0x3a3e48,i*6,-.04,0));
+  const car=buildCar();car.g.scale.setScalar(1.5);a.scene.add(car.g);
+  const rn=rain(AX*2,AZ*2,30);rn.position.y=0;a.scene.add(rn);
+  const N=420,tp=new Float32Array(N*3),tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(tp,3));tg.setDrawRange(0,0);
+  const trail=new THREE.Line(tg,new THREE.LineBasicMaterial({color:0xFFD23F}));a.scene.add(trail);
+  let x=-30,z=0,phi=0,v=0,mu=.9,cnt=0,acc=0;
+  const ip=$('#in-p'),id=$('#in-d');
+  $$('[data-g]',a.slide).forEach(b=>b.onclick=()=>{mu=b.dataset.g==='wet'?.5:.9;rn.visible=mu<.6;$$('[data-g]',a.slide).forEach(k=>k.classList.toggle('on',k===b));});
+  rn.visible=false;
+  const L=2.5,g9=9.81;
+  a.update=(dt)=>{
+    if(rn.visible)rn.step(dt);
+    const p=+ip.value,d=+id.value;$('#d-p').textContent=p.toFixed(2);$('#d-d').textContent=d.toFixed(2);
+    const acel=p>=0?p*4:p*8;v=Math.max(0,Math.min(25,v+acel*dt));
+    const del=d*30*Math.PI/180;const lat=v*v*Math.abs(Math.tan(del))/L;const use=lat/(mu*g9);const eff=use>1?1/use:1;
+    phi-=v/L*Math.tan(del)*eff*dt;x+=Math.cos(phi)*v*dt;z-=Math.sin(phi)*v*dt;
+    if(Math.abs(x)>AX-1||Math.abs(z)>AZ-1){x=-30;z=0;phi=0;cnt=0;tg.setDrawRange(0,0);}
+    car.g.position.set(x,0,z);car.g.rotation.y=phi;car.pivots.forEach(pv=>pv.rotation.y=-del);car.wheels.forEach(w=>w.rotation.z-=v*dt*2);
+    acc+=dt;if(acc>.07){acc=0;if(cnt<N){tp.set([x,.3,z],cnt*3);cnt++;}else{tp.copyWithin(0,3);tp.set([x,.3,z],(N-1)*3);}tg.setDrawRange(0,cnt);tg.attributes.position.needsUpdate=true;}
+    $('#d-hud').textContent=v.toFixed(1)+' m/s · volante '+(d*30).toFixed(0)+'° · acelera '+acel.toFixed(1)+' m/s²';
+    $('#d-use').textContent=use>1?'Más de 100 %':Math.round(use*100)+' %';const b=$('#d-bar');b.style.width=Math.min(100,use*100)+'%';b.style.background=use>1?'#B80500':'';
+    $('#d-warn').textContent=use>1?'Pide más agarre del que hay: el carro subvira, gira menos de lo pedido y sigue.':'Dentro del agarre: el carro gira lo que pides.';
+  };
+};
+
+/* ---------- 14 · moto ---------- */
+inits['cv-moto']=c=>{
+  const a=mk3d(c,{fov:34,cam:[5.3,1.5,1.9],look:[0,.8,0]});
+  a.scene.add(disc(2.4,0x2A2D35));const rg=ring(2.2,2.32,0xFFD23F);rg.position.y=.02;a.scene.add(rg);
+  const pivot=new THREE.Group(),moto=buildMoto();pivot.add(moto);const root=new THREE.Group();root.add(pivot);a.scene.add(root);
+  root.rotation.y=0;dragYaw(c,dx=>{root.rotation.y+=dx*.012;});
+  let tgt=0,act=0,timer=null;const sl=$('#in-lean');
+  const upd=()=>{$('#mo-t').textContent=Math.round(tgt)+'°';};
+  sl.oninput=()=>{tgt=+sl.value;timer=null;upd();};
+  $('#mo-35').onclick=()=>{tgt=35;sl.value=35;act=Math.min(act,0);act=0;timer={t:0,hit:false};$('#mo-res').textContent='Orden de 35° enviada. Midiendo…';upd();};
+  $('#mo-0').onclick=()=>{tgt=0;sl.value=0;timer=null;upd();};
+  a.update=(dt)=>{
+    const step=80*dt;act+=Math.max(-step,Math.min(step,tgt-act));
+    if(timer&&!timer.hit){timer.t+=dt;if(act>=34.99){timer.hit=true;$('#mo-res').textContent='Llegó a 35° en '+timer.t.toFixed(2)+' s: hay que tumbarse antes de la curva.';}}
+    pivot.rotation.x=act*Math.PI/180;$('#mo-a').textContent=act.toFixed(1)+'°';
+    moto.children[0].rotation.z-=dt*8;moto.children[1].rotation.z-=dt*8;
+  };
+};
+
+/* ---------- 7 · red neuronal (2D) ---------- */
+inits['cv-net']=c=>{
+  const ctx=c.getContext('2d');let W=0,H=0,dpr=1;
+  const layers=[{n:10,l:'24 entradas'},{n:8,l:'256 neuronas · tanh'},{n:8,l:'256 neuronas · tanh'},{n:2,l:'2 salidas: pedal y dirección'}];
+  let wave=-1;const fire=()=>{wave=0;};$('#net-go').onclick=fire;
+  function size(){dpr=Math.min(devicePixelRatio||1,2);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;}
+  if(window.ResizeObserver)new ResizeObserver(size).observe(c);size();
+  let acc=0,last=performance.now();
+  const api={canvas:c,slide:c.closest('.slide'),renderer:{render(){}},update:(dt)=>{
+    if(!W)return;acc+=dt;if(!reduce&&acc>3.2&&wave<0){acc=0;fire();}
+    if(wave>=0){wave+=dt*1.6;if(wave>4.2)wave=-1;}
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+    const px=W/layers.length,pos=layers.map((L,i)=>{const gap=(H-70)/(L.n);return Array.from({length:L.n},(_,j)=>[px*(i+.5),20+gap*(j+.5)+ (H-70-gap*L.n)/2]);});
+    for(let i=0;i<layers.length-1;i++){const act=wave>=0&&wave>=i&&wave<i+1.2;ctx.strokeStyle=act?'rgba(255,210,63,.55)':'rgba(74,77,85,.55)';ctx.lineWidth=act?1.6:1;
+      pos[i].forEach(a=>pos[i+1].forEach(b=>{ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}));}
+    pos.forEach((col,i)=>{const lit=wave>=0?Math.max(0,1-Math.abs(wave-i)*1.1):0;
+      col.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],i===3?18:9,0,7);ctx.fillStyle=lit>0?'rgba(255,210,63,'+(.35+.65*lit)+')':'#2A2D35';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=i===3?'#FF6B66':'#4A4D55';ctx.stroke();});
+      ctx.fillStyle='#C7C9CC';ctx.font='600 24px "Public Sans",Arial,sans-serif';ctx.textAlign='center';ctx.fillText(layers[i].l,px*(i+.5),H-14);});
+  }};
+  all.push(api);
+};
+
+/* ---------- bucle ---------- */
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  for(const s of all){if(!s.slide||!s.slide.classList.contains('on'))continue;if(s.update)s.update(dt,now/1000);s.renderer&&s.renderer.render&&s.scene&&s.renderer.render(s.scene,s.camera);}
+  requestAnimationFrame(loop);}
+
+/* ---------- interacciones de DOM ---------- */
+// 5 · pilotos
+(function(){const t=$('#t-pil');let mode='dry';
+  function draw(){$$('td.r',t).forEach(td=>{const [p,x]=td.dataset[mode==='dry'?'d':'w'].split('|');const n=+p;
+    td.innerHTML=(x==='se sale'?'<span class="bad">0 %: se sale</span>':n+' %'+(x?', '+x:''))+'<span class="cell-bar" style="width:'+Math.round(n*2.2)+'px"></span>';});
+    $$('[data-c]',t.closest('.slide')).forEach(b=>b.classList.toggle('on',b.dataset.c===mode));}
+  $$('[data-c]',t.closest('.slide')).forEach(b=>b.onclick=()=>{mode=b.dataset.c;draw();});draw();})();
+// 6 · Q-learning
+(function(){
+  const vE=[5,7.5,10,12.5,15,18,21.25],dE=[-.6,-.3,-.1,.1,.3,.6];let wet=false;
+  const rng=(e,i,u)=>i===0?'menos de '+e[0]:i===e.length?e[e.length-1]+' o más':e[i-1]+' a '+e[i];
+  const acts=$('#q-acts');for(let i=0;i<54;i++)acts.appendChild(document.createElement('i'));
+  function upd(){const v=+$('#q-v').value,d=+$('#q-d').value;
+    const vi=vE.filter(e=>v>=e).length,di=dE.filter(e=>d>=e).length;
+    $('#q-vt').textContent=v+' m/s';$('#q-dt').textContent=d.toFixed(2);
+    $('#q-out').innerHTML='Velocidad: rango <b>'+(vi+1)+' de 8</b> ('+rng(vE,vi)+' m/s). Desvío: rango <b>'+(di+1)+' de 7</b>. Lluvia: <b>'+(wet?'encendida':'apagada')+'</b>. La tabla ve esta celda, no el valor exacto.';
+    const row=v<10?4:(v<18?3:2),col=Math.max(0,Math.min(8,4-Math.round(d*4)+(wet?0:0)));
+    $$('i',acts).forEach((el,k)=>el.classList.toggle('on',k===(wet&&row>2?row-1:row)*9+col));}
+  ['q-v','q-d'].forEach(id=>$('#'+id).oninput=upd);
+  $('#q-r0').onclick=()=>{wet=false;$('#q-r0').classList.add('on');$('#q-r1').classList.remove('on');upd();};
+  $('#q-r1').onclick=()=>{wet=true;$('#q-r1').classList.add('on');$('#q-r0').classList.remove('on');upd();};
+  upd();})();
+// 9 · incidente
+(function(){
+  const D=[[['100 %','75.6 s',100],['100 %','68.6 s',100],['100 %','81.0 s',100]],
+           [['100 %','91.8 s',100],['100 %','89.3 s',100],['100 %','106.9 s',100]],
+           [['63 %','',63],['100 %','',100],['9 %','',9]],
+           [['0 %','',0],['100 %','',100],['52 %','',52]]];
+  const rows=$$('#inc-bars .bar-r');
+  function draw(i){D[i].forEach((d,k)=>{const r=rows[k];r.querySelector('i').style.width=d[2]+'%';r.querySelector('.v').textContent=d[0]+(d[1]?' · '+d[1]:'');r.classList.toggle('lo',d[2]<60);});
+    $$('#inc-tabs .btn').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+    $('#inc-n').textContent=i<2?'Vueltas completadas y tiempo medio por vuelta.':'Vueltas completadas.';}
+  $$('#inc-tabs .btn').forEach(b=>b.onclick=()=>draw(+b.dataset.i));
+  const sl=$('#inc-bars').closest('.slide');let obs=new MutationObserver(()=>{if(sl.classList.contains('on'))setTimeout(()=>draw(0),50);});obs.observe(sl,{attributes:true,attributeFilter:['class']});draw(0);})();
+// 10 · semillas
+(function(){const sl=$('#p-s').closest('.slide');$$('[data-p]',sl).forEach(b=>b.onclick=()=>{$('#p-s').style.display=b.dataset.p==='s'?'flex':'none';$('#p-p').style.display=b.dataset.p==='p'?'flex':'none';$$('[data-p]',sl).forEach(k=>k.classList.toggle('on',k===b));});})();
+// 12 · ciclo
+(function(){const T=[['Git','El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1.'],['DVC','Pesos y datos ligados a cada commit, con dos remotos.'],['MLflow','Corridas, métricas, hipótesis y los intentos interrumpidos.'],['Manifiestos','SHA-256 de los pesos, contrato, ambiente compatible y commit.'],['Prefect','Valida, prueba, entrena, selecciona, publica y comprueba la versión que sirve la API.']];
+  $$('#tools .chip').forEach(b=>b.onclick=()=>{const t=T[+b.dataset.t];$('#tool-h').textContent=t[0];$('#tool-p').textContent=t[1];$$('#tools .chip').forEach(k=>k.classList.toggle('on',k===b));});
+  const S=[['v5','Estado inicial: el modelo recomendado.'],['v4','Rollback: el flujo devuelve la v4 y comprueba que la API la sirve.'],['v5','Vuelta a la v5: la API confirma la versión recomendada.']];let i=0;
+  $('#rb-go').onclick=()=>{i=(i+1)%3;$('#rb-v').textContent=S[i][0];$('#rb-t').textContent=S[i][1];};})();
+// 13 · demo
+$$('#demo-steps .chk').forEach(el=>el.onclick=()=>el.classList.toggle('done'));
+
+/* ---------- arranque ---------- */
+fit();
+const m0=/^#s(\d+)$/.exec(location.hash);show(m0?+m0[1]-1:0,true);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+requestAnimationFrame(loop);
+})();
+</script>
+</body></html>

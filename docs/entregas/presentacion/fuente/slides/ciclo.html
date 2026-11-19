@@ -1,0 +1,32 @@
+<section id="ciclo" class="gray" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Versionamiento y operación</p>
+<h2>Cada resultado se puede recuperar</h2>
+</div>
+<div class="row grow" style="gap:40px">
+<div class="col" style="width:1000px;gap:20px">
+<table class="t26">
+<tr><th style="width:24%">Pieza</th><th>Qué garantiza</th></tr>
+<tr><td><b>Git</b></td><td>El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1</td></tr>
+<tr><td><b>DVC</b></td><td>Pesos y datos ligados a cada commit, con dos remotos</td></tr>
+<tr><td><b>MLflow</b></td><td>Corridas, métricas, hipótesis y los intentos interrumpidos</td></tr>
+<tr><td><b>Manifiestos</b></td><td>SHA-256 de los pesos, contrato, ambiente compatible y commit</td></tr>
+<tr><td><b>Prefect</b></td><td>Valida, prueba, entrena, selecciona, publica y comprueba la versión que sirve la API</td></tr>
+</table>
+<p class="small mute">Registrar un candidato no lo promueve: promover exige pasar los criterios fijados antes.</p>
+</div>
+<div class="col grow" style="gap:20px">
+<div class="card grow">
+<h3>Recuperar un modelo viejo</h3>
+<p class="small"><b>1.</b> Leer su manifiesto: etiqueta, SHA-256 y ambiente.</p>
+<p class="small"><b>2.</b> Traer sus pesos: <code style="font-size:24px">git checkout &lt;etiqueta&gt;</code> y <code style="font-size:24px">dvc checkout</code></p>
+<p class="small"><b>3.</b> Evaluarlo con su ambiente compatible. La v4 corre con un adaptador validado.</p>
+</div>
+<div class="card">
+<h3>Rollback probado</h3>
+<p class="small">v5 → v4 → v5, comprobando la versión que sirve la API.</p>
+</div>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Allison</p></div>
+</section>

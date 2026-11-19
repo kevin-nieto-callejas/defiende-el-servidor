@@ -1,0 +1,26 @@
+<section id="incidente" class="dark" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Degradación encontrada por el equipo</p>
+<h2>100 % en la evaluación, 0 % en 11 de 35 experimentos</h2>
+</div>
+<div class="row" style="gap:32px">
+<div class="card" style="width:520px;gap:6px">
+<p class="num bad" style="font-size:88px">0 %</p>
+<p class="small">La v4 daba 100 % con los parámetros base. Al mover los deslizadores del visor chocaba (20 vueltas por combinación).</p>
+</div>
+<table class="t26 grow" style="width:1112px">
+<tr><th>Causa medida</th><th style="width:44%">Cambio de la v5</th></tr>
+<tr><td>Los rayos se dividían por el alcance: la misma lectura valía otra distancia</td><td>Escala fija de 40 m</td></tr>
+<tr><td>No conocía su ancho ni su aceleración</td><td>Los ve: 24 entradas</td></tr>
+<tr><td>Con μ 0.4 el pedal gastaba todo el agarre y no quedaba para girar</td><td>Control de tracción: 6 de 6 vueltas</td></tr>
+</table>
+</div>
+<table class="t26">
+<tr><th style="width:34%">100 vueltas por condición</th><th>PPO v4</th><th>PPO v5 s1</th><th>Q-learning v8 s1</th></tr>
+<tr><td>Seco</td><td>100 %, 75.6 s</td><td class="ok">100 %, 68.6 s</td><td>100 %, 81.0 s</td></tr>
+<tr><td>Lluvia</td><td>100 %, 91.8 s</td><td class="ok">100 %, 89.3 s</td><td>100 %, 106.9 s</td></tr>
+<tr><td>Sensores con ruido y lluvia</td><td class="bad">63 %</td><td class="ok">100 %</td><td class="bad">9 %</td></tr>
+<tr><td>Diluvio, μ 0.4</td><td class="bad">0 %</td><td class="ok">100 %</td><td class="bad">52 %</td></tr>
+</table>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div>
+</section>

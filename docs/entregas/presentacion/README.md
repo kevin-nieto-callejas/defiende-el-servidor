@@ -1,8 +1,13 @@
 # Presentación
 
-20 diapositivas con notas del orador. Las 13 primeras son la presentación de **10 minutos** que pide la entrega
-final (problema y contexto, ambiente, modelo e hipótesis, resultados con los intentos que no mejoraron,
-versionamiento, demostración, límites y aprendizajes). Las 7 del anexo quedan de respaldo para preguntas.
+17 diapositivas principales para los **10 minutos** de la sustentación (problema y contexto, ambiente, modelos e
+hipótesis, resultados con los intentos que no mejoraron, versionamiento, demostración, moto, límites, aprendizajes y
+quién hizo qué) y 8 de anexo para preguntas.
 
-La versión en PDF está en [presentacion.pdf](presentacion.pdf). Esta carpeta guarda el contenido: cada archivo de
-`slides/` es una diapositiva y `deck.json` tiene el orden.
+| Archivo | Qué es |
+|---|---|
+| [presentacion.pdf](presentacion.pdf) | Versión en PDF, 25 páginas |
+| [presentacion-interactiva.html](presentacion-interactiva.html) | Versión interactiva con carro y moto en 3D. Se abre en el navegador, con internet; avanza con las flechas del teclado |
+| [fuente/](fuente/) | Contenido editable: `deck.json` tiene el orden, `deck.css` los estilos y `slides/` una diapositiva por archivo |
+
+Las notas del orador no van en la presentación: el guion de la exposición se mantiene aparte.

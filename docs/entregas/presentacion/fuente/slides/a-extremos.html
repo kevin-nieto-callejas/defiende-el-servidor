@@ -1,0 +1,18 @@
+<section id="a-extremos" class="light" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Anexo · pruebas extremas del test reservado</p>
+<h2>Dónde falla cada agente</h2>
+</div>
+<table class="t26">
+<tr><th style="width:36%">Prueba (vueltas completadas)</th><th>PPO v5 s1</th><th>PPO v6 s1</th><th>Q-learning v8 s1</th></tr>
+<tr><td>Sensores con ruido 3 %, seco</td><td class="ok">100 %</td><td class="ok">100 %</td><td class="bad">14 %</td></tr>
+<tr><td>Sensores con ruido 3 %, lluvia</td><td class="ok">100 %</td><td class="ok">100 %</td><td class="bad">11 %</td></tr>
+<tr><td>Diluvio, μ 0.4</td><td>98 %</td><td class="ok">100 %</td><td class="bad">60 %</td></tr>
+<tr><td>Pista de 6 m, lluvia</td><td class="ok">100 %</td><td class="ok">100 %</td><td class="bad">67 %</td></tr>
+<tr><td>Salida torcida: 1.5 m y 15°</td><td class="ok">100 %</td><td class="ok">100 %</td><td class="bad">80 %</td></tr>
+<tr><td>Las otras 14 pruebas</td><td class="ok">100 %</td><td class="ok">100 %</td><td>96 a 100 %</td></tr>
+<tr class="hl"><td>Promedio de las 19 pruebas</td><td>99.9 %</td><td>100 %</td><td>84.8 %</td></tr>
+</table>
+<p class="small mute">Cada prueba cambia una sola condición; 100 semillas fuera del repositorio, una sola corrida. Un cambio a la vez es el límite que reconocemos: no probamos todos los extremos combinados.</p>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div>
+</section>

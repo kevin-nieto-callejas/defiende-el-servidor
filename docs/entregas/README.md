@@ -11,7 +11,8 @@ Dónde está cada cosa que piden el enunciado del proyecto final (30 de octubre)
 | Repositorio | https://github.com/melo11miguel/defiende-el-servidor |
 | Registro de experimentos (MLflow) y artefactos (DVC) | https://dagshub.com/kevin-nieto-callejas/autonomous-rally |
 | Modelo recomendado publicado | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo (etiqueta `v6-s1`) |
-| Presentación | [presentacion/presentacion.pdf](presentacion/presentacion.pdf) |
+| Presentación | [presentacion/presentacion.pdf](presentacion/presentacion.pdf) y [versión interactiva](presentacion/presentacion-interactiva.html) |
+| Informe en PDF | [informe.pdf](informe.pdf) |
 | Release final | Ver [Releases](https://github.com/melo11miguel/defiende-el-servidor/releases) en GitHub |
 
 ## Modelo recomendado y un modelo histórico

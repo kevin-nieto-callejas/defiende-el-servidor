@@ -1,0 +1,24 @@
+<section id="moto-agentes" class="dark" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Moto · mismo pipeline, criterios fijados antes de entrenar</p>
+<h2>PPO aceptado, Q-learning rechazado</h2>
+</div>
+<table class="t26">
+<tr><th style="width:27%"></th><th style="width:19%">Seco</th><th style="width:21%">Lluvia</th><th style="width:15%">Extremos</th><th>Decisión</th></tr>
+<tr><td>Experto de moto</td><td>100 %, 74.7 s</td><td class="bad">0 %: se cae</td><td></td><td>Referencia</td></tr>
+<tr><td>Maestro de moto</td><td>100 %, 78.4 s</td><td>100 %, 108.4 s</td><td></td><td>Profesor</td></tr>
+<tr class="hl"><td>ppo-moto-v1</td><td class="ok">100 %, 78.2 s</td><td class="ok">100 %, 110.0 s</td><td class="ok">98.1 %</td><td class="ok">Recomendada</td></tr>
+<tr><td>qlearning-moto-v1</td><td class="bad">0 %</td><td>96 %, 112.4 s</td><td class="bad">40.4 %</td><td class="bad">Rechazada</td></tr>
+</table>
+<div class="row" style="gap:32px">
+<div class="card grow">
+<h3>PPO: dónde falla</h3>
+<p class="small">20 iteraciones de DAgger y 1 millón de pasos. Con μ 0.75 completa 63.3 %: el sensor marca seco y entra a las curvas como en seco.</p>
+</div>
+<div class="card grow">
+<h3>Q-learning: por qué falla</h3>
+<p class="small">Su tabla no ve la inclinación: en seco no sabe cuándo empezar a tumbarse. La v2 la agrega en 3 rangos: 352 800 estados.</p>
+</div>
+</div>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Allison</p></div>
+</section>

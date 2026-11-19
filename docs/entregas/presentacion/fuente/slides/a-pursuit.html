@@ -1,0 +1,17 @@
+<section id="a-pursuit" class="light" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Anexo · pilotos de referencia</p>
+<h2>Cómo decide el pure pursuit, paso a paso</h2>
+</div>
+<table class="t26">
+<tr><th style="width:21%">Paso</th><th>Regla</th></tr>
+<tr><td><b>1 · Punto objetivo</b></td><td>Mira un punto de la línea central a 4 + 0.5·v metros, entre 5 y 14 m adelante</td></tr>
+<tr><td><b>2 · Dirección</b></td><td>δ = atan(2·L·sen α / distancia), con L = 2.5 m y α el ángulo al punto. Se normaliza a ±30°</td></tr>
+<tr><td><b>3 · Velocidad por curva</b></td><td>v = √(a_lat / κ) con a_lat = 0.85·μ supuesto·g. El experto permite 7.5 m/s²; el prudente, 4.2 m/s²</td></tr>
+<tr><td><b>4 · Frenada</b></td><td>Revisa los 60 m que vienen: v² ≤ v_curva² + 2·f·distancia, con f = 6·μ/0.9 m/s²</td></tr>
+<tr><td><b>5 · Pedal</b></td><td>u = 0.8·(velocidad objetivo − velocidad), recortado a [−1, 1]</td></tr>
+<tr><td><b>6 · Control de tracción</b></td><td>El pedal gasta como máximo 0.8 (seco) o 0.7 (lluvia) del agarre supuesto y deja el resto para girar</td></tr>
+</table>
+<p class="small mute">El maestro reúne dos pilotos: con la señal de lluvia encendida usa μ 0.45 y tracción 0.7; si no, μ 0.8 y tracción 0.8. Estos pilotos leen el estado interno del simulador; los agentes no.</p>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div>
+</section>

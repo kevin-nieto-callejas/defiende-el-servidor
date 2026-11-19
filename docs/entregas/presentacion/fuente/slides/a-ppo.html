@@ -1,0 +1,18 @@
+<section id="a-ppo" class="dark" data-transition="fade">
+<div class="col" style="gap:12px">
+<p class="kicker">Anexo · PPO</p>
+<h2>Parámetros del entrenamiento</h2>
+</div>
+<table class="t26">
+<tr><th style="width:25%">Parámetro</th><th style="width:34%">Valor</th><th>Para qué</th></tr>
+<tr><td>Red</td><td>24 → 256 → 256 → 2, tanh</td><td>72 706 pesos en la política; el crítico es otra red igual</td></tr>
+<tr><td>Escala</td><td>12 simulaciones, 3 M de pasos</td><td>De 1 a 1.5 h en 4 núcleos, sin GPU</td></tr>
+<tr><td>Aprendizaje</td><td>0.0001; γ 0.995; λ 0.95; recorte 0.2</td><td>Tasa baja para no deshacer lo imitado</td></tr>
+<tr><td>Exploración</td><td>Ruido inicial ≈ 0.2</td><td>En la v3 era 0.37</td></tr>
+<tr><td>DAgger</td><td>20 iteraciones × 16 vueltas, 15 épocas</td><td>Error cuadrático sobre la acción media</td></tr>
+<tr><td>Adherencia</td><td>Lluvia 0.4–0.75 (50 %); seco 0.75–1.0</td><td>Cubre todo el rango del visor</td></tr>
+<tr><td>Configuración</td><td>Ancho 6–12, aceleración 2–6, alcance 10–40; 30 % con la base</td><td>La condición base no queda menos practicada</td></tr>
+<tr><td>Evaluación</td><td>Cada 200 000 pasos, modelo congelado</td><td>Se guarda el mejor punto, no el último</td></tr>
+</table>
+<div class="foot"><p>Telemetría · Autonomous Rally</p><p>Anexo</p></div>
+</section>
