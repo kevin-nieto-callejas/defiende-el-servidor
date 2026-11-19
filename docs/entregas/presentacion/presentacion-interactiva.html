@@ -112,9 +112,11 @@ tr.pick.sel td{background:var(--paper2);font-weight:700} .dk tr.pick.sel td{back
 <div class="cv-wrap" style="position:absolute;right:60px;top:150px;width:800px;height:780px"><canvas class="c3d" id="cv-portada" style="width:100%;height:100%"></canvas><div class="nov">Vista 3D no disponible en este navegador</div><p class="cv-tag">Arrastra para girar el carro</p></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Miguel</p></div></section><section class="slide cr"><div class="hd"><p class="k">Problema y contexto</p><h2>Una vuelta completa sin salirse</h2></div>
 <div class="row" style="gap:48px;flex:1;min-height:0">
 <div class="col" style="width:760px;gap:22px">
-<div class="row" style="align-items:baseline;gap:22px"><span class="big" style="font-size:68px;width:330px;white-space:nowrap">1 048.6 m</span><span class="s">de circuito inspirado en Mónaco, con 18 curvas</span></div>
-<div class="row" style="align-items:baseline;gap:22px"><span class="big" style="font-size:68px;width:330px;white-space:nowrap">6 + meta</span><span class="s">checkpoints que hay que pasar en orden</span></div>
-<div class="row" style="align-items:baseline;gap:22px"><span class="big" style="font-size:68px;width:330px;white-space:nowrap">180 s</span><span class="s">de límite: al agotarse, el episodio se trunca</span></div>
+<div class="row" style="gap:28px;align-items:flex-start">
+<div class="col" style="flex:1;gap:6px"><span class="big" style="font-size:54px;white-space:nowrap">1 048.6 m</span><span class="s">de circuito inspirado en Mónaco, con 18 curvas</span></div>
+<div class="col" style="flex:1;gap:6px"><span class="big" style="font-size:54px;white-space:nowrap">6 + meta</span><span class="s">checkpoints que hay que pasar en orden</span></div>
+<div class="col" style="flex:1;gap:6px"><span class="big" style="font-size:54px;white-space:nowrap">180 s</span><span class="s">de límite: al agotarse, el episodio se trunca</span></div></div>
+<div class="card"><h3>Por qué importa</h3><p class="s">Probar un vehículo autónomo en la calle es caro y peligroso. En simulación puede fallar sin costo, y el ciclo de MLOps demuestra qué modelo está en servicio, cómo se entrenó y cómo volver al anterior.</p></div>
 <div class="card"><h3>El incidente que debe resistir</h3><p class="s">Con lluvia la adherencia baja de 0.9 a 0.5. El agente no ve ese número: solo sabe si llueve. Un piloto que supone piso seco se sale.</p></div></div>
 <div class="col g" style="gap:14px">
 <div class="tabs"><button class="btn on" data-m="dry">Piso seco</button><button class="btn" data-m="wet">Lluvia</button></div>
@@ -213,10 +215,10 @@ tr.pick.sel td{background:var(--paper2);font-weight:700} .dk tr.pick.sel td{back
 <div class="row"><div class="card g"><h3>Test reservado de la v6 semilla 1</h3><p class="t">100 semillas nuevas que no están en el repositorio, una sola corrida: 100 % en seco (80.4 s), 100 % con lluvia y 100 % en las 19 pruebas extremas.</p></div>
 <div class="card g"><h3>Qué no hicimos</h3><p class="t">No cambiamos los criterios para que la semilla 0 pasara. La semilla 2 también pasa, pero llegó después del test reservado y no se promueve.</p></div></div><div class="foot"><p>Telemetría · Autonomous Rally</p><p>Kevin</p></div></section><section class="slide dk"><div class="hd"><p class="k">Versionamiento y operación</p><h2>Cada resultado se puede recuperar</h2></div>
 <div class="row" style="gap:40px;flex:1;min-height:0">
-<div class="col" style="width:880px;gap:18px"><div class="tabs" id="tools"><button class="chip on" data-t="0">Git</button><button class="chip" data-t="1">DVC</button><button class="chip" data-t="2">MLflow</button><button class="chip" data-t="3">Manifiestos</button><button class="chip" data-t="4">Prefect</button></div>
-<div class="card" style="min-height:150px"><h3 id="tool-h">Git</h3><p class="t" id="tool-p">El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1.</p></div>
+<div class="col" style="width:880px;gap:12px"><div class="tabs" id="tools"><button class="chip on" data-t="0">Git</button><button class="chip" data-t="1">DVC</button><button class="chip" data-t="2">MLflow</button><button class="chip" data-t="3">Manifiestos</button><button class="chip" data-t="4">Prefect</button><button class="chip" data-t="5">Ambiente</button><button class="chip" data-t="6">Configuración</button></div>
+<div class="card" style="min-height:150px;flex-shrink:0"><h3 id="tool-h">Git</h3><p class="t" id="tool-p">El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1.</p></div>
 <p class="s mu">Registrar un candidato no lo promueve: promover exige pasar los criterios fijados antes.</p>
-<div class="card" style="gap:14px"><h3>Recuperar un modelo viejo</h3>
+<div class="card" style="gap:10px;flex-shrink:0"><h3>Recuperar un modelo viejo</h3>
 <div class="step"><b>1</b><p>Leer su manifiesto: etiqueta, SHA-256 y ambiente.</p></div>
 <div class="step"><b>2</b><p>Traer sus pesos: <code>git checkout &lt;etiqueta&gt;</code> y <code>dvc checkout</code></p></div>
 <div class="step"><b>3</b><p>Evaluarlo con su ambiente compatible. La v4 corre con un adaptador validado.</p></div></div></div>
@@ -622,7 +624,7 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
 // 10 · semillas
 (function(){const sl=$('#p-s').closest('.slide');$$('[data-p]',sl).forEach(b=>b.onclick=()=>{$('#p-s').style.display=b.dataset.p==='s'?'flex':'none';$('#p-p').style.display=b.dataset.p==='p'?'flex':'none';$$('[data-p]',sl).forEach(k=>k.classList.toggle('on',k===b));});})();
 // 12 · ciclo
-(function(){const T=[['Git','El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1.'],['DVC','Pesos y datos ligados a cada commit, con dos remotos.'],['MLflow','Corridas, métricas, hipótesis y los intentos interrumpidos.'],['Manifiestos','SHA-256 de los pesos, contrato, ambiente compatible y commit.'],['Prefect','Valida, prueba, entrena, selecciona, publica y comprueba la versión que sirve la API.']];
+(function(){const T=[['Git','El código y una etiqueta por modelo, como modelo-v4 o modelo-v6-pistas-s1.'],['DVC','Pesos y datos ligados a cada commit, con dos remotos.'],['MLflow','Corridas, métricas, hipótesis y los intentos interrumpidos.'],['Manifiestos','SHA-256 de los pesos, contrato, ambiente compatible y commit.'],['Prefect','Valida, prueba, entrena, selecciona, publica y comprueba la versión que sirve la API.'],['Ambiente','Versión (0.1 → 0.4) y huella en cada manifiesto: cada modelo se evalúa con su ambiente compatible.'],['Configuración','params.yaml y configs/seleccion.yaml en git: hipótesis y criterios fijados antes de entrenar.']];
   $$('#tools .chip').forEach(b=>b.onclick=()=>{const t=T[+b.dataset.t];$('#tool-h').textContent=t[0];$('#tool-p').textContent=t[1];$$('#tools .chip').forEach(k=>k.classList.toggle('on',k===b));});
   const S=[['v5','Estado inicial: el modelo recomendado.'],['v4','Rollback: el flujo devuelve la v4 y comprueba que la API la sirve.'],['v5','Vuelta a la v5: la API confirma la versión recomendada.']];let i=0;
   $('#rb-go').onclick=()=>{i=(i+1)%3;$('#rb-v').textContent=S[i][0];$('#rb-t').textContent=S[i][1];};})();

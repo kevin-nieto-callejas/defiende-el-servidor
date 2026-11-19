@@ -5,6 +5,8 @@ Equipo: Telemetría · Integrantes: Kevin Nieto, Miguel Melo y Allison Loango ·
 
 ## Resumen
 
+**Problema y valor.** Un vehículo autónomo tiene que funcionar en condiciones que no controla: lluvia, un carro distinto, sensores con ruido o una vía que no conoce. Probar eso en la calle es caro y peligroso; en simulación el agente puede fallar miles de veces sin costo. El valor está en dos piezas: un agente que aguanta esas condiciones y un ciclo que demuestra qué modelo está en servicio, cómo se entrenó y cómo volver al anterior, que es lo que pediría un auditor antes de dejarlo operar.
+
 Entrenamos un agente que completa un circuito de 1 048.6 m inspirado en Mónaco, pasando seis checkpoints en
 orden. El modelo recomendado hoy es **PPO v6 semilla 1**, entrenado en tres pistas. En su test reservado, corrido una
 sola vez con semillas nuevas fuera del repositorio, completó el 100 % de las vueltas en seco (80.4 s) y con lluvia,
@@ -12,7 +14,7 @@ y el 100 % en las 19 condiciones más difíciles. Antes era la v5 semilla 1, que
 100 % y 99.9 %. Cada versión se puede identificar por su manifiesto, recuperar y evaluar con su ambiente
 compatible. Conservamos también los intentos fallidos.
 
-El resultado más útil no fue un número sino una corrección: la v4 ya daba 100 % en la evaluación oficial y aun
+El resultado más útil fue una corrección: la v4 ya daba 100 % en la evaluación oficial y aun
 así chocaba en los experimentos del visor. La evaluación solo cubría los parámetros base.
 
 Después probamos si el agente sabe manejar o memorizó Mónaco, con tres pistas nuevas y una reservada. El modelo
@@ -154,14 +156,19 @@ Sierra, ya usada).
 | **v6 semilla 1** (Actions) | **100 / 100 %, 80.4 s** | **100 / 100 %** | **100 / 100 %** | **100 %** | **100 %** | **aceptada, 7 de 7** |
 | v6 semilla 2 (Actions, 14 nov) | 100 / 100 %, 78.2 s | 100 / 100 % | 100 / 100 % | 100 % | 100 % | aceptada, 7 de 7; no se promueve |
 | Control semilla 1 (Actions) | 100 / 100 %, 81.5 s | **0 / 0 %** | 100 / **0 %** | 94.7 % | sensores cortos con lluvia 0 % | rechazada |
+| Control semilla 2 (Actions, 14 nov) | 100 / 100 %, 78.6 s | **26 / 0 %** | **0 / 0 %** | 100 % | 100 % | cumpliría 7 de 7 (no es candidato) |
 
-1. **Practicar en tres pistas da un resultado estable entre semillas; practicar solo en Mónaco, no:** el control semilla 1
-   no completa el Bosque.
+1. **Practicar en tres pistas da un resultado estable entre semillas; practicar solo en Mónaco, no:** las tres
+   semillas de la v6 completan Mónaco, Bosque y Puerto, y ninguna de las tres del control lo logra (la semilla 0
+   completa 30 % del Bosque con lluvia, la 1 no termina el Bosque y la 2 no termina el Puerto).
 2. **La caída de la v6 semilla 0 no viene de las pistas ni del Mac:** la semilla 1 da 100 % en extremos, y el control
    semilla 0, entrenado en el mismo Mac, da 98 %.
 3. **Lo que distingue a la semilla 0** es que afinó con PPO hasta el final y es 10.6 s más rápida. Las semillas 1 y 2
    se quedaron con su punto del paso 200 004 y las dos dan 100 % en extremos. La hipótesis es que afinar mucho cambia
    robustez por velocidad; tres semillas son consistentes con ella, pero no la comprueban.
+4. **Los criterios de selección solo miran Mónaco.** El control semilla 2 los cumpliría (7 de 7, con
+   `seleccion.decidir`) y aun así no termina el Puerto: un modelo que memorizó Mónaco puede pasarlos. Por eso la
+   v6 se juzgó también en Bosque y Puerto, y la siguiente versión de los criterios debería incluirlas.
 
 La v6 semilla 1 pasó los criterios del 1 de noviembre sin tocarlos, pasó su test reservado y se promovió. El
 historial conserva la v5 semilla 1 para el rollback.
@@ -183,7 +190,7 @@ de cada modelo; el manifiesto de cada versión guarda su `presupuesto`.
 | PPO v5 (3 M pasos) | 3 821 episodios, 89 min | 3 829 episodios, 4.3 h* | 3 868 episodios, 67 min (+31 min interrumpida) | PC de Kevin, Linux |
 | Q-learning v8 (600 episodios de refuerzo) | 54 min | 2.3 h* (+28 min interrumpida) | 47 min | PC de Kevin, Linux |
 | PPO v6 (3 M pasos) | 3 697 episodios, 94 min + ~3.5 h antes del corte** | 3 369 episodios, 62 min | 3 794 episodios, 73 min | Mac de Miguel (s0); GitHub Actions, 4 vCPU (s1 y s2) |
-| Control de la v6 (3 M pasos) | Mac de Miguel** | 3 855 episodios, 64 min | en curso | Mac (s0); GitHub Actions (s1 y s2) |
+| Control de la v6 (3 M pasos) | Mac de Miguel** | 3 855 episodios, 64 min | 3 793 episodios, 46 min | Mac (s0); GitHub Actions (s1 y s2) |
 
 \* Con varios entrenamientos a la vez en el mismo equipo. \*\* El Mac se suspendió por batería y el entrenamiento siguió
 desde su punto de guardado. En total, unas **25 horas de CPU**: un PPO de 3 millones de pasos tarda de 1 a 1.5 horas
@@ -217,6 +224,9 @@ Por eso el modelo guardado es el del paso 200 004: el entrenador conserva el mej
   entrenamiento, y la Sierra ya se usó con la semilla 0. Sabemos que la v6 semilla 0 generaliza, no la semilla 1.
 - **Robustez a cambio de velocidad:** la recomendada es 11.8 s más lenta en seco que la v5 semilla 1 y casi igual
   al maestro (80.8 s). Los criterios no premian el tiempo por debajo del máximo.
+- **Los criterios de selección solo miden Mónaco:** el control semilla 2 los cumpliría y no termina el Puerto.
+  La generalización a otras pistas se juzgó aparte, en Bosque, Puerto y Sierra.
+- **La ficha no se intercambió con otro equipo:** la revisamos entre nosotros y con las pruebas automáticas.
 - **Tres semillas de la v6, de las cuales pasan dos:** la que falla es la única que afinó con PPO hasta el final;
   tres semillas no bastan para probar que esa sea la causa. La semilla 2 tampoco tiene prueba en una pista nueva.
   Cuatro pistas de la misma familia (rectas y arcos de radio constante).
@@ -244,10 +254,6 @@ antes de entrenar y tiene su propio recomendado, historial y decisiones en `mani
 Un modelo de un vehículo pedido en el otro responde 409 en la API, porque sus contratos son distintos (24 contra 26
 observaciones). La física del carro no cambió: misma huella en 100 000 pasos y métricas idénticas.
 
-## Pendiente antes de la entrega
-
-- Intercambio de la ficha con otro equipo.
-
 ## Contribuciones
 
 | Integrante | Qué hizo |
@@ -257,7 +263,9 @@ observaciones). La física del carro no cambió: misma huella en 100 000 pasos y
 | Allison Loango | Moto MotoGP: ambiente, pilotos, PPO y Q-learning, API y web. API publicada como función de Vercel con PPO en numpy y verificación en CI. Presentación y guion de la sustentación. |
 
 Cada integrante puede explicar el contrato del ambiente, el versionamiento y cómo desplegar y reproducir la solución.
-Usamos asistentes de código y verificamos lo generado con pruebas y métricas.
+Usamos asistentes de código y verificamos lo generado con pruebas y métricas. En el historial de git, los commits de
+la moto (11 de noviembre) y los de la entrega final aparecen con autor «Claude» o «Angie Loango»: son trabajo de
+Allison, hechos con el asistente de código y desde un computador con otra configuración de git.
 
 ## Siguiente hipótesis razonable
 
@@ -265,4 +273,5 @@ La hipótesis de entrenar en varias pistas para manejar una que nunca vio ya se 
 Las semillas 1 y 2 mostraron además que no hace falta sacrificar los extremos. La siguiente: una quinta pista
 reservada (de otra familia, con curvas de radio variable) diría si la v6 semilla 1 también generaliza, y entrenar
 la v6 con y sin afinar hasta el final diría si afinar mucho con PPO cambia robustez por velocidad. Se mediría con
-los mismos criterios, sin cambiarlos.
+los mismos criterios, sin cambiarlos. Para una próxima familia de modelos, los criterios deberían incluir desde el
+principio las pistas de práctica, porque hoy un modelo que memorizó Mónaco puede pasarlos.

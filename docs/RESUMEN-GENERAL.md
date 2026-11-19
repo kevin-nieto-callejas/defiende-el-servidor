@@ -4,8 +4,8 @@
 funciona todo, qué hicimos día por día, qué resultados hay, dónde está cada cosa, qué falta y cómo responder las
 preguntas de la sustentación. Si después de leerlo te queda una duda, revisa la sección 16, de preguntas frecuentes.
 
-Última actualización: 10 de noviembre de 2026, sobre el commit `dedbc1b` de `main`, que es el publicado en Vercel.
-Incluye el experimento v6 (tres pistas), el selector de pista de la web y el veredicto de selección de la v6.
+Última actualización: 18 de noviembre de 2026, para la entrega final (tag `entrega-final`). Incluye el experimento
+v6 (tres pistas) con tres semillas por lado, la promoción de la v6 semilla 1, el selector de pista de la web y la moto.
 
 Desde el 11 de noviembre incluye también el **segundo vehículo**, la moto MotoGP: su ambiente, sus dos
 agentes, sus manifiestos y su veredicto de selección (secciones 4.10 y 7.8).
@@ -46,13 +46,13 @@ perturbaciones. Además construimos el ciclo completo para que cada resultado se
 | Resultado en el test reservado | v6-s1: 100 % en seco (80.4 s), 100 % con lluvia y 100 % en 19 pruebas extremas. v5-s1: 100 %, 100 % y 99.9 % |
 | Segundo agente | `qlearning-modelo-qlearning-v8-s1`: tabla Q, 99 % en seco, 99 % con lluvia, 84.8 % en extremos |
 | ¿Memorizó Mónaco? | La v5-s1 sí: 0 % en el Puerto y en la Sierra (pista reservada) |
-| Experimento más reciente | `ppo-modelo-v6-pistas`: entrenada en tres pistas, maneja en una pista que nunca vio (100 %), pero **no pasa la selección**: cae en condiciones extremas de Mónaco (sección 7.7) |
+| Experimento más reciente | v6, tres pistas: la semilla 0 maneja en una pista que nunca vio (100 %) pero no pasa la selección; las semillas 1 y 2 pasan 7 de 7, y la 1 se promovió. Las tres semillas del control (solo Mónaco) fallan en alguna pista de práctica (sección 7.7) |
 | Segundo vehículo | Moto MotoGP (`AutonomousRallyMoto-v0`): mismo circuito, física de inclinación y caída. Recomendada `ppo-moto-v1`: 100 % en seco (78.2 s) y 100 % con lluvia (110.0 s) |
 | Avance estimado frente a la rúbrica | Cerca del 96 % (estimación del equipo, no una medición). Lo que falta es de la sustentación |
-| Lo que más falta | Ensayo, nombre del equipo y contribuciones, y respuestas del docente |
+| Lo que más falta | Ensayo de la sustentación y enviar el correo de entrega |
 | Web pública | https://autonomous-rally.vercel.app (simula en vivo en `/api`; selector de pista desde el 10 de noviembre) |
-| Pruebas automáticas | 109, todas pasan. Las de la API se saltaban en CI porque faltaba `httpx` en `requirements.txt`; desde el 11 de noviembre corren |
-| Versiones de modelos con manifiesto | 19: 17 del carro y 2 de la moto |
+| Pruebas automáticas | 110, todas pasan. Las de la API se saltaban en CI porque faltaba `httpx` en `requirements.txt`; desde el 11 de noviembre corren |
+| Versiones de modelos con manifiesto | 21: 19 del carro y 2 de la moto |
 
 **Nota sobre el nombre:** el repositorio se llama `defiende-el-servidor` porque empezó con otro proyecto. Ese plan
 quedó guardado en [antecedentes/](antecedentes/defiende-el-servidor.md) y ya no aplica. Todo lo actual es
@@ -87,10 +87,10 @@ con el ambiente compatible con ese modelo**.
 
 | Criterio | Peso | Estado | Qué falta |
 |---|---:|---|---|
-| Versionamiento y recuperación | 30 % | Casi completo | Que el docente pueda entrar a DagsHub: hoy pide iniciar sesión |
+| Versionamiento y recuperación | 30 % | Completo | DagsHub pide iniciar sesión: la guía para el revisor explica cómo entrar con una cuenta gratuita, sin compartir contraseñas |
 | Diseño experimental y análisis | 25 % | Casi completo | Nada técnico; ensayar la explicación, incluida la v6 |
 | Pipeline, despliegue, monitoreo y rollback | 20 % | Completo | Nada técnico: `dvc status` limpio y el flujo de Prefect probado también con un rechazo |
-| Ambiente y agente | 10 % | Completo | Intercambiar la ficha con otro equipo |
+| Ambiente y agente | 10 % | Completo | La ficha no se intercambió con otro equipo (dicho en los límites del informe) |
 | Defensa, informe y presentación | 15 % | Material listo | Ensayo |
 
 ### 3.2 Requisito por requisito
@@ -505,8 +505,11 @@ midieron en las pistas de entrenamiento (sin la Sierra, ya usada):
 | **v6 semilla 1** (Actions) | **100 / 100 %, 80.4 s** | **100 / 100 %** | **100 / 100 %** | **100 %** | **100 %** | **aceptada, 7 de 7** |
 | v6 semilla 2 (Actions, 14 nov) | 100 / 100 %, 78.2 s | 100 / 100 % | 100 / 100 % | 100 % | 100 % | aceptada, 7 de 7; no se promueve |
 | Control semilla 1 (Actions) | 100 / 100 %, 81.5 s | **0 / 0 %** | 100 / **0 %** | 94.7 % | sensores cortos con lluvia 0 % | rechazada |
+| Control semilla 2 (Actions, 14 nov) | 100 / 100 %, 78.6 s | **26 / 0 %** | **0 / 0 %** | 100 % | 100 % | cumpliría 7 de 7 (no es candidato) |
 
-- Practicar en tres pistas da un resultado estable entre semillas; solo en Mónaco, no.
+- Practicar en tres pistas da un resultado estable entre semillas; solo en Mónaco, no: ninguna de las tres semillas
+  del control completa las pistas de práctica.
+- Los criterios de selección solo miran Mónaco: el control semilla 2 los cumpliría y no termina el Puerto.
 - La caída de la semilla 0 no venía de las pistas ni del Mac: la semilla 1 da 100 % en extremos y el control
   semilla 0, entrenado en el mismo Mac, 98 %.
 - La semilla 0 es la única que afinó con PPO hasta el final y la más rápida. Las semillas 1 y 2 se quedaron con su
@@ -632,8 +635,10 @@ API (FastAPI) sirve el recomendado ──► web en Vercel (en vivo; replay si l
 - MLflow registra cada entrenamiento: parámetros, hipótesis, métricas y si el run se interrumpió. Los runs
   interrumpidos se conservan.
 - Base local `mlflow.db`; `rally sincronizar` copia los experimentos a DagsHub.
-- Registro de modelos: `rally-ppo` versión 6 y `rally-qlearning` versión 9 tienen la etiqueta `@champion`.
-- Experimentos: https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments (pide iniciar sesión).
+- Registro de modelos: `rally-ppo` versión 7 (v6-s1) y `rally-qlearning` versión 9 tienen la etiqueta `@champion`;
+  `rally-ppo` versión 6 (v5-s1) tiene `@rollback`.
+- Experimentos: https://dagshub.com/kevin-nieto-callejas/autonomous-rally/experiments (pide iniciar sesión; basta
+  una cuenta gratuita).
 
 ### 8.4 Manifiestos
 
@@ -727,7 +732,7 @@ función lleva su propia cuenta y se reinicia cuando Vercel la recicla; la respu
 
 | Pieza | Dónde | Estado |
 |---|---|---|
-| Web | Vercel, desde el fork de Kevin, carpeta `web/` | Publicada y al día: commit `dedbc1b`, 10 de noviembre, con el selector de pista |
+| Web | Vercel, desde el `main` del fork de Kevin, carpeta `web/` | Publicada; `/api/salud` dice qué commit sirve |
 | API | Vercel, función de Python en `web/api/index.py`, en el mismo dominio | Publicada el 6 de noviembre con `web/api/_paquete` (modelos reales, 2.8 MB). La función pesa 191 MB, bajo el límite de 500. Hugging Face quedó descartado: los Spaces con Docker exigen PRO |
 | Contenedor | `deploy/api/Dockerfile`, paquete con `deploy/api/empaquetar.py` | GitHub Actions lo construye sin pesos y prueba sus rutas en cada push. Queda como alternativa para un host con Docker |
 | Modelo en Hugging Face | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo | PPO v6 semilla 1, etiqueta `v6-s1`, con manifiesto y test reservado; SHA-256 verificado al bajarlo (13 nov). Las versiones anteriores siguen en las etiquetas `v1`, `v2`, `v4` y `v5-s1` |
@@ -741,9 +746,9 @@ y lo guarda adentro, así la identidad sigue siendo la del manifiesto. La API di
 (`numpy`, `pytorch`, `tabla` o `reglas`).
 
 **Por qué el fork:** Vercel no tiene acceso al repositorio de Miguel. **Unir algo a `main` no publica la web.**
-Para publicar: subir `main` a la rama `ambiente-v0.4` del fork, esperar a que Vercel arme la vista previa
-("Ready") y, en el panel de Vercel, abrir esa versión y elegir **Promote to Production**. Después, comprobar la URL
-pública. La versión publicada es `dedbc1b` (10 de noviembre).
+Para publicar en producción: subir `main` al `main` del fork de Kevin (`git push <fork> main:main`) y esperar a que
+Vercel termine el despliegue (desde el 13 de noviembre; ver la bitácora). La rama `ambiente-v0.4` del fork queda para
+vistas previas. Después, comprobar que el `commit` de `/api/salud` sea el mismo del tag `entrega-final`.
 
 ### 8.10 Seguridad
 
@@ -953,24 +958,16 @@ Todo se entrenó en el portátil de Kevin, con WSL Ubuntu en Windows.
 
 ## 14. Lo que falta
 
-| Tarea | Responsable | Prioridad | Depende de |
-|---|---|---|---|
-| Ensayar la sustentación: cada integrante debe explicar ambiente, versionamiento, despliegue y la v6 | Todos | Alta | — |
-| Preguntar cómo revisará DagsHub, que pide iniciar sesión | Kevin | Alta | Docente |
-| Confirmar que Prefect sirve como orquestador (la otra opción era Airflow) | Kevin | Media | Docente |
-| Agregar el veredicto de selección a [experimentos/v6-pistas.md](experimentos/v6-pistas.md) | Miguel | Media | — |
-| Medir si la caída de la v6 en extremos viene de las tres pistas o del entrenamiento: semilla 1 de la v6 y del control con las 21 pruebas, en GitHub Actions (rama `semillas-v6`) | Miguel | Media | Que termine el flujo "Semillas v6" |
-| Revisar el resultado de GitHub Actions (pruebas, web y contenedor) | Miguel | Media | — |
-| Intercambiar la ficha con otro equipo y corregir lo ambiguo | Equipo | Media | Otro equipo |
-| Rotar los tokens de Hugging Face y DagsHub | Kevin | Media | — |
-| Reactivar el Turbo del procesador cuando no se entrene | Kevin | Baja | — |
+| Tarea | Responsable | Prioridad |
+|---|---|---|
+| Ensayar la sustentación con cronómetro (10 minutos, 17 diapositivas): cada integrante debe explicar ambiente, versionamiento, despliegue y la v6 | Todos | Alta |
+| Enviar el correo de entrega con el SHA completo del tag `entrega-final` | Equipo | Alta |
+| Comprobar en una ventana de incógnito la web, `/api/salud`, Hugging Face y DagsHub antes de enviar | Equipo | Alta |
+| Rotar los tokens de Hugging Face y DagsHub después de la entrega | Kevin | Media |
 
-Ya hecho y comprobado desde la URL pública el 10 de noviembre: las tres pistas, la Sierra bloqueada, la demo del
-Puerto y la barra sin solapes. El 6 de noviembre se comprobaron el catálogo, los deslizadores, las semillas y
-evaluar.
-
-**Lo técnico está terminado y publicado.** Lo que falta es el ensayo, los datos del equipo y las respuestas del
-docente.
+Ya hecho: el veredicto de selección en [experimentos/v6-pistas.md](experimentos/v6-pistas.md), las tres semillas
+de la v6 y del control, el nombre del equipo y las contribuciones, y el informe y la presentación finales. La ficha no
+se intercambió con otro equipo; está dicho en los límites del informe.
 
 ---
 
@@ -983,7 +980,8 @@ docente.
 - **La v5-s1, la anterior, memorizó Mónaco:** 0 % en el Puerto y en la Sierra. Hay que contarlo como el hallazgo que
   llevó a la v6.
 - **Las cuatro pistas son de la misma familia:** rectas y arcos de radio constante. La v6 tiene tres semillas (pasan
-  dos) y su control, dos.
+  dos) y su control, tres (ninguna completa las pistas de práctica).
+- **Los criterios de selección solo miden Mónaco:** el control semilla 2 los cumpliría y no termina el Puerto.
 - **Las 19 pruebas extremas cambian una condición a la vez.** Combinadas, el modelo falla: con diluvio y
   aceleración 6 completó 1 de 3 vueltas, y con todos los deslizadores al extremo (pista de 6 m, μ 0.4, aceleración
   6 y sensores de 10 m), 0 de 3. Medido el 3 de noviembre en la API local. Si el docente prueba eso en la web, va a

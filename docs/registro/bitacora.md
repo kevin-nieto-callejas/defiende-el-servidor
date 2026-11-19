@@ -276,3 +276,16 @@ Registro cronológico de decisiones, fallos y correcciones. Los commits de git t
 - Encontrado de paso: `rally manifiesto --vehiculo carro` reescribe el catálogo sin las filas de la moto. Hay que
   correrlo sin `--vehiculo`.
 
+## 18 nov 2026 — revisión de la entrega final
+
+- Se incorporó a `main` la tercera semilla del control (rama `semilla2-control`, run 43626496321): Mónaco 100 / 100 %
+  (78.6 s), Bosque 26 / 0 %, Puerto 0 / 0 %, extremos 100 %. Las tres semillas del control fallan en alguna pista de
+  práctica; las tres de la v6, no. Con `seleccion.decidir` cumpliría los 7 criterios: los criterios solo miran Mónaco.
+- Los datos del modo replay de la web (`web/public/datos/`) seguían con la v5-s1 como recomendada y sin vueltas de la
+  v6. Se regeneraron con `rally.replays.generar`.
+- La guía para el revisor decía que todo era público sin cuenta; DagsHub pide iniciar sesión. Se corrigió y se
+  explicó cómo entrar sin compartir contraseñas.
+- Informe: contexto de negocio, límites nuevos (criterios solo en Mónaco, ficha sin intercambio) y nota sobre los
+  autores de los commits de la moto. Presentación: valor del problema y versionamiento del ambiente y las
+  configuraciones; PDF regenerado con texto seleccionable.
+- `pytest` recogía `scripts/analisis/test_final_npz.py` como prueba; ahora solo busca en `tests/`.

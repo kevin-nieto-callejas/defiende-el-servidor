@@ -1,7 +1,8 @@
 # Guía para el revisor
 
 Dónde está cada cosa que piden el enunciado del proyecto final (30 de octubre) y la guía de entrega final
-(13 de noviembre). Todo es público: no hace falta cuenta ni contraseña.
+(13 de noviembre). El repositorio, la aplicación y el modelo de Hugging Face son públicos; para DagsHub, ver
+[Acceso](#acceso-sin-contraseñas).
 
 ## Enlaces
 
@@ -13,7 +14,7 @@ Dónde está cada cosa que piden el enunciado del proyecto final (30 de octubre)
 | Modelo recomendado publicado | https://huggingface.co/Kevinnieto0001/autonomous-rally-ppo (etiqueta `v6-s1`) |
 | Presentación | [presentacion/presentacion.pdf](presentacion/presentacion.pdf) y [versión interactiva](presentacion/presentacion-interactiva.html) |
 | Informe en PDF | [informe.pdf](informe.pdf) |
-| Release final | Ver [Releases](https://github.com/melo11miguel/defiende-el-servidor/releases) en GitHub |
+| Versión entregada | Tag `entrega-final` y su [release](https://github.com/melo11miguel/defiende-el-servidor/releases/tag/entrega-final); el SHA completo del commit va en el correo de entrega |
 
 ## Modelo recomendado y un modelo histórico
 
@@ -30,15 +31,26 @@ Dónde está cada cosa que piden el enunciado del proyecto final (30 de octubre)
 
 En la web: **Catálogo** → buscar el modelo → **Cargar** o **Evaluar**. Para compararlos, marcar las dos casillas.
 
+## Acceso sin contraseñas
+
+| Servicio | Cómo se entra |
+|---|---|
+| GitHub, aplicación en Vercel y Hugging Face | Públicos, sin cuenta |
+| DagsHub (MLflow y DVC) | El repositorio es público, pero DagsHub puede pedir iniciar sesión para ver los experimentos, y `dvc pull` pide usuario y token. Basta una cuenta gratuita de DagsHub con su propio token (instrucciones en el [README](../../README.md#instalación)); si el docente lo prefiere, lo agregamos como colaborador a su usuario. Nunca se comparten contraseñas |
+| Modelos sin DagsHub | Los pesos de los 17 modelos ejecutables del catálogo (redes PPO exportadas a numpy y tablas Q) están en `web/api/_paquete/pesos/`, nombrados por el SHA-256 de su manifiesto |
+
+Todo lo entregado está en `main`. Las ramas `resumen-v6` (versión vieja del resumen) y `semilla2-control` (ya
+incorporada) no hacen falta para revisar.
+
 ## Lo que pide revisar en el repositorio
 
 | Pedido | Archivo |
 |---|---|
 | README: misión, arquitectura, instalación, ejecución y reproducción | [README.md](../../README.md) |
 | Ficha del ambiente y tres niveles | [docs/ambiente-v0.1.md](../ambiente-v0.1.md) (niveles al principio) |
-| Cuatro o más configuraciones con hipótesis, runs y estados | MLflow en DagsHub; resumen en [README.md](../../README.md#modelos) e [informe.md](informe.md#evolución-de-los-experimentos) |
+| Cuatro o más configuraciones con hipótesis, runs y estados | Cada manifiesto de [manifests/](../../manifests/) guarda `hipotesis`, `run_id` y `decision`, y [manifests/enlaces_mlflow.json](../../manifests/enlaces_mlflow.json) los liga a DagsHub; corridas completas en MLflow de DagsHub; resumen en [README.md](../../README.md#modelos) e [informe.md](informe.md#evolución-de-los-experimentos) |
 | Evaluaciones por caso | [metrics/evaluacion.json](../../metrics/evaluacion.json), [metrics/generalizacion.json](../../metrics/generalizacion.json) (21 casos), [metrics/semillas*.json](../../metrics/) |
-| Comparación de experimentos y finalistas | [informe.md](informe.md), [metrics/semillas-resumen.json](../../metrics/semillas-resumen.json), [experimentos/v6-pistas.md](../experimentos/v6-pistas.md) |
+| Comparación de experimentos y finalistas | [informe.md](informe.md), [metrics/semillas-resumen.json](../../metrics/semillas-resumen.json), [experimentos/v6-pistas.md](../experimentos/v6-pistas.md) (tres semillas de la v6 y tres del control) |
 | Modelos recuperables: manifiestos, normalización, hashes y dependencias | [manifests/](../../manifests/) (21 en [catalogo.json](../../manifests/catalogo.json)), `models/*.dvc`, [requirements.txt](../../requirements.txt) |
 | Instrucciones de evaluación y recuperación | [README.md, secciones Reproducir y Modelos](../../README.md#reproducir) |
 | Pipeline | [pipelines/flujo.py](../../pipelines/flujo.py) (Prefect) y [dvc.yaml](../../dvc.yaml); evidencia en [docs/evidencia/](../evidencia/) |
@@ -55,6 +67,8 @@ En la web: **Catálogo** → buscar el modelo → **Cargar** o **Evaluar**. Para
 
 - **Extremos combinados:** las pruebas cambian una condición a la vez. Con todos los deslizadores al extremo al mismo
   tiempo, el modelo falla.
+- **Los criterios de selección solo miden Mónaco:** el control semilla 2 los cumpliría y no termina el Puerto; la
+  generalización se juzgó aparte, con las pistas de práctica.
 - **La recomendada no tiene prueba en una pista que nunca vio:** la pista reservada (Sierra) se usó con la v6
   semilla 0.
 - **En la URL pública, PPO corre en numpy** (Vercel no admite PyTorch); se verificó contra PyTorch, con una

@@ -203,6 +203,7 @@ la v6 semilla 0 da 78.9 %, cerca del 79.2 % de Kevin en Linux).
 | v6, semilla 2 (14 nov) | GitHub Actions | paso 200 004 | **100 %** | ninguna por debajo de 100 % |
 | Control, semilla 0 | Mac | paso 400 008 | 98.0 % | sensores largos con lluvia, 62 % |
 | Control, semilla 1 | GitHub Actions | paso 0 | 94.7 % | sensores cortos con lluvia, 0 % |
+| Control, semilla 2 (14 nov) | GitHub Actions | paso 400 008 | 100 % | ninguna por debajo de 100 % |
 
 Lo que enseña:
 
@@ -280,7 +281,7 @@ registra el archivo incluyen horas en que el Mac estuvo suspendido por batería.
 
 ## Errores que aceptamos y límites
 
-- **Tres semillas de la v6 y dos del control.** La segunda y la tercera semilla confirmaron que la v6 es estable en
+- **Tres semillas de la v6 y tres del control.** La segunda y la tercera semilla confirmaron que la v6 es estable en
   las pistas de la fase A y que el control no lo es. Las dos semillas que se quedaron cerca de la red imitada (1 y 2)
   dan 100 % en extremos y la que afinó hasta el final (0) no; con tres semillas eso es consistente con la hipótesis,
   pero no la separa del azar. Las semillas 1 y 2 se entrenaron en Linux (GitHub Actions) y la semilla 0 en el Mac.
@@ -321,3 +322,34 @@ semillas pasan.**
 Versionado: pesos en `models/semillas-v6.dvc` (en DagsHub; SHA-256 del zip `1ee7b051…`, igual al que reportó
 Actions), corrida copiada a MLflow de DagsHub (`c1976722…`, con `origen_run_id` `a08f9476…`), etiqueta de git
 `modelo-v6-pistas-s2`, manifiesto `manifests/ppo-modelo-v6-pistas-s2.json` y fila en el catálogo de la web.
+
+## Tercera semilla del control (14 de noviembre)
+
+Para que los dos lados del contraste tengan tres semillas, entrenamos el control (solo Mónaco) con la **semilla 2** en
+GitHub Actions (`.github/workflows/semilla2-control.yml`, run 43626496321; 46 minutos de entrenamiento, 3 793
+episodios), con la misma configuración y el mismo protocolo que la v6 semilla 2: fase A sin la Sierra
+(`metrics/semillas-control-s2.json`) y las 21 pruebas extremas (`metrics/generalizacion-control-s2.json`). La red
+exportada a numpy difiere de PyTorch en 7.2e-7 como máximo.
+
+| Pista (100 semillas) | Seco | Lluvia |
+|---|---|---|
+| Mónaco | 100 %, 78.6 s | 100 %, 104.1 s |
+| Bosque | **26 %**, 68.1 s | **0 %** |
+| Puerto | **0 %** | **0 %** |
+| Puerto r9.5 | **0 %** | **0 %** |
+
+Extremos: 100 % en las 19 pruebas calificadas. Mejor punto: paso 400 008, igual que el control semilla 0.
+
+Lo que enseña:
+
+1. **El contraste queda con tres semillas por lado y el resultado se mantiene.** Las tres semillas de la v6 completan
+   las pistas de práctica en seco y con lluvia; ninguna de las tres del control lo logra (semilla 0: 30 % del Bosque
+   con lluvia; semilla 1: 0 % en el Bosque; semilla 2: 0 % en el Puerto).
+2. **Los criterios de selección no detectan la memorización.** Con `seleccion.decidir` y las mediciones de Mónaco,
+   el control semilla 2 cumpliría los 7 criterios de `configs/seleccion.yaml` (100 % / 100 %, 78.6 s, 100 % en
+   extremos). No se anotó en `manifests/decisiones.json` porque el control no es candidato a promoverse. Una
+   próxima versión de los criterios debería incluir las pistas de práctica.
+
+Versionado: resultados en `metrics/` y `docs/experimentos/semillas-v6/control-s2-*.json`. Los pesos y la corrida de
+MLflow quedaron en el artefacto `control-s2` del run de Actions (se conserva 90 días); no se subieron a DVC ni a
+MLflow de DagsHub porque el control no entra al catálogo.

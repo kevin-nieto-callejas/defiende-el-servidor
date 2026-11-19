@@ -4,6 +4,8 @@ Proyecto final de MLOps, Universidad Externado de Colombia (2026-II). Un agente 
 completa un circuito inspirado en Mónaco pasando los checkpoints en orden, con seco, lluvia y perturbaciones.
 Todo experimento se puede consultar, reproducir y restaurar.
 
+**Por qué importa.** Un vehículo autónomo tiene que funcionar en condiciones que no controla: lluvia, un carro distinto, sensores con ruido o una vía que no conoce. Probar eso en la calle es caro y peligroso; en simulación el agente puede fallar miles de veces sin costo. El valor está en dos piezas: un agente que aguanta esas condiciones y un ciclo que demuestra qué modelo está en servicio, cómo se entrenó y cómo volver al anterior, que es lo que pediría un auditor antes de dejarlo operar.
+
 **¿Revisas la entrega?** La [guía para el revisor](docs/entregas/README.md) dice dónde está cada cosa que piden el
 enunciado y la guía de entrega final, con el modelo recomendado y uno histórico listos para comparar.
 
@@ -21,6 +23,7 @@ vamos y qué falta. Para instalar y colaborar, usa la [guía para empezar](docs/
 | Criterios de selección | [configs/seleccion.yaml](configs/seleccion.yaml) |
 | Informe y presentación | [docs/entregas/](docs/entregas/) |
 | Licencias de los recursos | [docs/LICENCIAS.md](docs/LICENCIAS.md) |
+| Versión entregada | Tag `entrega-final` y su release en GitHub |
 
 ## Moto MotoGP
 
@@ -178,7 +181,8 @@ DVC. Los detalles, las pruebas de extremos y los límites están en la ficha.
 
 **Generalización a otras pistas** (`src/rally/track.py`): además de Mónaco hay tres circuitos, Bosque, Puerto y
 Sierra; la Sierra está reservada y ningún modelo entrena en ella. La v5-s1 da 0 % en el Puerto y en la Sierra:
-memorizó Mónaco. La v6, entrenada en tres pistas, completa todas. Experimento, control, regla de elección y
+memorizó Mónaco. La v6, entrenada en tres pistas, completa todas. Con tres semillas por lado, las tres de la v6
+completan Mónaco, Bosque y Puerto y ninguna de las tres del control (solo Mónaco) lo logra. Experimento, control, regla de elección y
 límites en [docs/experimentos/v6-pistas.md](docs/experimentos/v6-pistas.md).
 
 **Test reservado** (`rally test-final`, una sola corrida, semillas fuera del repositorio):

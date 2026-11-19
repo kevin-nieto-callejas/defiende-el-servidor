@@ -400,8 +400,9 @@ Recompensa = 0.1·2.002 + 10 (CP1) − 0.05 = **+10.150**.
 3. **Pesos de r_suave:** son tentativos; si el agente se vuelve tímido hay que bajarlos.
 4. **¿El sensor de agarre es "trampa"?** El agente no ve μ, pero sí una medición que en un carro real
    da el control de tracción.
-5. **Más vueltas o pistas aleatorias** para evitar que el agente memorice el circuito: sigue pendiente y
-   es el límite principal de los resultados.
+5. **Más vueltas o pistas aleatorias** para evitar que el agente memorice el circuito: **resuelta en la v6**,
+   que practica en Mónaco, Bosque y Puerto y se probó en la Sierra, reservada ([experimentos/v6-pistas.md](experimentos/v6-pistas.md)).
+   Sigue el límite de que las cuatro pistas son de la misma familia (rectas y arcos de radio constante).
 6. **¿La velocidad segura es demasiada ayuda?** Es información del mapa, como las notas del copiloto, pero
    ya viene procesada. Hay que comparar qué tanto depende el agente de ella.
 

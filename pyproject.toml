@@ -13,6 +13,9 @@ dependencies = ["gymnasium>=1.0", "numpy>=1.26", "rich>=13", "scipy>=1.11"]
 dev = ["pytest>=8"]
 ml = ["torch>=2.2", "stable-baselines3>=2.3", "mlflow>=3.0", "dvc>=3.50", "pyyaml>=6", "huggingface_hub>=0.30"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

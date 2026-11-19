@@ -1,0 +1,26 @@
+{
+  "algoritmo": "PPO + DAgger",
+  "pasos": 3000000,
+  "episodios": 3793,
+  "imitacion_perdida_final": 0.013971349224448204,
+  "mejor_paso": 400008,
+  "mejor_eval_rapida": {
+    "seco_vueltas_pct": 100.0,
+    "seco_progreso_pct": 100.0,
+    "seco_tiempo_s": 78.64,
+    "mojado_vueltas_pct": 100.0,
+    "mojado_progreso_pct": 100.0,
+    "mojado_tiempo_s": 104.06,
+    "robusto_vueltas_pct": 100.0
+  },
+  "observacion": 24,
+  "reanudado_desde_paso": null,
+  "mlflow_run_id": "44929d0f23f647698eb321e1bdb1a3c8",
+  "ambiente_version": "0.4-monaco-configurable",
+  "ambiente_huella": "11f0dcd8a1cb",
+  "pistas_entrenamiento": [
+    "monaco"
+  ],
+  "semilla": 2,
+  "segundos": 2752.9
+}

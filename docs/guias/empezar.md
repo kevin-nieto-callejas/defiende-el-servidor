@@ -90,7 +90,8 @@ Kevin, y volver a usarlo para ajustar modelos le quita su valor.
 ## 6. Publicar la web
 
 La web en Vercel está conectada al fork `kevin-nieto-callejas/defiende-el-servidor`, porque Vercel no tiene acceso
-al repositorio de Miguel. Publicarla requiere subir la versión a ese fork y desplegar desde Vercel:
+al repositorio de Miguel. Publicarla requiere subir la versión a ese fork: un push a su `main` despliega en
+producción (`git push <fork> main:main`) y la rama `ambiente-v0.4` sirve para vistas previas. Configuración del proyecto:
 
 - Root Directory: `web`
 - Build: `npm run build`
